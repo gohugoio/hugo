@@ -357,6 +357,10 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 		ignoredLogIDs[err] = true
 	}
 
+	if c.BaseURL == "" {
+		c.BaseURL = "https://example.org/"
+	}
+
 	baseURL, err := urls.NewBaseURLFromString(c.BaseURL)
 	if err != nil {
 		return err
@@ -594,7 +598,7 @@ func (c *ConfigCompiled) SetServerInfo(baseURL, baseURLLiveReload urls.BaseURL, 
 // RootConfig holds all the top-level configuration options in Hugo
 type RootConfig struct {
 	// The base URL of the site.
-	// Note that the default value is empty, but Hugo requires a valid URL (e.g. "https://example.com/") to work properly.
+	// It defaults to https://example.org/
 	// <docsmeta>{"identifiers": ["URL"] }</docsmeta>
 	BaseURL string
 

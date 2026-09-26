@@ -47,7 +47,8 @@ disqus_url = 'https://example.com/my-page/'
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		`s.src = '//' + "foo" + '.disqus.com/embed.js';`,
 		`this.page.identifier = 'my-identifier';`,
 		`this.page.title = 'My Title';`,
@@ -88,7 +89,8 @@ title: Home
 	// Default respectDoNotTrack value
 	f := strings.ReplaceAll(files, "DNT", "")
 	b := hugolib.Test(t, f)
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		`<script async src="https://www.googletagmanager.com/gtag/js?id=G-0123456789"></script>`,
 		`if ( true )`,
 	)
@@ -96,7 +98,8 @@ title: Home
 	// respectDoNotTrack = true
 	f = strings.ReplaceAll(files, "DNT", "respectDoNotTrack = true")
 	b = hugolib.Test(t, f)
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		`<script async src="https://www.googletagmanager.com/gtag/js?id=G-0123456789"></script>`,
 		`if ( true )`,
 	)
@@ -104,7 +107,8 @@ title: Home
 	// respectDoNotTrack = false
 	f = strings.ReplaceAll(files, "DNT", "respectDoNotTrack = false")
 	b = hugolib.Test(t, f)
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		`<script async src="https://www.googletagmanager.com/gtag/js?id=G-0123456789"></script>`,
 		`if ( false )`,
 	)
@@ -133,6 +137,7 @@ func TestOpengraphTemplate(t *testing.T) {
 
 	files := `
 -- hugo.toml --
+baseURL = "/"
 title = 'My Site'
 capitalizeListTitles = false
 disableKinds = ['section','rss','sitemap','taxonomy']
@@ -210,7 +215,8 @@ title: p0
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/s1/p1/index.html", `
+	b.AssertFileContent(
+		"public/s1/p1/index.html", `
 		<meta property="og:url" content="/s1/p1/">
 		<meta property="og:site_name" content="My Site">
 		<meta property="og:title" content="p1">
@@ -237,38 +243,45 @@ title: p0
 	)
 
 	// Description from content excerpt
-	b.AssertFileContent("public/s1/p2/index.html",
+	b.AssertFileContent(
+		"public/s1/p2/index.html",
 		`<meta property="og:description" content="d e and f can’t.">`,
 	)
 
 	// Description from front matter summary
-	b.AssertFileContent("public/s1/p3/index.html",
+	b.AssertFileContent(
+		"public/s1/p3/index.html",
 		`<meta property="og:description" content="g h and i can’t.">`,
 	)
 
 	// The markdown is intentionally not rendered to HTML.
-	b.AssertFileContent("public/s1/p4/index.html",
+	b.AssertFileContent(
+		"public/s1/p4/index.html",
 		`<meta property="og:description" content="j k and **l** can&#39;t.">`,
 	)
 
 	// The markdown is intentionally not rendered to HTML.
-	b.AssertFileContent("public/s1/p5/index.html",
+	b.AssertFileContent(
+		"public/s1/p5/index.html",
 		`<meta property="og:description" content="m n and **o** can&#39;t.">`,
 	)
 
 	// og:locale from page front matter
-	b.AssertFileContent("public/s1/p6/index.html",
+	b.AssertFileContent(
+		"public/s1/p6/index.html",
 		`<meta property="og:locale" content="fr_FR">`,
 	)
 
 	// No article:section for root-level page
-	b.AssertFileContent("public/p0/index.html",
+	b.AssertFileContent(
+		"public/p0/index.html",
 		`<meta property="og:type" content="article">`,
 		`! article:section`,
 	)
 
 	// Term page
-	b.AssertFileContent("public/series/series-1/index.html",
+	b.AssertFileContent(
+		"public/series/series-1/index.html",
 		`<meta property="og:url" content="/series/series-1/">`,
 		`<meta property="og:title" content="series-1">`,
 		`<meta property="og:type" content="website">`,
@@ -280,13 +293,15 @@ title: p0
 	// facebook_app_id takes precedence over facebook_admin
 	f := strings.ReplaceAll(files, "facebook_admin = 'foo'", "facebook_app_id = 'bar'")
 	b = hugolib.Test(t, f)
-	b.AssertFileContent("public/s1/p1/index.html",
+	b.AssertFileContent(
+		"public/s1/p1/index.html",
 		`<meta property="fb:app_id" content="bar">`,
 		`! fb:admins`,
 	)
 
 	// Issue 14433
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		`<meta property="og:title" content="Home">`,
 		`<meta property="og:locale" content="en_US">`,
 		`<meta property="og:type" content="website">`,
@@ -365,7 +380,8 @@ title: p10
 	// Default format, last page: active First and Prev, disabled Next and Last
 	f := strings.ReplaceAll(files, "PARTIAL", `{{ partial "pagination.html" . }}`)
 	b := hugolib.Test(t, f)
-	b.AssertFileContent("public/page/10/index.html",
+	b.AssertFileContent(
+		"public/page/10/index.html",
 		`<a href="/" aria-label="First" class="page-link" role="button">`,
 		`<a href="/page/9/" aria-label="Previous" class="page-link" role="button">`,
 		`aria-disabled="true" aria-label="Next"`,
@@ -375,7 +391,8 @@ title: p10
 	// Terse format, last page: First and Prev shown, Next and Last hidden
 	f = strings.ReplaceAll(files, "PARTIAL", `{{ partial "pagination.html" (dict "page" . "format" "terse") }}`)
 	b = hugolib.Test(t, f)
-	b.AssertFileContent("public/page/10/index.html",
+	b.AssertFileContent(
+		"public/page/10/index.html",
 		`<a href="/" aria-label="First" class="page-link" role="button">`,
 		`<a href="/page/9/" aria-label="Previous" class="page-link" role="button">`,
 		`! aria-label="Next"`,
@@ -412,6 +429,7 @@ func TestSchemaTemplate(t *testing.T) {
 
 	files := `
 -- hugo.toml --
+baseURL = "/"
 capitalizeListTitles = false
 disableKinds = ['rss','sitemap']
 [markup.goldmark.renderer]
@@ -462,7 +480,8 @@ keywords: [k1,k2]
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/s1/p1/index.html", `
+	b.AssertFileContent(
+		"public/s1/p1/index.html", `
 		<meta itemprop="name" content="p1">
 		<meta itemprop="description" content="a b and c can’t.">
 		<meta itemprop="datePublished" content="2024-04-24T08:00:00-07:00">
@@ -475,27 +494,32 @@ keywords: [k1,k2]
 	)
 
 	// Description from content excerpt
-	b.AssertFileContent("public/s1/p2/index.html",
+	b.AssertFileContent(
+		"public/s1/p2/index.html",
 		`<meta itemprop="description" content="d e and f can’t.">`,
 	)
 
 	// Description from front matter summary
-	b.AssertFileContent("public/s1/p3/index.html",
+	b.AssertFileContent(
+		"public/s1/p3/index.html",
 		`<meta itemprop="description" content="g h and i can’t.">`,
 	)
 
 	// The markdown is intentionally not rendered to HTML.
-	b.AssertFileContent("public/s1/p4/index.html",
+	b.AssertFileContent(
+		"public/s1/p4/index.html",
 		`<meta itemprop="description" content="j k and **l** can&#39;t.">`,
 	)
 
 	// The markdown is intentionally not rendered to HTML.
-	b.AssertFileContent("public/s1/p5/index.html",
+	b.AssertFileContent(
+		"public/s1/p5/index.html",
 		`<meta itemprop="description" content="m n and **o** can&#39;t.">`,
 	)
 
 	// Front matter keywords
-	b.AssertFileContent("public/s1/p6/index.html",
+	b.AssertFileContent(
+		"public/s1/p6/index.html",
 		`<meta itemprop="keywords" content="k1,k2">`,
 	)
 
@@ -586,9 +610,10 @@ title: ''
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/s1/p1/index.html", `
+	b.AssertFileContent(
+		"public/s1/p1/index.html", `
 		<meta name="twitter:card" content="summary_large_image">
-		<meta name="twitter:image" content="/a.jpg">
+		<meta name="twitter:image" content="https://example.org/a.jpg">
 		<meta name="twitter:title" content="p1">
 		<meta name="twitter:description" content="a b and c can’t.">
 		<meta name="twitter:site" content="@foo">
@@ -596,23 +621,27 @@ title: ''
 	)
 
 	// Description from content excerpt
-	b.AssertFileContent("public/s1/p2/index.html",
+	b.AssertFileContent(
+		"public/s1/p2/index.html",
 		`<meta name="twitter:card" content="summary">`,
 		`<meta name="twitter:description" content="d e and f can’t.">`,
 	)
 
 	// Description from front matter summary
-	b.AssertFileContent("public/s1/p3/index.html",
+	b.AssertFileContent(
+		"public/s1/p3/index.html",
 		`<meta name="twitter:description" content="g h and i can’t.">`,
 	)
 
 	// The markdown is intentionally not rendered to HTML.
-	b.AssertFileContent("public/s1/p4/index.html",
+	b.AssertFileContent(
+		"public/s1/p4/index.html",
 		`<meta name="twitter:description" content="j k and **l** can&#39;t.">`,
 	)
 
 	// The markdown is intentionally not rendered to HTML.
-	b.AssertFileContent("public/s1/p5/index.html",
+	b.AssertFileContent(
+		"public/s1/p5/index.html",
 		`<meta name="twitter:description" content="m n and **o** can&#39;t.">`,
 	)
 

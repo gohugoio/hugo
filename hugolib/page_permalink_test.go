@@ -34,17 +34,17 @@ func TestPermalink(t *testing.T) {
 		expectedAbs  string
 		expectedRel  string
 	}{
-		{"x/y/z/boofar.md", "", "", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
-		{"x/y/z/boofar.md", "", "", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "/", "", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "/", "", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
 		// Issue #1174
 		{"x/y/z/boofar.md", "http://gopher.com/", "", "", false, true, "http://gopher.com/x/y/z/boofar/", "/x/y/z/boofar/"},
 		{"x/y/z/boofar.md", "http://gopher.com/", "", "", true, true, "http://gopher.com/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "", "boofar", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "/", "boofar", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
 		{"x/y/z/boofar.md", "http://barnew/", "", "", false, false, "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
 		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", false, false, "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
-		{"x/y/z/boofar.md", "", "", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "", "", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "", "boofar", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "/", "", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "/", "", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "/", "boofar", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "http://barnew/", "", "", true, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", true, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", true, false, "http://barnew/boo/x/y/z/booslug.html", "/boo/x/y/z/booslug.html"},
@@ -56,9 +56,9 @@ func TestPermalink(t *testing.T) {
 		{"x/y/z/boo-makeindex.md", "http://barnew/boo", "", "", true, true, "http://barnew/boo/x/y/z/boo-makeindex.html", "/x/y/z/boo-makeindex.html"},
 
 		// test URL overrides
-		{"x/y/z/boofar.md", "", "", "/z/y/q/", false, false, "/z/y/q/", "/z/y/q/"},
+		{"x/y/z/boofar.md", "/", "", "/z/y/q/", false, false, "/z/y/q/", "/z/y/q/"},
 		// test URL override with expands
-		{"x/y/z/boofar.md", "", "test", "/z/:slug/", false, false, "/z/test/", "/z/test/"},
+		{"x/y/z/boofar.md", "/", "test", "/z/:slug/", false, false, "/z/test/", "/z/test/"},
 	}
 
 	for i, test := range tests {
