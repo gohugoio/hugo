@@ -42,8 +42,10 @@ type TargetPathDescriptor struct {
 	Type output.Format
 	Kind string
 
-	Path    *paths.Path
-	Section *paths.Path
+	Path *paths.Path
+
+	// The directory part of the target path with any section slugs applied.
+	Dir string
 
 	// For regular content pages this is either
 	// 1) the Slug, if set,
@@ -162,11 +164,11 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 
 	if d.Type == output.HTTPStatus404HTMLFormat || d.Type == output.SitemapFormat || d.Type == output.RobotsTxtFormat {
 		pb.noSubResources = true
-	} else if d.Kind != kinds.KindPage && d.URL == "" && d.Section.Base() != "/" {
+	} else if d.Kind != kinds.KindPage && d.URL == "" {
 		if d.ExpandedPermalink != "" {
 			pb.Add(d.ExpandedPermalink)
 		} else {
-			pb.Add(d.Section.Base())
+			pb.Add(d.Dir)
 		}
 		needsBase = false
 	}
@@ -206,9 +208,7 @@ func CreateTargetPaths(d TargetPathDescriptor) (tp TargetPaths) {
 		if d.ExpandedPermalink != "" {
 			pb.Add(d.ExpandedPermalink)
 		} else {
-			if dir := d.Path.ContainerDir(); dir != "" {
-				pb.Add(dir)
-			}
+			pb.Add(d.Dir)
 			if d.BaseName != "" {
 				pb.Add(d.BaseName)
 			} else {

@@ -97,6 +97,52 @@ func newPagePaths(ps *pageState) (pagePaths, error) {
 	}, nil
 }
 
+// targetPathDir returns the directory part of p's target path, with any
+// slug set in the section, taxonomy or term pages above it applied.
+func targetPathDir(p *pageState) string {
+	unnormalized := p.s.Conf.DisablePathToLower()
+	pi := p.PathInfo()
+	if unnormalized {
+		pi = pi.Unnormalized()
+	}
+
+	var sb strings.Builder
+	sb.Grow(len(pi.Base()))
+
+	if p.IsBranch() {
+		writeBranchDir(&sb, p, unnormalized)
+	} else {
+		section := p.CurrentSection()
+		writeBranchDir(&sb, section, unnormalized)
+		sb.WriteString(strings.TrimPrefix(pi.ContainerDir(), pathBase(section, unnormalized)))
+	}
+
+	return sb.String()
+}
+
+func writeBranchDir(sb *strings.Builder, p page.Page, unnormalized bool) {
+	if p.IsHome() {
+		return
+	}
+	parent := p.Parent()
+	writeBranchDir(sb, parent, unnormalized)
+	rel := strings.TrimPrefix(pathBase(p, unnormalized), pathBase(parent, unnormalized))
+	if slug := p.Slug(); slug != "" {
+		sb.WriteString(rel[:strings.LastIndexByte(rel, '/')+1])
+		sb.WriteString(slug)
+		return
+	}
+	sb.WriteString(rel)
+}
+
+func pathBase(p page.Page, unnormalized bool) string {
+	pi := p.PathInfo()
+	if unnormalized {
+		pi = pi.Unnormalized()
+	}
+	return pi.Base()
+}
+
 type pagePaths struct {
 	outputFormats     page.OutputFormats
 	firstOutputFormat page.OutputFormat
@@ -115,18 +161,15 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 	pm := p.m
 	alwaysInSubDir := p.Kind() == kinds.KindSitemap
 	pageInfoPage := p.PathInfo()
-
-	pageInfoCurrentSection := p.CurrentSection().PathInfo()
 	if p.s.Conf.DisablePathToLower() {
 		pageInfoPage = pageInfoPage.Unnormalized()
-		pageInfoCurrentSection = pageInfoCurrentSection.Unnormalized()
 	}
 
 	desc := page.TargetPathDescriptor{
 		PathSpec:    d.PathSpec,
 		Kind:        p.Kind(),
 		Path:        pageInfoPage,
-		Section:     pageInfoCurrentSection,
+		Dir:         targetPathDir(p),
 		UglyURLs:    s.h.Conf.IsUglyURLs(p.Section()),
 		ForcePrefix: s.h.Conf.IsMultihost() || alwaysInSubDir,
 		URL:         pm.pageConfig.URL,
@@ -201,7 +244,7 @@ func createTargetPathDescriptor(p *pageState) (page.TargetPathDescriptor, error)
 		if p.File() != nil {
 			s.Log.Debugf("Set expanded permalink path for %s %s to %#v", p.Kind(), p.File().Path(), opath)
 		} else {
-			s.Log.Debugf("Set expanded permalink path for %s in %v to %#v", p.Kind(), desc.Section.Path(), opath)
+			s.Log.Debugf("Set expanded permalink path for %s %s to %#v", p.Kind(), p.Path(), opath)
 		}
 	}
 
