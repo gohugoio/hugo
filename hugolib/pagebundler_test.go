@@ -157,6 +157,26 @@ Resources: {{ range .Resources }}RelPermalink: {{ .RelPermalink }}|Content: {{ .
 	b.AssertFileContent("public/cpath/section/mybundle/index.html", "Basic: My Bundle|page|leaf|/section/mybundle/|\nResources: RelPermalink: |Content: <p>P1.</p>\nHello CPATH.\n|RelPermalink: /section/mybundle/hello.txt|Content: Hello.||")
 }
 
+func TestPageBundleResourceWithMalformedPercentPath(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+-- content/about/index.md --
+---
+title: About
+---
+About page.
+-- content/about/index.md% --
+File with a literal percent sign.
+-- layouts/single.html --
+{{ range .Resources }}{{ .RelPermalink }}{{ end }}
+`
+	b := Test(t, files)
+	b.AssertFileContent("public/about/index.html", "/about/index.md%25")
+}
+
 func TestPageBundlerMultilingualTextResource(t *testing.T) {
 	t.Parallel()
 
