@@ -104,6 +104,24 @@ func TestAppendSliceToASliceOfSlices(t *testing.T) {
 	b.AssertFileContent("public/index.html", "[[a] [b] [c]]")
 }
 
+// See issue 11131.
+func TestAppendEmptySlicePreservesType(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+{{ $names := slice "Hugo" }}
+{{ $names = $names | append slice }}
+Type: {{ printf "%T" $names }}
+{{ $names = $names | append (slice "Go" "HTML") }}
+Names: {{ $names | jsonify }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "Type: []string", `Names: ["Hugo","Go","HTML"]`)
+}
+
 func TestAppendNilToSlice(t *testing.T) {
 	t.Parallel()
 
