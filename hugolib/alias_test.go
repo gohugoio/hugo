@@ -36,8 +36,8 @@ func TestAlias(t *testing.T) {
 		{"/index.html", "http://example.com", "/", map[string]any{"baseURL": "http://example.com"}},
 		{"/index.html", "http://example.com/some/path", "/", map[string]any{"baseURL": "http://example.com/some/path"}},
 		{"/index.html", "http://example.com", "/", map[string]any{"baseURL": "http://example.com", "canonifyURLs": true}},
-		{"/index.html", "../..", "/", map[string]any{"relativeURLs": true}},
-		{".html", "", ".html", map[string]any{"uglyURLs": true}},
+		{"/index.html", "../..", "/", map[string]any{"relativeURLs": true, "baseURL": "/"}},
+		{".html", "", ".html", map[string]any{"uglyURLs": true, "baseURL": "/"}},
 	}
 
 	for _, test := range tests {
@@ -273,22 +273,26 @@ aliases: [/p2-alias]
 	b := Test(t, f)
 
 	// output format: html
-	b.AssertFileContent("public/foo/s1-alias/index.html",
+	b.AssertFileContent(
+		"public/foo/s1-alias/index.html",
 		`<title>https://example.org/foo/s1/</title>`,
 		`<link rel="canonical" href="https://example.org/foo/s1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s1/">`,
 	)
-	b.AssertFileContent("public/foo/s1/p1-alias/index.html",
+	b.AssertFileContent(
+		"public/foo/s1/p1-alias/index.html",
 		`<title>https://example.org/foo/s1/p1/</title>`,
 		`<link rel="canonical" href="https://example.org/foo/s1/p1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s1/p1/">`,
 	)
-	b.AssertFileContent("public/s2-alias/index.html",
+	b.AssertFileContent(
+		"public/s2-alias/index.html",
 		`<title>https://example.org/foo/s2/</title>`,
 		`<link rel="canonical" href="https://example.org/foo/s2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s2/">`,
 	)
-	b.AssertFileContent("public/p2-alias/index.html",
+	b.AssertFileContent(
+		"public/p2-alias/index.html",
 		`<title>https://example.org/foo/s2/p2/</title>`,
 		`<link rel="canonical" href="https://example.org/foo/s2/p2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s2/p2/">`,
@@ -347,44 +351,52 @@ aliases: [/p2-alias]
 	b = Test(t, f)
 
 	// output format: html
-	b.AssertFileContent("public/foo/s1-alias/index.html",
+	b.AssertFileContent(
+		"public/foo/s1-alias/index.html",
 		`<title>https://example.org/foo/s1/</title>`,
 		`<link rel="canonical" href="https://example.org/foo/s1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s1/">`,
 	)
-	b.AssertFileContent("public/foo/s1/p1-alias/index.html",
+	b.AssertFileContent(
+		"public/foo/s1/p1-alias/index.html",
 		`<title>https://example.org/foo/s1/p1/</title>`,
 		`<link rel="canonical" href="https://example.org/foo/s1/p1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s1/p1/">`,
 	)
-	b.AssertFileContent("public/s2-alias/index.html",
+	b.AssertFileContent(
+		"public/s2-alias/index.html",
 		`<title>https://example.org/foo/s2/</title>`,
 		`<link rel="canonical" href="https://example.org/foo/s2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s2/">`,
 	)
-	b.AssertFileContent("public/p2-alias/index.html",
+	b.AssertFileContent(
+		"public/p2-alias/index.html",
 		`<title>https://example.org/foo/s2/p2/</title>`,
 		`<link rel="canonical" href="https://example.org/foo/s2/p2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/foo/s2/p2/">`,
 	)
 
 	// output format: print
-	b.AssertFileContent("public/print/foo/s1-alias/index.html",
+	b.AssertFileContent(
+		"public/print/foo/s1-alias/index.html",
 		`<title>https://example.org/print/foo/s1/</title>`,
 		`<link rel="canonical" href="https://example.org/foo/s1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/print/foo/s1/">`,
 	)
-	b.AssertFileContent("public/print/foo/s1/p1-alias/index.html",
+	b.AssertFileContent(
+		"public/print/foo/s1/p1-alias/index.html",
 		`<title>https://example.org/print/foo/s1/p1/</title>`,
 		`<link rel="canonical" href="https://example.org/foo/s1/p1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/print/foo/s1/p1/">`,
 	)
-	b.AssertFileContent("public/print/s2-alias/index.html",
+	b.AssertFileContent(
+		"public/print/s2-alias/index.html",
 		`<title>https://example.org/print/foo/s2/</title>`,
 		`<link rel="canonical" href="https://example.org/foo/s2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/print/foo/s2/">`,
 	)
-	b.AssertFileContent("public/print/p2-alias/index.html",
+	b.AssertFileContent(
+		"public/print/p2-alias/index.html",
 		`<title>https://example.org/print/foo/s2/p2/</title>`,
 		`<link rel="canonical" href="https://example.org/foo/s2/p2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/print/foo/s2/p2/">`,
@@ -473,88 +485,104 @@ aliases: [/p2-alias]
 	b := Test(t, files)
 
 	// language: de, output format: html
-	b.AssertFileContent("public/guest/v1.0.0/de/foo/s1-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/de/foo/s1-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/de/foo/s1/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/de/foo/s1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/de/foo/s1/">`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/de/foo/s1/p1-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/de/foo/s1/p1-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/de/foo/s1/p1/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/de/foo/s1/p1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/de/foo/s1/p1/">`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/de/s2-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/de/s2-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/de/foo/s2/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/de/foo/s2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/de/foo/s2/">`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/de/p2-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/de/p2-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/de/foo/s2/p2/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/de/foo/s2/p2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/de/foo/s2/p2/">`,
 	)
 
 	// language: de, output format: print
-	b.AssertFileContent("public/guest/v1.0.0/de/print/foo/s1-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/de/print/foo/s1-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/de/print/foo/s1/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/de/foo/s1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/de/print/foo/s1/">`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/de/print/foo/s1/p1-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/de/print/foo/s1/p1-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/de/print/foo/s1/p1/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/de/foo/s1/p1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/de/print/foo/s1/p1/">`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/de/print/s2-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/de/print/s2-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/de/print/foo/s2/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/de/foo/s2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/de/print/foo/s2/">`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/de/print/p2-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/de/print/p2-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/de/print/foo/s2/p2/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/de/foo/s2/p2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/de/print/foo/s2/p2/">`,
 	)
 
 	// language: en, output format: html
-	b.AssertFileContent("public/guest/v1.0.0/en/foo/s1-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/en/foo/s1-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/en/foo/s1/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/en/foo/s1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/en/foo/s1/">`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/en/foo/s1/p1-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/en/foo/s1/p1-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/en/foo/s1/p1/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/en/foo/s1/p1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/en/foo/s1/p1/">`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/en/s2-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/en/s2-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/en/foo/s2/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/en/foo/s2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/en/foo/s2/">`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/en/p2-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/en/p2-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/en/foo/s2/p2/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/en/foo/s2/p2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/en/foo/s2/p2/">`,
 	)
 
 	// language: en, output format: print
-	b.AssertFileContent("public/guest/v1.0.0/en/print/foo/s1-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/en/print/foo/s1-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/en/print/foo/s1/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/en/foo/s1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/en/print/foo/s1/">`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/en/print/foo/s1/p1-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/en/print/foo/s1/p1-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/en/print/foo/s1/p1/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/en/foo/s1/p1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/en/print/foo/s1/p1/">`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/en/print/s2-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/en/print/s2-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/en/print/foo/s2/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/en/foo/s2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/en/print/foo/s2/">`,
 	)
-	b.AssertFileContent("public/guest/v1.0.0/en/print/p2-alias/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/en/print/p2-alias/index.html",
 		`<title>https://example.org/guest/v1.0.0/en/print/foo/s2/p2/</title>`,
 		`<link rel="canonical" href="https://example.org/guest/v1.0.0/en/foo/s2/p2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://example.org/guest/v1.0.0/en/print/foo/s2/p2/">`,
@@ -568,88 +596,104 @@ aliases: [/p2-alias]
 	b = Test(t, files)
 
 	// language: de, output format: html
-	b.AssertFileContent("public/de/guest/v1.0.0/foo/s1-alias/index.html",
+	b.AssertFileContent(
+		"public/de/guest/v1.0.0/foo/s1-alias/index.html",
 		`<title>https://de.example.org/guest/v1.0.0/foo/s1/</title>`,
 		`<link rel="canonical" href="https://de.example.org/guest/v1.0.0/foo/s1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://de.example.org/guest/v1.0.0/foo/s1/">`,
 	)
-	b.AssertFileContent("public/de/guest/v1.0.0/foo/s1/p1-alias/index.html",
+	b.AssertFileContent(
+		"public/de/guest/v1.0.0/foo/s1/p1-alias/index.html",
 		`<title>https://de.example.org/guest/v1.0.0/foo/s1/p1/</title>`,
 		`<link rel="canonical" href="https://de.example.org/guest/v1.0.0/foo/s1/p1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://de.example.org/guest/v1.0.0/foo/s1/p1/">`,
 	)
-	b.AssertFileContent("public/de/guest/v1.0.0/s2-alias/index.html",
+	b.AssertFileContent(
+		"public/de/guest/v1.0.0/s2-alias/index.html",
 		`<title>https://de.example.org/guest/v1.0.0/foo/s2/</title>`,
 		`<link rel="canonical" href="https://de.example.org/guest/v1.0.0/foo/s2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://de.example.org/guest/v1.0.0/foo/s2/">`,
 	)
-	b.AssertFileContent("public/de/guest/v1.0.0/p2-alias/index.html",
+	b.AssertFileContent(
+		"public/de/guest/v1.0.0/p2-alias/index.html",
 		`<title>https://de.example.org/guest/v1.0.0/foo/s2/p2/</title>`,
 		`<link rel="canonical" href="https://de.example.org/guest/v1.0.0/foo/s2/p2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://de.example.org/guest/v1.0.0/foo/s2/p2/">`,
 	)
 
 	// language: de, output format: print
-	b.AssertFileContent("public/de/guest/v1.0.0/print/foo/s1-alias/index.html",
+	b.AssertFileContent(
+		"public/de/guest/v1.0.0/print/foo/s1-alias/index.html",
 		`<title>https://de.example.org/guest/v1.0.0/print/foo/s1/</title>`,
 		`<link rel="canonical" href="https://de.example.org/guest/v1.0.0/foo/s1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://de.example.org/guest/v1.0.0/print/foo/s1/">`,
 	)
-	b.AssertFileContent("public/de/guest/v1.0.0/print/foo/s1/p1-alias/index.html",
+	b.AssertFileContent(
+		"public/de/guest/v1.0.0/print/foo/s1/p1-alias/index.html",
 		`<title>https://de.example.org/guest/v1.0.0/print/foo/s1/p1/</title>`,
 		`<link rel="canonical" href="https://de.example.org/guest/v1.0.0/foo/s1/p1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://de.example.org/guest/v1.0.0/print/foo/s1/p1/">`,
 	)
-	b.AssertFileContent("public/de/guest/v1.0.0/print/s2-alias/index.html",
+	b.AssertFileContent(
+		"public/de/guest/v1.0.0/print/s2-alias/index.html",
 		`<title>https://de.example.org/guest/v1.0.0/print/foo/s2/</title>`,
 		`<link rel="canonical" href="https://de.example.org/guest/v1.0.0/foo/s2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://de.example.org/guest/v1.0.0/print/foo/s2/">`,
 	)
-	b.AssertFileContent("public/de/guest/v1.0.0/print/p2-alias/index.html",
+	b.AssertFileContent(
+		"public/de/guest/v1.0.0/print/p2-alias/index.html",
 		`<title>https://de.example.org/guest/v1.0.0/print/foo/s2/p2/</title>`,
 		`<link rel="canonical" href="https://de.example.org/guest/v1.0.0/foo/s2/p2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://de.example.org/guest/v1.0.0/print/foo/s2/p2/">`,
 	)
 
 	// language: en, output format: html
-	b.AssertFileContent("public/en/guest/v1.0.0/foo/s1-alias/index.html",
+	b.AssertFileContent(
+		"public/en/guest/v1.0.0/foo/s1-alias/index.html",
 		`<title>https://en.example.org/guest/v1.0.0/foo/s1/</title>`,
 		`<link rel="canonical" href="https://en.example.org/guest/v1.0.0/foo/s1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://en.example.org/guest/v1.0.0/foo/s1/">`,
 	)
-	b.AssertFileContent("public/en/guest/v1.0.0/foo/s1/p1-alias/index.html",
+	b.AssertFileContent(
+		"public/en/guest/v1.0.0/foo/s1/p1-alias/index.html",
 		`<title>https://en.example.org/guest/v1.0.0/foo/s1/p1/</title>`,
 		`<link rel="canonical" href="https://en.example.org/guest/v1.0.0/foo/s1/p1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://en.example.org/guest/v1.0.0/foo/s1/p1/">`,
 	)
-	b.AssertFileContent("public/en/guest/v1.0.0/s2-alias/index.html",
+	b.AssertFileContent(
+		"public/en/guest/v1.0.0/s2-alias/index.html",
 		`<title>https://en.example.org/guest/v1.0.0/foo/s2/</title>`,
 		`<link rel="canonical" href="https://en.example.org/guest/v1.0.0/foo/s2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://en.example.org/guest/v1.0.0/foo/s2/">`,
 	)
-	b.AssertFileContent("public/en/guest/v1.0.0/p2-alias/index.html",
+	b.AssertFileContent(
+		"public/en/guest/v1.0.0/p2-alias/index.html",
 		`<title>https://en.example.org/guest/v1.0.0/foo/s2/p2/</title>`,
 		`<link rel="canonical" href="https://en.example.org/guest/v1.0.0/foo/s2/p2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://en.example.org/guest/v1.0.0/foo/s2/p2/">`,
 	)
 
 	// language: en, output format: print
-	b.AssertFileContent("public/en/guest/v1.0.0/print/foo/s1-alias/index.html",
+	b.AssertFileContent(
+		"public/en/guest/v1.0.0/print/foo/s1-alias/index.html",
 		`<title>https://en.example.org/guest/v1.0.0/print/foo/s1/</title>`,
 		`<link rel="canonical" href="https://en.example.org/guest/v1.0.0/foo/s1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://en.example.org/guest/v1.0.0/print/foo/s1/">`,
 	)
-	b.AssertFileContent("public/en/guest/v1.0.0/print/foo/s1/p1-alias/index.html",
+	b.AssertFileContent(
+		"public/en/guest/v1.0.0/print/foo/s1/p1-alias/index.html",
 		`<title>https://en.example.org/guest/v1.0.0/print/foo/s1/p1/</title>`,
 		`<link rel="canonical" href="https://en.example.org/guest/v1.0.0/foo/s1/p1/">`,
 		`<meta http-equiv="refresh" content="0; url=https://en.example.org/guest/v1.0.0/print/foo/s1/p1/">`,
 	)
-	b.AssertFileContent("public/en/guest/v1.0.0/print/s2-alias/index.html",
+	b.AssertFileContent(
+		"public/en/guest/v1.0.0/print/s2-alias/index.html",
 		`<title>https://en.example.org/guest/v1.0.0/print/foo/s2/</title>`,
 		`<link rel="canonical" href="https://en.example.org/guest/v1.0.0/foo/s2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://en.example.org/guest/v1.0.0/print/foo/s2/">`,
 	)
-	b.AssertFileContent("public/en/guest/v1.0.0/print/p2-alias/index.html",
+	b.AssertFileContent(
+		"public/en/guest/v1.0.0/print/p2-alias/index.html",
 		`<title>https://en.example.org/guest/v1.0.0/print/foo/s2/p2/</title>`,
 		`<link rel="canonical" href="https://en.example.org/guest/v1.0.0/foo/s2/p2/">`,
 		`<meta http-equiv="refresh" content="0; url=https://en.example.org/guest/v1.0.0/print/foo/s2/p2/">`,
@@ -679,7 +723,8 @@ Home.
 `
 	b := Test(t, files)
 
-	b.AssertFileContent("public/guest/v1.0.0/en/index.html",
+	b.AssertFileContent(
+		"public/guest/v1.0.0/en/index.html",
 		"/guest/v1.0.0/en/foo/p2            =>/guest/v1.0.0/en/foo/p1/|",
 		"/guest/v1.0.0/en/p3                =>/guest/v1.0.0/en/foo/p1/|",
 	)
@@ -691,6 +736,7 @@ func TestOutputFormatIsHTMLWithMultilangAliases(t *testing.T) {
 
 	files := `
 -- hugo.toml --
+baseURL = "/"
 defaultContentLanguageInSubdir = true
 disableKinds = ['page', 'section', 'rss', 'sitemap', 'taxonomy', 'term']
 
@@ -799,6 +845,7 @@ func TestAliasExplicitExtension(t *testing.T) {
 -- hugo.toml --
 disableKinds = ['home','rss','section','sitemap','taxonomy','term']
 uglyURLs = UGLYURLS
+baseURL = "/"
 
 [mediaTypes]
   [mediaTypes.'text/html']
