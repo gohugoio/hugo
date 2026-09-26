@@ -34,17 +34,17 @@ func TestPermalink(t *testing.T) {
 		expectedAbs  string
 		expectedRel  string
 	}{
-		{"x/y/z/boofar.md", "", "", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
-		{"x/y/z/boofar.md", "", "", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "/", "", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "/", "", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
 		// Issue #1174
 		{"x/y/z/boofar.md", "http://gopher.com/", "", "", false, true, "http://gopher.com/x/y/z/boofar/", "/x/y/z/boofar/"},
 		{"x/y/z/boofar.md", "http://gopher.com/", "", "", true, true, "http://gopher.com/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "", "boofar", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
+		{"x/y/z/boofar.md", "/", "boofar", "", false, false, "/x/y/z/boofar/", "/x/y/z/boofar/"},
 		{"x/y/z/boofar.md", "http://barnew/", "", "", false, false, "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
 		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", false, false, "http://barnew/x/y/z/boofar/", "/x/y/z/boofar/"},
-		{"x/y/z/boofar.md", "", "", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "", "", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
-		{"x/y/z/boofar.md", "", "boofar", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "/", "", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "/", "", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
+		{"x/y/z/boofar.md", "/", "boofar", "", true, false, "/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "http://barnew/", "", "", true, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "http://barnew/", "boofar", "", true, false, "http://barnew/x/y/z/boofar.html", "/x/y/z/boofar.html"},
 		{"x/y/z/boofar.md", "http://barnew/boo/", "booslug", "", true, false, "http://barnew/boo/x/y/z/booslug.html", "/boo/x/y/z/booslug.html"},
@@ -56,9 +56,9 @@ func TestPermalink(t *testing.T) {
 		{"x/y/z/boo-makeindex.md", "http://barnew/boo", "", "", true, true, "http://barnew/boo/x/y/z/boo-makeindex.html", "/x/y/z/boo-makeindex.html"},
 
 		// test URL overrides
-		{"x/y/z/boofar.md", "", "", "/z/y/q/", false, false, "/z/y/q/", "/z/y/q/"},
+		{"x/y/z/boofar.md", "/", "", "/z/y/q/", false, false, "/z/y/q/", "/z/y/q/"},
 		// test URL override with expands
-		{"x/y/z/boofar.md", "", "test", "/z/:slug/", false, false, "/z/test/", "/z/test/"},
+		{"x/y/z/boofar.md", "/", "test", "/z/:slug/", false, false, "/z/test/", "/z/test/"},
 	}
 
 	for i, test := range tests {
@@ -200,4 +200,142 @@ path = '/books/**'
 	b := Test(t, files)
 
 	b.AssertFileContent("public/shelf/my-book/index.html", "RelPermalink: /shelf/my-book/")
+}
+
+// See issue 14352.
+func TestSlugInBranchPagesCascadesToDescendants(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+defaultContentLanguage = "en"
+[languages.en]
+weight = 1
+[languages.es]
+weight = 2
+[taxonomies]
+tag = "tags"
+-- content/help/_index.en.md --
+---
+title: Help
+---
+-- content/help/_index.es.md --
+---
+title: Ayuda
+slug: ayuda
+---
+-- content/help/how-to-frob/index.en.md --
+---
+title: How to frob
+tags: [red]
+---
+-- content/help/how-to-frob/index.es.md --
+---
+title: Cómo frobear
+slug: como-frobear
+tags: [red]
+---
+-- content/help/advanced/_index.en.md --
+---
+title: Advanced
+---
+-- content/help/advanced/_index.es.md --
+---
+title: Avanzado
+slug: avanzado
+---
+-- content/help/advanced/p1.en.md --
+---
+title: P1
+---
+-- content/help/advanced/p1.es.md --
+---
+title: P1
+---
+-- content/help/deep/dir/p2.es.md --
+---
+title: P2
+---
+-- content/tags/_index.es.md --
+---
+title: Etiquetas
+slug: etiquetas
+---
+-- content/tags/red/_index.es.md --
+---
+title: Rojo
+slug: rojo
+---
+-- layouts/all.html --
+{{ .Kind }}|{{ .Path }}|{{ .RelPermalink }}|{{ range .Pages }}{{ .RelPermalink }}|{{ end }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/help/index.html", "section|/help|/help/|/help/advanced/|/help/how-to-frob/|")
+	b.AssertFileContent("public/help/advanced/p1/index.html", "page|/help/advanced/p1|/help/advanced/p1/|")
+	b.AssertFileContent("public/tags/red/index.html", "term|/tags/red|/tags/red/|/help/how-to-frob/|")
+
+	b.AssertFileContent("public/es/ayuda/index.html", "section|/help|/es/ayuda/|/es/ayuda/avanzado/|/es/ayuda/como-frobear/|")
+	b.AssertFileContent("public/es/ayuda/index.xml", "<link>https://example.org/es/ayuda/</link>")
+	b.AssertFileContent("public/es/ayuda/como-frobear/index.html", "page|/help/how-to-frob|/es/ayuda/como-frobear/|")
+	b.AssertFileContent("public/es/ayuda/avanzado/index.html", "section|/help/advanced|/es/ayuda/avanzado/|/es/ayuda/avanzado/p1/|")
+	b.AssertFileContent("public/es/ayuda/avanzado/p1/index.html", "page|/help/advanced/p1|/es/ayuda/avanzado/p1/|")
+	b.AssertFileContent("public/es/ayuda/deep/dir/p2/index.html", "page|/help/deep/dir/p2|/es/ayuda/deep/dir/p2/|")
+	b.AssertFileContent("public/es/etiquetas/index.html", "taxonomy|/tags|/es/etiquetas/|/es/etiquetas/rojo/|")
+	b.AssertFileContent("public/es/etiquetas/rojo/index.html", "term|/tags/red|/es/etiquetas/rojo/|/es/ayuda/como-frobear/|")
+}
+
+func TestSlugInBranchPagesDisablePathToLowerUglyURLs(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disablePathToLower = true
+uglyURLs = true
+-- content/help/_index.md --
+---
+title: Help
+slug: Ayuda
+---
+-- content/help/p1.md --
+---
+title: P1
+---
+-- layouts/all.html --
+{{ .Kind }}|{{ .RelPermalink }}|{{ range .Pages }}{{ .RelPermalink }}|{{ end }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/Ayuda/index.html", "section|/Ayuda/index.html|/Ayuda/p1.html|")
+	b.AssertFileContent("public/Ayuda/p1.html", "page|/Ayuda/p1.html|")
+}
+
+func BenchmarkTargetPathDir(b *testing.B) {
+	files := `
+-- content/help/_index.md --
+---
+title: Help
+slug: Ayuda
+---
+-- content/help/advanced/_index.md --
+---
+title: Advanced
+slug: Avanzado
+---
+-- content/help/advanced/p1.md --
+---
+title: P1			
+---
+`
+
+	bb := Test(b, files)
+	p, err := bb.H.Sites[0].GetPage("help/advanced/p1")
+	bb.Assert(err, qt.IsNil)
+	bb.Assert(p, qt.IsNotNil)
+	b.ResetTimer()
+	for b.Loop() {
+		_ = targetPathDir(p.(*pageState))
+	}
 }
