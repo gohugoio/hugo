@@ -183,3 +183,34 @@ Content: {{ .Content }}
 
 	b.AssertFileContent("public/index.xml", "<table>")
 }
+
+// See issue 15389.
+func TestTableHookHTMLOnlyWithJSONOutput(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page', 'rss', 'section', 'sitemap', 'taxonomy', 'term']
+[outputs]
+  home = ['html', 'json']
+-- content/_index.md --
+---
+title: home
+---
+
+col_a|col_b
+---|---
+foo|bar
+-- layouts/_markup/render-table.html --
+TABLE RENDER HOOK
+-- layouts/home.html --
+{{ .Content }}
+-- layouts/home.json --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "TABLE RENDER HOOK")
+	b.AssertFileContent("public/index.json", "TABLE RENDER HOOK")
+}
