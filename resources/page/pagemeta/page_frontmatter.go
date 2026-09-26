@@ -191,7 +191,7 @@ type SitesMatrixAndComplements struct {
 
 // MatchSiteVector checks whether the site vector matches the sites matrix.
 func (p *SitesMatrixAndComplements) MatchSiteVector(siteVector sitesmatrix.Vector) bool {
-	return p.SitesMatrix.HasAnyVector(siteVector)
+	return p.SitesMatrix.HasVector(siteVector)
 }
 
 // MatchLanguageCoarse checks whether the language dimension matches either

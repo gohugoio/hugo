@@ -202,7 +202,7 @@ type VectorProvider interface {
 	VectorIterator
 	// HasVector returns true if the given vector is contained in the provider.
 	// Used for membership testing of files, resources and pages.
-	HasVector(HasAnyVectorv Vector) bool
+	HasVector(v Vector) bool
 
 	// HasAnyVector returns true if any of the vectors in the provider matches any of the vectors in v.
 	HasAnyVector(v VectorProvider) bool
