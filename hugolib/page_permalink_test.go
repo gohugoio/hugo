@@ -277,7 +277,7 @@ slug: rojo
 	b.AssertFileContent("public/tags/red/index.html", "term|/tags/red|/tags/red/|/help/how-to-frob/|")
 
 	b.AssertFileContent("public/es/ayuda/index.html", "section|/help|/es/ayuda/|/es/ayuda/avanzado/|/es/ayuda/como-frobear/|")
-	b.AssertFileContent("public/es/ayuda/index.xml", "<link>/es/ayuda/</link>")
+	b.AssertFileContent("public/es/ayuda/index.xml", "<link>https://example.org/es/ayuda/</link>")
 	b.AssertFileContent("public/es/ayuda/como-frobear/index.html", "page|/help/how-to-frob|/es/ayuda/como-frobear/|")
 	b.AssertFileContent("public/es/ayuda/avanzado/index.html", "section|/help/advanced|/es/ayuda/avanzado/|/es/ayuda/avanzado/p1/|")
 	b.AssertFileContent("public/es/ayuda/avanzado/p1/index.html", "page|/help/advanced/p1|/es/ayuda/avanzado/p1/|")
