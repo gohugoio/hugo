@@ -1141,11 +1141,6 @@ func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error
 		return err
 	}
 
-	if len(conf.configs.LoadingInfo.ConfigFiles) == 0 {
-		//lint:ignore ST1005 end user message.
-		return errors.New("Unable to locate config file or config directory. Perhaps you need to create a new project.\nRun `hugo help new` for details.")
-	}
-
 	c.conf = conf
 	c.confOld = conf
 	if c.onConfigLoaded != nil {
