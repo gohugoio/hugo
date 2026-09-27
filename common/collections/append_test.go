@@ -78,6 +78,8 @@ func TestAppend(t *testing.T) {
 		{[]string{"a", "b"}, []any{nil, "d", nil}, []any{"a", "b", nil, "d", nil}},
 		{[]any{"a", nil, "c"}, []any{"d", nil, "f"}, []any{"a", nil, "c", "d", nil, "f"}},
 		{[]string{"a", "b"}, []any{}, []string{"a", "b"}},
+		{[]string{"a", "b"}, []any{[]any{}}, []string{"a", "b"}},
+		{[]int{1, 2}, []any{[]any(nil)}, []int{1, 2}},
 	} {
 
 		result, err := Append(test.start, test.addend...)
