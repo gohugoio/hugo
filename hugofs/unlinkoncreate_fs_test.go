@@ -59,4 +59,12 @@ func TestUnlinkOnCreateFs(t *testing.T) {
 
 	// New files.
 	c.Assert(afero.WriteFile(fs, filepath.Join(dir, "new.txt"), []byte("new"), 0o644), qt.IsNil)
+
+	// Files with a single link are truncated in place.
+	before, err := os.Stat(dst)
+	c.Assert(err, qt.IsNil)
+	c.Assert(afero.WriteFile(fs, dst, []byte("in place"), 0o644), qt.IsNil)
+	after, err := os.Stat(dst)
+	c.Assert(err, qt.IsNil)
+	c.Assert(os.SameFile(before, after), qt.IsTrue)
 }

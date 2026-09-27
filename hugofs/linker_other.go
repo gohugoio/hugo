@@ -21,6 +21,10 @@ func deviceID(fi os.FileInfo) uint64 {
 	return 0
 }
 
+func hasMultipleLinks(filename string, fi os.FileInfo) bool {
+	return true
+}
+
 func isLinkUnsupported(err error) bool {
 	return true
 }

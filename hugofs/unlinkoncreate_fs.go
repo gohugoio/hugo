@@ -21,8 +21,9 @@ import (
 
 var _ FilesystemUnwrapper = (*unlinkOnCreateFs)(nil)
 
-// NewUnlinkOnCreateFs creates a new filesystem that removes any existing file
-// before truncating it, so files hard linked to it are left untouched.
+// NewUnlinkOnCreateFs creates a new filesystem that removes a hard linked file
+// before truncating it, so the other links are left untouched.
+// fs must be an OS file system.
 func NewUnlinkOnCreateFs(fs afero.Fs) afero.Fs {
 	return &unlinkOnCreateFs{Fs: fs}
 }
@@ -36,13 +37,21 @@ func (fs *unlinkOnCreateFs) UnwrapFilesystem() afero.Fs {
 }
 
 func (fs *unlinkOnCreateFs) Create(name string) (afero.File, error) {
-	_ = fs.Fs.Remove(name)
+	fs.unlinkIfHardlinked(name)
 	return fs.Fs.Create(name)
 }
 
 func (fs *unlinkOnCreateFs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, error) {
 	if flag&os.O_TRUNC != 0 {
-		_ = fs.Fs.Remove(name)
+		fs.unlinkIfHardlinked(name)
 	}
 	return fs.Fs.OpenFile(name, flag, perm)
+}
+
+func (fs *unlinkOnCreateFs) unlinkIfHardlinked(name string) {
+	fi, err := fs.Fs.Stat(name)
+	if err != nil || fi.IsDir() || !hasMultipleLinks(name, fi) {
+		return
+	}
+	_ = fs.Fs.Remove(name)
 }

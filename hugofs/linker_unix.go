@@ -28,6 +28,14 @@ func deviceID(fi os.FileInfo) uint64 {
 	return 0
 }
 
+// hasMultipleLinks reports whether the file has more than one hard link.
+func hasMultipleLinks(filename string, fi os.FileInfo) bool {
+	if st, ok := fi.Sys().(*syscall.Stat_t); ok {
+		return st.Nlink > 1
+	}
+	return true
+}
+
 // isLinkUnsupported reports whether err means that the source device does not support hard links to the destination.
 func isLinkUnsupported(err error) bool {
 	return errors.Is(err, syscall.EXDEV) || errors.Is(err, syscall.ENOTSUP)

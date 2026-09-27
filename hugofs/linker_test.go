@@ -61,6 +61,21 @@ func TestLinker(t *testing.T) {
 	c.Assert(link(src, "c.txt"), qt.IsTrue)
 	assertSameFile(src, filepath.Join(pubDir, "c.txt"), true)
 
+	// Replaces existing links to other files, leaving those intact.
+	other := filepath.Join(dir, "other.txt")
+	c.Assert(os.WriteFile(other, []byte("other"), 0o644), qt.IsNil)
+	c.Assert(os.Link(other, filepath.Join(pubDir, "d.txt")), qt.IsNil)
+	c.Assert(link(src, "d.txt"), qt.IsTrue)
+	assertSameFile(src, filepath.Join(pubDir, "d.txt"), true)
+	b, err := os.ReadFile(other)
+	c.Assert(err, qt.IsNil)
+	c.Assert(string(b), qt.Equals, "other")
+	entries, err := os.ReadDir(pubDir)
+	c.Assert(err, qt.IsNil)
+	for _, e := range entries {
+		c.Assert(e.Name(), qt.Not(qt.Contains), ".hugolink")
+	}
+
 	// Not an OS destination.
 	linked, err := l.Link(src, NewBasePathFs(&afero.MemMapFs{}, "/public"), "d.txt")
 	c.Assert(err, qt.IsNil)

@@ -16,8 +16,10 @@ package hugofs
 import (
 	"errors"
 	iofs "io/fs"
+	"math/rand/v2"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
 
 	"github.com/spf13/afero"
@@ -51,14 +53,14 @@ func (l *Linker) Link(src string, dstFs afero.Fs, dst string) (bool, error) {
 	if _, found := l.disabled.Load(dev); found {
 		return false, nil
 	}
-	if err := dstFs.Remove(dst); err != nil && !errors.Is(err, iofs.ErrNotExist) {
-		return false, err
-	}
 	err = os.Link(src, dstFilename)
 	if errors.Is(err, iofs.ErrNotExist) {
 		if err = dstFs.MkdirAll(filepath.Dir(dst), 0o777); err == nil {
 			err = os.Link(src, dstFilename)
 		}
+	}
+	if errors.Is(err, iofs.ErrExist) {
+		err = replaceWithLink(src, dstFilename)
 	}
 	if err == nil {
 		return true, nil
@@ -71,4 +73,19 @@ func (l *Linker) Link(src string, dstFs afero.Fs, dst string) (bool, error) {
 		return false, nil
 	}
 	return false, err
+}
+
+// replaceWithLink replaces dst with a hard link to src by linking to a temporary
+// name and renaming it over dst. Unlike remove and link, this also works on Windows
+// while dst is open elsewhere.
+func replaceWithLink(src, dst string) error {
+	tmp := dst + ".hugolink" + strconv.FormatUint(rand.Uint64(), 36)
+	if err := os.Link(src, tmp); err != nil {
+		return err
+	}
+	if err := os.Rename(tmp, dst); err != nil {
+		_ = os.Remove(tmp)
+		return err
+	}
+	return nil
 }

@@ -23,6 +23,24 @@ func deviceID(fi os.FileInfo) uint64 {
 	return 0
 }
 
+// hasMultipleLinks reports whether the file has more than one hard link.
+func hasMultipleLinks(filename string, fi os.FileInfo) bool {
+	p, err := syscall.UTF16PtrFromString(filename)
+	if err != nil {
+		return true
+	}
+	h, err := syscall.CreateFile(p, 0, syscall.FILE_SHARE_READ|syscall.FILE_SHARE_WRITE|syscall.FILE_SHARE_DELETE, nil, syscall.OPEN_EXISTING, syscall.FILE_FLAG_BACKUP_SEMANTICS, 0)
+	if err != nil {
+		return true
+	}
+	defer syscall.CloseHandle(h)
+	var d syscall.ByHandleFileInformation
+	if err := syscall.GetFileInformationByHandle(h, &d); err != nil {
+		return true
+	}
+	return d.NumberOfLinks > 1
+}
+
 func isLinkUnsupported(err error) bool {
 	const (
 		errorInvalidFunction = syscall.Errno(1)
