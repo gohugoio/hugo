@@ -28,6 +28,8 @@ func TestPublishResourcesHardlinks(t *testing.T) {
 	files := `
 -- hugo.toml --
 disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+[build]
+hardlinks = true
 -- content/p1/index.md --
 ---
 title: p1

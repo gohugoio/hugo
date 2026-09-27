@@ -988,7 +988,7 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		}
 
 		fs := hugofs.NewFrom(afs, res.LoadingInfo.BaseConfig)
-		if s.Cfg.NeedsOsFS {
+		if res.Base.Build.Hardlinks {
 			fs.Linker = &hugofs.Linker{}
 		}
 
