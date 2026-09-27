@@ -36,6 +36,8 @@ type Fs struct {
 	// Note that this will always be a "plain" Afero filesystem:
 	// * afero.OsFs when running in production
 	// * afero.MemMapFs for many of the tests.
+	// The one exception is when the project root contains a hugo.txtar file;
+	// then it's a *TxtarFs overlaying the archive on top of the above.
 	Source afero.Fs
 
 	// PublishDir is where Hugo publishes its rendered content.
