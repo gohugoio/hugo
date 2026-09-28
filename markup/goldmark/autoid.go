@@ -70,6 +70,17 @@ func sanitizeAnchorNameWithHook(b []byte, idType string, hook func(buf *bytes.Bu
 
 			b = b[size:]
 		}
+
+		if buf.Len() > 0 && buf.Bytes()[0] >= '0' && buf.Bytes()[0] <= '9' {
+			// A leading digit makes for an id that is not a valid CSS
+			// identifier, breaking e.g. document.querySelector('#1-test').
+			// Prefix with an underscore. See issue 8997.
+			prefixed := bp.GetBuffer()
+			prefixed.WriteByte('_')
+			prefixed.Write(buf.Bytes())
+			bp.PutBuffer(buf)
+			buf = prefixed
+		}
 	}
 
 	if hook != nil {

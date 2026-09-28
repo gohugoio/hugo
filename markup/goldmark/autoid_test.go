@@ -48,7 +48,7 @@ Tab	Space
 god-is-good-神真美好
 number-32
 question
-123
+_123
 special-parens-chars
 resumé
 one-hyphen
@@ -90,6 +90,17 @@ func TestSanitizeAnchorNameAsciiOnly(t *testing.T) {
 
 	c.Assert(sanitizeAnchorNameString("god is神真美好 good", goldmark_config.AutoIDTypeGitHubAscii), qt.Equals, "god-is-good")
 	c.Assert(sanitizeAnchorNameString("Resumé", goldmark_config.AutoIDTypeGitHubAscii), qt.Equals, "resume")
+}
+
+// Issue 8997: a leading digit is not valid in a CSS identifier.
+func TestSanitizeAnchorNameLeadingDigit(t *testing.T) {
+	c := qt.New(t)
+
+	c.Assert(sanitizeAnchorNameString("1 Test", goldmark_config.AutoIDTypeGitHub), qt.Equals, "_1-test")
+	c.Assert(sanitizeAnchorNameString("1 Test", goldmark_config.AutoIDTypeGitHubAscii), qt.Equals, "_1-test")
+	// Unaffected: digit not leading, and the blackfriday id type (unchanged legacy behavior).
+	c.Assert(sanitizeAnchorNameString("Number 32", goldmark_config.AutoIDTypeGitHub), qt.Equals, "number-32")
+	c.Assert(sanitizeAnchorNameString("1 Test", goldmark_config.AutoIDTypeBlackfriday), qt.Equals, "1-test")
 }
 
 func TestSanitizeAnchorNameBlackfriday(t *testing.T) {

@@ -349,7 +349,7 @@ title: home
 		`<li><a href="#inserted"><ins>inserted</ins></a></li>`,
 		`<li><a href="#marked"><mark>marked</mark></a></li>`,
 		`<li><a href="#h2o">H<sub>2</sub>O</a></li>`,
-		`<li><a href="#1st">1<sup>st</sup></a></li>`,
+		`<li><a href="#_1st">1<sup>st</sup></a></li>`,
 	)
 
 	files = strings.ReplaceAll(files, "enable = true", "enable = false")
@@ -361,7 +361,7 @@ title: home
 		`<li><a href="#inserted">++inserted++</a></li>`,
 		`<li><a href="#marked">==marked==</a></li>`,
 		`<li><a href="#h2o">H~2~O</a></li>`,
-		`<li><a href="#1st">1^st^</a></li>`,
+		`<li><a href="#_1st">1^st^</a></li>`,
 	)
 }
 

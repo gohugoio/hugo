@@ -86,6 +86,34 @@ title: "p1"
 	`)
 }
 
+// Issue 8997: a heading starting with a digit produced an id that is not a
+// valid CSS identifier (e.g. document.querySelector('#1-test') fails).
+func TestAutoHeadingIDLeadingDigit(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- content/p1.md --
+---
+title: "p1"
+---
+## 1 Test
+
+## 2 Test
+-- layouts/single.html --
+{{ .Content }}
+{{ .TableOfContents }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		`<h2 id="_1-test">1 Test</h2>`,
+		`<h2 id="_2-test">2 Test</h2>`,
+		`<a href="#_1-test">1 Test</a>`,
+		`<a href="#_2-test">2 Test</a>`,
+	)
+}
+
 func TestAttributesDefaultRenderer(t *testing.T) {
 	t.Parallel()
 
