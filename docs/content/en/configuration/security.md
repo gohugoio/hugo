@@ -64,7 +64,7 @@ This is the default security configuration:
 : {{< new-in 0.161.0 />}}
 : (`[]string`) A slice of file system paths that Node.js tools are allowed to read (`--allow-fs-read`). Paths are relative to the working directory; `"."` means the working directory itself. Use `"*"` to allow all paths.
 
-  The same paths bound what `js.Build`, `js.Batch` and `css.Build` may import from outside the `assets` directory, e.g. from `node_modules`. This check does not depend on `node.permissions.disable`.
+  The same paths bound what `js.Build`, `js.Batch`, `css.Build` and `css.Sass` may import from outside the `assets` directory, e.g. from `node_modules`. This check does not depend on `node.permissions.disable`.
 
   Node.js follows symbolic links even when they point outside the allowed paths. Hugo therefore fails the build if any allowed path contains a symbolic link whose target resolves outside the allowed set. To permit such a link, add its target to the list. The check runs once per build; if you also grant write access to an allowed path, a Node.js tool can create links at build time that escape this check.
 

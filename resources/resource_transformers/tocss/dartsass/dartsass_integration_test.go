@@ -14,6 +14,9 @@
 package dartsass_test
 
 import (
+	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -34,11 +37,14 @@ func TestTransformIncludePaths(t *testing.T) {
 -- assets/scss/main.scss --
 @import "moo";
 -- node_modules/foo/_moo.scss --
-$moolor: #fff;
+@import "sub/bar";
+$moolor: $barcolor;
 
 moo {
   color: $moolor;
 }
+-- node_modules/foo/sub/_bar.scss --
+$barcolor: #fff;
 -- hugo.toml --
 -- layouts/home.html --
 {{ $cssOpts := (dict "includePaths" (slice "node_modules/foo") "transpiler" "dartsass" ) }}
@@ -754,4 +760,78 @@ h2 { color: rgb(color.red(#ddd), 0, 0); } // deprecated
 		"WARN  Dart Sass: DEPRECATED [color-functions]",
 		"color.green() is deprecated",
 	)
+}
+
+// Imports not found in Hugo's file systems used to be resolved by the Sass compiler
+// itself, following symlinks and with no notion of the project boundary.
+func TestTransformImportOutsideProject(t *testing.T) {
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+	c := qt.New(t)
+
+	base := t.TempDir()
+	secret := filepath.Join(base, "secret.scss")
+	c.Assert(os.WriteFile(secret, []byte(`.pwn { content: "PWN-SECRET"; }`), 0o644), qt.IsNil)
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "robotsTXT", "section", "page"]
+theme = "mytheme"
+SECURITY
+-- themes/mytheme/hugo.toml --
+-- themes/mytheme/assets/css/main.scss --
+@import "IMPORT";
+-- layouts/all.html --
+{{ $css := resources.Get "css/main.scss" | css.Sass (dict "transpiler" "dartsass") }}
+RESULT:<pre>{{ $css.Content }}</pre>
+`
+
+	build := func(c *qt.C, name, imp, security string) (*hugolib.IntegrationTestBuilder, error) {
+		workingDir := filepath.Join(base, name)
+		if runtime.GOOS != "windows" {
+			linkDir := filepath.Join(workingDir, "themes", "mytheme", "assets", "css")
+			c.Assert(os.MkdirAll(linkDir, 0o755), qt.IsNil)
+			c.Assert(os.Symlink(secret, filepath.Join(linkDir, "link.scss")), qt.IsNil)
+		}
+		f := strings.ReplaceAll(files, "IMPORT", imp)
+		f = strings.ReplaceAll(f, "SECURITY", security)
+		return hugolib.NewIntegrationTestBuilder(
+			hugolib.IntegrationTestConfig{
+				T:           c,
+				TxtarString: f,
+				NeedsOsFS:   true,
+				WorkingDir:  workingDir,
+			},
+		).BuildE()
+	}
+
+	const outsideErr = `.*"[^"]*\.scss" resolves to "[^"]*secret.scss" outside the project.*allowRead.*`
+
+	c.Run("Relative import", func(c *qt.C) {
+		_, err := build(c, "relative", "../../../../../secret", "")
+		c.Assert(err, qt.ErrorMatches, outsideErr)
+	})
+
+	c.Run("Symlink in theme", func(c *qt.C) {
+		if runtime.GOOS == "windows" {
+			c.Skip("symlinks")
+		}
+		_, err := build(c, "symlink", "link", "")
+		c.Assert(err, qt.ErrorMatches, outsideErr)
+	})
+
+	c.Run("Absolute import", func(c *qt.C) {
+		_, err := build(c, "absolute", filepath.ToSlash(filepath.Join(base, "secret")), "")
+		c.Assert(err, qt.ErrorMatches, outsideErr)
+	})
+
+	c.Run("Relative import, target in allowRead", func(c *qt.C) {
+		b, err := build(c, "allowed", "../../../../../secret", `
+[security.node.permissions]
+allowRead = [".", ".."]
+`)
+		c.Assert(err, qt.IsNil)
+		b.AssertFileContent("public/index.html", "PWN-SECRET")
+	})
 }

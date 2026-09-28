@@ -87,11 +87,21 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 		ic = resource.NewCachedResourceGetter(opts.ImportContext)
 	}
 
+	// Dart Sass gets no load paths; the import resolver handles these so
+	// all file reads go through Hugo.
+	osDirs := t.c.sfs.RealDirs(baseDir)
+	for _, ip := range opts.IncludePaths {
+		info, err := t.c.workFs.Stat(filepath.Clean(ip))
+		if err == nil {
+			osDirs = append(osDirs, info.(hugofs.FileMetaInfo).Meta().Filename)
+		}
+	}
+
 	args := godartsass.Args{
-		URL:          filename,
-		IncludePaths: t.c.sfs.RealDirs(baseDir),
+		URL: filename,
 		ImportResolver: importResolver{
 			baseDir:           baseDir,
+			osDirs:            osDirs,
 			c:                 t.c,
 			dependencyManager: ctx.DependencyManager,
 			importContext:     ic,
@@ -104,15 +114,6 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 		SourceMapIncludeSources:       opts.SourceMapIncludeSources,
 		SilenceDeprecations:           opts.SilenceDeprecations,
 		SilenceDependencyDeprecations: opts.SilenceDependencyDeprecations,
-	}
-
-	// Append any workDir relative include paths
-	for _, ip := range opts.IncludePaths {
-		info, err := t.c.workFs.Stat(filepath.Clean(ip))
-		if err == nil {
-			filename := info.(hugofs.FileMetaInfo).Meta().Filename
-			args.IncludePaths = append(args.IncludePaths, filename)
-		}
 	}
 
 	if ctx.InMediaType.SubType == media.Builtin.SASSType.SubType {
@@ -142,7 +143,9 @@ func (t *transform) Transform(ctx *resources.ResourceTransformationCtx) error {
 }
 
 type importResolver struct {
-	baseDir           string
+	baseDir string
+	// Real dirs of baseDir and the include paths.
+	osDirs            []string
 	c                 *Client
 	dependencyManager identity.Manager
 	importContext     resource.ResourceGetter
@@ -161,41 +164,53 @@ func (t importResolver) CanonicalizeURL(url string) (string, error) {
 	}
 
 	filePath, isURL := paths.UrlStringToFilename(url)
-	var prevDir string
-	var pathDir string
+	var (
+		prevDir string
+		pathDir string
+		inHugo  = true
+		osDirs  []string
+	)
 	if isURL {
-		var found bool
-		prevDir, found = t.c.sfs.MakePathRelative(filepath.Dir(filePath), true)
-
-		if !found {
-			// Not a member of this filesystem, let Dart Sass handle it.
-			return "", nil
-		}
+		// Relative to the importing file.
+		prevDir, inHugo = t.c.sfs.MakePathRelative(filepath.Dir(filePath), true)
+		osDirs = []string{filepath.Dir(filePath)}
 	} else {
+		// Relative to the entry file or the include paths.
 		prevDir = t.baseDir
 		pathDir = path.Dir(url)
+		osDirs = t.osDirs
 	}
 
-	basePath := filepath.Join(prevDir, pathDir)
 	name := filepath.Base(filePath)
-
-	// Pick the first match.
 	namePatterns := sassNamePatterns(name)
 	name = strings.TrimPrefix(name, "_")
+	names := make([]string, len(namePatterns))
+	for i, namePattern := range namePatterns {
+		names[i] = filepath.Join(pathDir, fmt.Sprintf(namePattern, name))
+	}
 
-	for _, namePattern := range namePatterns {
-		filenameToCheck := filepath.Join(basePath, fmt.Sprintf(namePattern, name))
-		fi, err := t.c.sfs.Fs.Stat(filenameToCheck)
-		if err == nil {
-			if fim, ok := fi.(hugofs.FileMetaInfo); ok {
-				t.dependencyManager.AddIdentity(identity.CleanStringIdentity(filenameToCheck))
-				return "file://" + filepath.ToSlash(fim.Meta().Filename), nil
+	if inHugo {
+		// Pick the first match.
+		for _, n := range names {
+			filenameToCheck := filepath.Join(prevDir, n)
+			fi, err := t.c.sfs.Fs.Stat(filenameToCheck)
+			if err == nil {
+				if fim, ok := fi.(hugofs.FileMetaInfo); ok {
+					t.dependencyManager.AddIdentity(identity.CleanStringIdentity(filenameToCheck))
+					return "file://" + filepath.ToSlash(fim.Meta().Filename), nil
+				}
 			}
 		}
 	}
 
-	// Not found, let Dart Sass handle it
-	return "", nil
+	// Not found in Hugo's file systems. Dart Sass gets no load paths of its own, so
+	// this is the only way to reach the include paths and files hidden from Hugo's file
+	// systems (e.g. symlinks); FindFile keeps it inside the allowed paths.
+	filename, err := sass.FindFile(t.c.rs.ExecHelper, osDirs, names)
+	if err != nil || filename == "" {
+		return "", err
+	}
+	return "file://" + filepath.ToSlash(filename), nil
 }
 
 func sassNamePatterns(name string) []string {
