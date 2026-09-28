@@ -32,12 +32,7 @@ func (e *Exec) checkNodeSymlinks(kind string, roots []string) error {
 		return nil
 	}
 
-	var real []string
-	for _, r := range roots {
-		if p, err := filepath.EvalSymlinks(r); err == nil {
-			real = append(real, p)
-		}
-	}
+	real := evalSymlinks(roots)
 
 	for _, root := range topLevelDirs(real) {
 		if _, err := e.nodeSymlinkChecks.GetOrCreate(kind+"|"+root, func() (bool, error) {
@@ -47,6 +42,38 @@ func (e *Exec) checkNodeSymlinks(kind string, roots []string) error {
 		}
 	}
 	return nil
+}
+
+// CheckReadPath fails if filename resolves outside the allowRead roots.
+// Used by in-process tools (e.g. ESBuild) that read files on their own,
+// so they get the same boundary as the Node.js tools.
+func (e *Exec) CheckReadPath(filename string) error {
+	_, err := e.readPathChecks.GetOrCreate(filename, func() (bool, error) {
+		roots := e.nodeReadRoots("")
+		if slices.Contains(roots, "*") {
+			return true, nil
+		}
+		target, err := filepath.EvalSymlinks(filename)
+		if err != nil {
+			return false, err
+		}
+		if !isBelowAny(target, evalSymlinks(roots)) {
+			return false, fmt.Errorf("%q resolves to %q outside the project; only files below the working directory or the paths in security.node.permissions.allowRead can be imported", filename, target)
+		}
+		return true, nil
+	})
+	return err
+}
+
+// evalSymlinks resolves paths, dropping the ones that cannot be resolved.
+func evalSymlinks(paths []string) []string {
+	var real []string
+	for _, p := range paths {
+		if p, err := filepath.EvalSymlinks(p); err == nil {
+			real = append(real, p)
+		}
+	}
+	return real
 }
 
 func walkSymlinks(root string, allowed []string, kind string) error {

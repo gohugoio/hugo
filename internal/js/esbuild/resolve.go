@@ -308,6 +308,16 @@ func createBuildPlugins(rs *resources.Spec, assetsResolver *fsResolver, depsMana
 				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 					return resolveImport(args)
 				})
+			// Files not found in /assets are resolved and read by ESBuild, which follows
+			// symlinks and knows nothing about the project boundary.
+			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: "file"},
+				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
+					if err := rs.ExecHelper.CheckReadPath(args.Path); err != nil {
+						return api.OnLoadResult{}, err
+					}
+					// Let ESBuild load it.
+					return api.OnLoadResult{}, nil
+				})
 			build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: NsHugoImport},
 				func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 					b, err := os.ReadFile(args.Path)

@@ -105,6 +105,7 @@ func New(cfg security.Config, workingDir string, log loggers.Logger) *Exec {
 		baseEnviron:       baseEnviron,
 		nodeRunnerCache:   hmaps.NewCache[string, func(arg ...any) (Runner, error)](),
 		nodeSymlinkChecks: hmaps.NewCache[string, bool](),
+		readPathChecks:    hmaps.NewCacheWithOptions[string, bool](hmaps.CacheOptions{Size: 10000}),
 	}
 }
 
@@ -130,6 +131,9 @@ type Exec struct {
 
 	// Roots already scanned by checkNodeSymlinks, keyed by kind and path.
 	nodeSymlinkChecks *hmaps.Cache[string, bool]
+
+	// Filenames already accepted by CheckReadPath.
+	readPathChecks *hmaps.Cache[string, bool]
 }
 
 // SetNodeReadPaths sets additional absolute paths to allow reading from
