@@ -13,20 +13,22 @@ defaultContentLanguageInSubdir = true
 
 [languages]
 [languages.en]
-languageName = "English"
+label = "English"
 weight = 1
 [languages.fr]
-languageName = "Français"
+label = "Français"
 weight = 2
 [module]
 [[module.mounts]]
 source = "static/fr"
 target = "static"
-lang = "fr"
+[module.mounts.sites.matrix]
+languages = 'fr'
 [[module.mounts]]
 source = "static/en"
 target = "static"
-lang = "en"
+[module.mounts.sites.matrix]
+languages = 'en'
 
 -- static/en/files/f1.txt --
 enf1
