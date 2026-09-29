@@ -27,7 +27,5 @@ func init() {
 
   Hugo is a command-line tool for generating static websites.
 
-  You need to open PowerShell and run Hugo from there.
-
-  Visit https://gohugo.io/ for more information.`
+  You need to open PowerShell and run Hugo from there.`
 }
