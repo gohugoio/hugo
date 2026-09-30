@@ -1,5 +1,5 @@
 name: hugo
-base: core24
+base: core26
 adopt-info: hugo
 confinement: strict
 title: Hugo
@@ -33,6 +33,7 @@ lint:
   ignore:
     - library:
         - usr/lib/**/libform.so.*
+        - usr/lib/**/libgmpxx.so.*
         - usr/lib/**/liblua*.so.*
         - usr/lib/**/libmenu.so.*
         - usr/lib/**/libpanel.so.*
@@ -76,8 +77,8 @@ environment:
 
   # Ruby
   GEM_HOME: $SNAP_USER_DATA/gems
-  GEM_PATH: $SNAP/usr/share/rubygems-integration/all:$SNAP/usr/lib/ruby/gems/3.2.0:$SNAP/var/lib/gems/3.2.0
-  RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/3.2.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/vendor_ruby/3.2.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/3.2.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/3.2.0
+  GEM_PATH: $SNAP/usr/share/rubygems-integration/all:$SNAP/usr/lib/ruby/gems/3.3.0:$SNAP/var/lib/gems/3.3.0
+  RUBYLIB: $SNAP/usr/lib/ruby/vendor_ruby/3.3.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/vendor_ruby/3.3.0:$SNAP/usr/lib/ruby/vendor_ruby:$SNAP/usr/lib/ruby/3.3.0:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/ruby/3.3.0
 
   # Node
   npm_config_cache: $SNAP_USER_DATA/.npm
@@ -117,9 +118,9 @@ parts:
   asciidoctor:
     plugin: nil
     stage-packages:
-      - asciidoctor
-      - ruby-asciidoctor
-      - rubygems-integration
+          - asciidoctor
+          - ruby-dev
+          - rubygems-integration
     override-build: |
       set -ex
       craftctl default
