@@ -54,12 +54,13 @@ title = "English Comments Title"
 	enSite := b.H.Sites[0]
 	b.Assert(enSite.Title(), qt.Equals, "English Title")
 	b.Assert(enSite.Home().Title(), qt.Equals, "English Title")
-	b.Assert(enSite.Params(), qt.DeepEquals, hmaps.Params{
-		"comments": hmaps.Params{
-			"color": "blue",
-			"title": "English Comments Title",
+	b.Assert(
+		enSite.Params(), qt.DeepEquals, hmaps.Params{
+			"comments": hmaps.Params{
+				"color": "blue",
+				"title": "English Comments Title",
+			},
 		},
-	},
 	)
 }
 
@@ -676,7 +677,8 @@ themeconfigdirparam: {{ site.Params.themeconfigdirparam }}
 			b, err := TestE(t, files)
 
 			b.Assert(err, qt.IsNil)
-			b.AssertFileContent("public/index.html",
+			b.AssertFileContent(
+				"public/index.html",
 				"rootparam: rootvalue",
 				"rootconfigparam: rootconfigvalue",
 				"themeparam: themevalue",
@@ -1066,7 +1068,7 @@ defaultContentLanguage = "en"
 [languages]
 	[en]
 	lang = "en"
-	languageName = "English"
+	label = "English"
 	weight = 1
 -- layouts/home.html --
 Foo: {{ site.Params.foo }}|

@@ -24,22 +24,24 @@ disableKinds = ["taxonomy", "term", "sitemap"]
 [[module.mounts]]
 source = 'static/en'
 target = 'static'
-lang = 'en'
+[module.mounts.sites.matrix]
+languages = ['en']
 [[module.mounts]]
 source = 'static/fr'
 target = 'static'
-lang = 'fr'
+[module.mounts.sites.matrix]
+languages = ['fr']
 
 [languages]
 [languages.en]
 baseURL = "https://en.example.org/"
-languageName = "English"
+label = "English"
 title = "Hugo Server Test"
 weight = 1
 [languages.fr]
 baseURL = "https://fr.example.org/"
 title = "Hugo Serveur Test"
-languageName = "Français"
+label = "Français"
 weight = 2
 -- layouts/home.html --
 Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
@@ -47,5 +49,3 @@ Title: {{ .Title }}|BaseURL: {{ site.BaseURL }}|
 en_mytext
 -- static/fr/mystatic/mytext.txt --
 fr_mytext
-
-

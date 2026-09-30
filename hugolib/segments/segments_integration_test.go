@@ -42,8 +42,9 @@ path = "{/docs,/docs/**}"
 [[segments.docs.excludes]]
 path = "/blog/**"
 [[segments.docs.excludes]]
-lang = "n*"
 output = "rss"
+[segments.docs.excludes.sites.matrix]
+languages = ["n*"]
 [[segments.docs.excludes]]
 output = "json"
 -- layouts/single.html --
@@ -66,7 +67,7 @@ tags: ["tag1", "tag2"]
 `
 
 	b := hugolib.Test(t, files, hugolib.TestOptInfo())
-	b.AssertLogContains("deprecated") // lang => sites.matrix in v0.152.0
+	b.AssertLogContains("! deprecated")
 	b.Assert(b.H.Configs.Base.RootConfig.RenderSegments, qt.DeepEquals, []string{"docs"})
 
 	b.AssertFileContent("public/docs/section1/page1/index.html", "Docs Page 1")

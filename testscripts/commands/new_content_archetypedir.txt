@@ -9,10 +9,10 @@ grep 'A text file.' content/post/first-post/file.txt
 baseURL = "http://example.org/"
 [languages]
 [languages.en]
-languageName = "English"
+label = "English"
 weight = 1
 [languages.no]
-languageName = "Norsk"
+label = "Norsk"
 weight = 2
 
 -- archetypes/mybundle/index.md --
@@ -22,7 +22,7 @@ date: {{ .Date }}
 draft: true
 ---
 
-Site Lang: {{ site.Language.Lang  }}.	
+Site Lang: {{ site.Language.Lang  }}.
 -- archetypes/mybundle/index.no.md --
 ---
 title: "{{ replace .Name "-" " " | title }}"
@@ -30,11 +30,7 @@ date: {{ .Date }}
 draft: true
 ---
 
-Site Lang: {{ site.Language.Lang  }}.	
+Site Lang: {{ site.Language.Lang  }}.
 
 -- archetypes/mybundle/file.txt --
 A text file.
-
-
-
-
