@@ -9,10 +9,10 @@ grep 'A text file.' content/post/first-post/file.txt
 baseURL = "http://example.org/"
 [languages]
 [languages.en]
-languageName = "English"
+label = "English"
 weight = 1
 [languages.no]
-languageName = "Norsk"
+label = "Norsk"
 weight = 2
 
 -- archetypes/mybundle/index.md --
