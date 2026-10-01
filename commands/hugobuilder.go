@@ -352,14 +352,19 @@ func (c *hugoBuilder) newWatcher(pollIntervalStr string, dirList ...string) (*wa
 	// Identifies changes to config (config.toml) files.
 	configSet := make(map[string]bool)
 	var configFiles []string
+	var txtarFs *hugofs.TxtarFs
 	c.withConf(func(conf *commonConfig) {
 		configFiles = conf.configs.LoadingInfo.ConfigFiles
+		txtarFs, _ = conf.fs.Source.(*hugofs.TxtarFs)
 	})
 
 	c.r.Println("Watching for config changes in", strings.Join(configFiles, ", "))
 	for _, configFile := range configFiles {
 		watcher.Add(configFile)
 		configSet[configFile] = true
+	}
+	if txtarFs != nil {
+		watcher.Add(txtarFs.Filename())
 	}
 
 	go func() {
@@ -391,7 +396,7 @@ func (c *hugoBuilder) newWatcher(pollIntervalStr string, dirList ...string) (*wa
 					c.r.logger.Errorf("Failed to acquire a build lock: %s", err)
 					return
 				}
-				c.handleEvents(watcher, staticSyncer, evs, configSet)
+				c.handleEvents(watcher, staticSyncer, evs, configSet, txtarFs)
 				if c.showErrorInBrowser && c.errState.buildErr() != nil {
 					// Need to reload browser to show the error
 					livereload.ForceRefresh()
@@ -730,10 +735,22 @@ func (c *hugoBuilder) handleBuildErr(err error, msg string) {
 	c.r.logger.Errorln(msg + ": " + cleanErrorLog(err.Error()))
 }
 
+// watchRetry re-adds filename to the watcher, retrying for a while.
+// Editors doing atomic saves may leave the file missing for a short period.
+func watchRetry(watcher *watcher.Batcher, filename string) {
+	for range 100 {
+		if watcher.Add(filename) == nil {
+			return
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+}
+
 func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 	staticSyncer *staticSyncer,
 	evs []fsnotify.Event,
 	configSet map[string]bool,
+	txtarFs *hugofs.TxtarFs,
 ) {
 	defer func() {
 		c.errState.setWasErr(false)
@@ -771,52 +788,81 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 	}
 	evs = evs[:n]
 
-	for _, ev := range evs {
-		isConfig := configSet[ev.Name]
-		configChangeType := configChangeConfig
-		if isConfig {
-			if strings.Contains(ev.Name, "go.mod") {
-				configChangeType = configChangeGoMod
-			}
-			if strings.Contains(ev.Name, ".work") {
-				configChangeType = configChangeGoWork
-			}
+	isConfig := func(name string) bool {
+		if configSet[name] {
+			return true
 		}
-		if !isConfig {
-			// It may be one of the /config folders
-			dirname := filepath.Dir(ev.Name)
-			if dirname != "." && configSet[dirname] {
-				isConfig = true
-			}
-		}
+		// It may be one of the /config folders
+		dirname := filepath.Dir(name)
+		return dirname != "." && configSet[dirname]
+	}
 
-		if isConfig {
-			isHandled = true
-
-			if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
+	if txtarFs != nil {
+		// Expand changes to hugo.txtar into events for the files in it.
+		var reload, readd bool
+		n = 0
+		for _, ev := range evs {
+			if ev.Name != txtarFs.Filename() {
+				evs[n] = ev
+				n++
 				continue
 			}
-
-			if ev.Op&fsnotify.Remove == fsnotify.Remove || ev.Op&fsnotify.Rename == fsnotify.Rename {
-				c.withConf(func(conf *commonConfig) {
-					for _, configFile := range conf.configs.LoadingInfo.ConfigFiles {
-						counter := 0
-						for watcher.Add(configFile) != nil {
-							counter++
-							if counter >= 100 {
-								break
-							}
-							time.Sleep(100 * time.Millisecond)
-						}
-					}
-				})
-			}
-
-			// Config file(s) changed. Need full rebuild.
-			c.fullRebuild(configChangeType)
-
-			return
+			reload = true
+			readd = readd || ev.Has(fsnotify.Remove) || ev.Has(fsnotify.Rename)
 		}
+		evs = evs[:n]
+
+		if readd {
+			watchRetry(watcher, txtarFs.Filename())
+		}
+
+		if reload {
+			changes, err := txtarFs.Reload()
+			if err != nil {
+				c.handleBuildErr(err, "Failed to reload "+hugofs.TxtarFilename)
+				return
+			}
+			for _, ev := range changes {
+				if isConfig(ev.Name) {
+					c.fullRebuild(configChangeConfig)
+					return
+				}
+			}
+			evs = append(evs, changes...)
+		}
+	}
+
+	for _, ev := range evs {
+		if !isConfig(ev.Name) {
+			continue
+		}
+
+		isHandled = true
+
+		if ev.Op&fsnotify.Chmod == fsnotify.Chmod {
+			continue
+		}
+
+		configChangeType := configChangeConfig
+		if strings.Contains(ev.Name, "go.mod") {
+			configChangeType = configChangeGoMod
+		}
+		if strings.Contains(ev.Name, ".work") {
+			configChangeType = configChangeGoWork
+		}
+
+		if ev.Op&fsnotify.Remove == fsnotify.Remove || ev.Op&fsnotify.Rename == fsnotify.Rename {
+			c.withConf(func(conf *commonConfig) {
+				for _, configFile := range conf.configs.LoadingInfo.ConfigFiles {
+					watchRetry(watcher, configFile)
+				}
+			})
+		}
+
+		// Config file(s) changed. Need full rebuild.
+		c.fullRebuild(configChangeType)
+
+		return
 	}
 
 	if isHandled {
