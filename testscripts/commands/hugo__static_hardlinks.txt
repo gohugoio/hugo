@@ -1,0 +1,66 @@
+# Static files are hard linked into public when possible.
+hugo --cleanDestinationDir
+samefile static/a.txt public/a.txt
+samefile static/sub/b.txt public/sub/b.txt
+grep 'a' public/a.txt
+
+# Generated files take precedence over static files without modifying the source.
+grep 'generated' public/robots.txt
+! samefile static/robots.txt public/robots.txt
+grep 'static robots' static/robots.txt
+
+# Replaced source files get relinked.
+cp static/b.txt static/a.txt
+hugo --cleanDestinationDir
+samefile static/a.txt public/a.txt
+grep 'b' public/a.txt
+
+# Read-only sources (e.g. from the module cache) are linked too.
+rm public
+chmod 444 static/b.txt
+hugo --cleanDestinationDir
+samefile static/b.txt public/b.txt
+
+# Hard links are off by default.
+replace hugo.toml 'hardlinks = true' 'hardlinks = false'
+rm public
+hugo --cleanDestinationDir
+! samefile static/a.txt public/a.txt
+grep 'b' public/a.txt
+
+# Links left from an earlier build must not be written through.
+replace hugo.toml 'hardlinks = false' 'hardlinks = true'
+rm public
+hugo
+samefile content/p1/r.txt public/p1/r.txt
+replace hugo.toml 'hardlinks = true' 'hardlinks = false'
+hugo
+! samefile content/p1/r.txt public/p1/r.txt
+grep '^r$' content/p1/r.txt
+grep '^r$' public/p1/r.txt
+
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+enableRobotsTXT = true
+[build]
+hardlinks = true
+-- static/a.txt --
+a
+-- static/b.txt --
+b
+-- static/sub/b.txt --
+b
+-- static/robots.txt --
+static robots
+-- layouts/robots.txt --
+generated
+-- layouts/home.html --
+Home.
+-- content/p1/index.md --
+---
+title: p1
+---
+-- content/p1/r.txt --
+r
+-- layouts/page.html --
+{{ (.Resources.Get "r.txt").RelPermalink }}

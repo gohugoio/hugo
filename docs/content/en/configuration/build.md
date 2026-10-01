@@ -17,6 +17,9 @@ This is the default configuration:
 `cachebusters`
 : See the [cache busters](#cache-busters) section below.
 
+`hardlinks`
+: (`bool`) Whether to hard link unmodified files into the publish directory instead of copying them, when the file system supports it. This applies to files from the `static` directory, unprocessed page resources and assets, and processed images from the file cache. Files that cannot be linked are copied. Note that a hard link shares its content and permissions with the source, so files from the module cache are published read-only, and tools that rewrite files in the publish directory in place will modify the source. Default is `false`.
+
 `noJSConfigInAssets`
 : (`bool`) Whether to disable writing a `jsconfig.json` in your `assets` directory with mapping of imports from running [js.Build][]. This file is intended to help with intellisense/navigation inside code editors such as [VS Code][]. Note that if you do not use `js.Build`, no file will be written.
 

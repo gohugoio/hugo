@@ -9,9 +9,18 @@ hugo
 [windows] exec cmd /c attrib public\sitemap.xml
 [windows] ! stdout 'R.*public'
 
+# With hard links, the published files share the module cache's read-only mode.
+replace hugo.toml 'hardlinks = false' 'hardlinks = true'
+rm public
+hugo
+checkfile -readonly public/a.txt
+checkfile -readonly public/sitemap.xml
+
 -- hugo.toml --
 baseURL = 'https://example.org/'
 disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[build]
+hardlinks = false
 
 [[module.imports]]
 path = 'github.com/gohugoio/hugoTestModule2'

@@ -14,10 +14,37 @@
 package hugofs
 
 import (
+	"io/fs"
+	"os"
+	"path/filepath"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
 )
+
+func TestFileMetaInfoUnwrapFileInfo(t *testing.T) {
+	c := qt.New(t)
+	filename := filepath.Join(t.TempDir(), "a.txt")
+	c.Assert(os.WriteFile(filename, []byte("a"), 0o644), qt.IsNil)
+	fi, err := os.Stat(filename)
+	c.Assert(err, qt.IsNil)
+
+	unwrap := func(fi fs.FileInfo) fs.FileInfo {
+		for {
+			u, ok := fi.(interface{ UnwrapFileInfo() fs.FileInfo })
+			if !ok {
+				return fi
+			}
+			fi = u.UnwrapFileInfo()
+		}
+	}
+
+	fim := NewFileMetaInfo(fi, &FileMeta{Filename: filename})
+	c.Assert(os.SameFile(fi, fim), qt.IsFalse)
+	c.Assert(os.SameFile(fi, unwrap(fim)), qt.IsTrue)
+	nested := NewFileMetaInfo(fim, &FileMeta{})
+	c.Assert(os.SameFile(fi, unwrap(nested)), qt.IsTrue)
+}
 
 func TestFileMeta(t *testing.T) {
 	c := qt.New(t)
