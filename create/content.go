@@ -215,7 +215,14 @@ func (b *contentBuilder) buildDir() error {
 	return nil
 }
 
-func (b *contentBuilder) buildFile() (string, error) {
+func (b *contentBuilder) buildFile() (filename string, err error) {
+	_, targetAbsFilename, err := b.h.AbsProjectContentDir(filepath.Clean(b.targetPath))
+	if err != nil {
+		return "", err
+	}
+	// With --force, the placeholder replaces an existing file.
+	original, originalErr := afero.ReadFile(b.sourceFs, targetAbsFilename)
+
 	contentPlaceholderAbsFilename, err := b.cf.CreateContentPlaceHolder(b.targetPath, b.force)
 	if err != nil {
 		if fi, serr := b.sourceFs.Stat(contentPlaceholderAbsFilename); serr == nil && !fi.IsDir() {
@@ -223,6 +230,18 @@ func (b *contentBuilder) buildFile() (string, error) {
 		}
 		return "", err
 	}
+
+	// Don't leave the placeholder behind if creating the content fails.
+	defer func() {
+		if err == nil {
+			return
+		}
+		if originalErr == nil {
+			_ = afero.WriteFile(b.sourceFs, contentPlaceholderAbsFilename, original, 0o666)
+		} else {
+			_ = b.sourceFs.Remove(contentPlaceholderAbsFilename)
+		}
+	}()
 
 	usesSite, err := b.usesSiteVar(b.archetypeFi)
 	if err != nil {
