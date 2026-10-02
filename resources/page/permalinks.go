@@ -179,12 +179,16 @@ func (l PermalinkExpander) Expand(p Page) (string, error) {
 	}
 	var environment string
 	var environmentResolved bool
+	var params func(k string) (any, bool)
 	for _, cfg := range l.configs {
 		if cfg.Target.Environment != "" && !environmentResolved {
 			environment = p.Site().Hugo().Environment()
 			environmentResolved = true
 		}
-		if cfg.Target.Match(kind, p.Path(), environment, siteVector) {
+		if cfg.Target.Params != nil && params == nil {
+			params = paramsLookup(p)
+		}
+		if cfg.Target.Match(kind, p.Path(), environment, params, siteVector) {
 			return l.ExpandPattern(cfg.Pattern, p)
 		}
 	}
@@ -585,7 +589,8 @@ func decodePermalinksMap(m map[string]any) (PermalinksConfig, error) {
 			// [permalinks]
 			//   key = '...'
 			// Backward compat: set for both page and term.
-			configs = append(configs,
+			configs = append(
+				configs,
 				PermalinkConfig{Target: PageMatcher{Kind: kinds.KindPage, Path: sectionToPathGlob(k)}, Pattern: v},
 				PermalinkConfig{Target: PageMatcher{Kind: kinds.KindTerm, Path: sectionToPathGlob(k)}, Pattern: v},
 			)
@@ -599,7 +604,8 @@ func decodePermalinksMap(m map[string]any) (PermalinksConfig, error) {
 			for k2, v2 := range v {
 				switch v2 := v2.(type) {
 				case string:
-					configs = append(configs,
+					configs = append(
+						configs,
 						PermalinkConfig{Target: PageMatcher{Kind: k, Path: sectionToPathGlob(k2)}, Pattern: v2},
 					)
 				default:
