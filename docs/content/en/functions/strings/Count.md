@@ -11,7 +11,7 @@ params:
 aliases: [/functions/strings.count]
 ---
 
-If `SUBSTR` is an empty string, this function returns 1 plus the number of Unicode code points in `STRING`.
+If `SUBSTR` is an empty string, this function returns 1 plus the number of Unicode [code points](g) in `STRING`.
 
 ```go-html-template
 {{ "aaabaab" | strings.Count "a" }} → 5

@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -32,4 +33,26 @@ SectionsEntries: {{ .SectionsEntries }}
 
 	b.AssertFileContent("public/withfile/index.html", "SectionsEntries: [withfile]")
 	b.AssertFileContent("public/withoutfile/index.html", "SectionsEntries: [withoutfile]")
+}
+
+// See #14625.
+func TestDefaultBaseURL(t *testing.T) {
+	filesTemplate := `
+-- hugo.toml --
+CONFIG
+-- content/_index.md --
+-- layouts/list.html --
+BaseURL: {{ .Site.BaseURL }}
+`
+	files := strings.ReplaceAll(filesTemplate, "CONFIG", `baseURL = "https://example.com/"`)
+	b := Test(t, files)
+	b.AssertFileContent("public/index.html", "BaseURL: https://example.com/")
+
+	files = strings.ReplaceAll(filesTemplate, "CONFIG", "")
+	b = Test(t, files)
+	b.AssertFileContent("public/index.html", "BaseURL: https://example.org/")
+
+	files = strings.ReplaceAll(filesTemplate, "CONFIG", `baseURL = "/"`)
+	b = Test(t, files)
+	b.AssertFileContent("public/index.html", "BaseURL: /")
 }

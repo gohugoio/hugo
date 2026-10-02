@@ -1,6 +1,6 @@
 ---
 title: Count
-description: Returns the number of number of weighted pages to which the given term has been assigned.
+description: Returns the number of weighted pages to which the given term has been assigned.
 categories: []
 keywords: []
 params:
@@ -9,7 +9,7 @@ params:
     signatures: [TAXONOMY.Count TERM]
 ---
 
-The `Count` method on a `Taxonomy` object returns the number of number of [weighted pages](g) to which the given [term](g) has been assigned.
+The `Count` method on a `Taxonomy` object returns the number of [weighted pages](g) to which the given [term](g) has been assigned.
 
 {{% include "/_common/methods/taxonomy/get-a-taxonomy-object.md" %}}
 

@@ -9,6 +9,8 @@ params:
     signatures: [PAGE1.IsDescendant PAGE2]
 ---
 
+## Basic usage
+
 With this content structure:
 
 ```tree

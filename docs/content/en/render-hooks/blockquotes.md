@@ -14,11 +14,9 @@ Blockquote _render hook_ templates receive the following [context](g):
 : (`string`) Applicable when [`Type`](#type) is `alert`, this is the alert type converted to lowercase. See the [alerts](#alerts) section below.
 
 `AlertTitle`
-: {{< new-in 0.134.0 />}}
 : (`template.HTML`) Applicable when [`Type`](#type) is `alert`, this is the alert title. See the [alerts](#alerts) section below.
 
 `AlertSign`
-: {{< new-in 0.134.0 />}}
 : (`string`) Applicable when [`Type`](#type) is `alert`, this is the alert sign. Typically used to indicate whether an alert is graphically foldable, this is one of&nbsp;`+`,&nbsp;`-`,&nbsp;or an empty string. See the [alerts](#alerts) section below.
 
 `Attributes`

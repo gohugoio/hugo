@@ -20,10 +20,14 @@ hugo gen chromastyles [flags] [args]
 ### Options
 
 ```
+      --classDark string                class name used by --modeSelector for dark styles (default "dark")
+      --classLight string               class name used by --modeSelector for light styles (default "light")
   -h, --help                            help for chromastyles
       --highlightStyle string           foreground and background colors for highlighted lines, e.g. --highlightStyle "#fff000 bg:#000fff"
       --lineNumbersInlineStyle string   foreground and background colors for inline line numbers, e.g. --lineNumbersInlineStyle "#fff000 bg:#000fff"
       --lineNumbersTableStyle string    foreground and background colors for table line numbers, e.g. --lineNumbersTableStyle "#fff000 bg:#000fff"
+      --mode string                     style mode ("light", "dark")
+      --modeSelector                    scope selectors under a top level mode class, e.g. ".dark .chroma"
       --omitClassComments               omit CSS class comment prefixes in the generated CSS
       --omitEmpty                       omit empty CSS rules (deprecated, no longer needed)
       --style string                    highlighter style (default "friendly")

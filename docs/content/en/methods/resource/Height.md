@@ -1,6 +1,6 @@
 ---
 title: Height
-description: Applicable to images, returns the height of the given resource.
+description: Returns the height of the given image resource.
 categories: []
 keywords: []
 params:

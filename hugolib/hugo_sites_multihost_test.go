@@ -154,11 +154,13 @@ title: "Mybundle fr"
 `
 	b := Test(t, files)
 
-	b.AssertFileContent("public/fr/section/mybundle/index.html",
+	b.AssertFileContent(
+		"public/fr/section/mybundle/index.html",
 		"fr: .body{color:french}|/section/mybundle/styles.min.css|",
 	)
 
-	b.AssertFileContent("public/en/section/mybundle/index.html",
+	b.AssertFileContent(
+		"public/en/section/mybundle/index.html",
 		"en: .body{color:english}|/section/mybundle/styles.min.css|",
 	)
 
@@ -207,9 +209,9 @@ title: mybundle-en
 	b.AssertFileExists("public/de/mybundle/pixel.png", true)
 	b.AssertFileExists("public/en/mybundle/pixel.png", true)
 
-	b.AssertFileExists("public/de/mybundle/pixel_hu_c8522c65d73a0421.png", true)
+	b.AssertFileExists("public/de/mybundle/pixel_hu_a25c5b589ae00856.png", true)
 	// failing test below
-	b.AssertFileExists("public/en/mybundle/pixel_hu_c8522c65d73a0421.png", true)
+	b.AssertFileExists("public/en/mybundle/pixel_hu_a25c5b589ae00856.png", true)
 }
 
 func TestMultihostResourceOneBaseURLWithSubPath(t *testing.T) {

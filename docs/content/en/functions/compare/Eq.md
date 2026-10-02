@@ -1,6 +1,6 @@
 ---
 title: compare.Eq
-description: Returns the boolean truth of arg1 == arg2 || arg1 == arg3.
+description: Reports whether the first argument is equal to any of the subsequent arguments.
 categories: []
 keywords: []
 params:
@@ -11,14 +11,26 @@ params:
 aliases: [/functions/eq]
 ---
 
-```go-html-template
-{{ eq 1 1 }} → true
-{{ eq 1 2 }} → false
+## Usage
 
-{{ eq 1 1 1 }} → true
-{{ eq 1 1 2 }} → true
-{{ eq 1 2 1 }} → true
-{{ eq 1 2 2 }} → false
+The `compare.Eq` function reports whether the first argument is equal to any of the subsequent arguments. You can also use this function to compare strings, boolean values, dates, and other comparable data types.
+
+## Examples
+
+```go-html-template
+{{ compare.Eq 1 1 }} → true
+{{ compare.Eq 1 2 }} → false
+
+{{ compare.Eq 1 1 1 }} → true
+{{ compare.Eq 1 1 2 }} → true
+{{ compare.Eq 1 2 1 }} → true
+{{ compare.Eq 1 2 2 }} → false
 ```
 
-You can also use the `compare.Eq` function to compare strings, boolean values, dates, slices, maps, and pages.
+Comparing other data types:
+
+```go-html-template
+{{ compare.Eq "ab" "a" }} → false
+{{ compare.Eq time.Now (time.AsTime "1964-12-30") }} → false
+{{ compare.Eq true false }} → false
+```

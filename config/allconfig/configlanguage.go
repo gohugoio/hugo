@@ -91,6 +91,10 @@ func (c ConfigLanguage) FastRenderMode() bool {
 	return c.config.Internal.FastRenderMode
 }
 
+func (c ConfigLanguage) IgnoreTailwindCSSSecurityError() bool {
+	return c.config.InternalExternal.IgnoreTailwindCSSSecurityError
+}
+
 func (c ConfigLanguage) IsMultilingual() bool {
 	return len(c.m.Languages) > 1
 }

@@ -1,6 +1,6 @@
 ---
 title: transform.Remarshal
-description: Marshals a string of serialized data, or a map, into a string of serialized data in the specified format.
+description: Returns a string of serialized data in the specified format, marshaled from a string of serialized data or a map.
 categories: []
 keywords: []
 params:
@@ -11,6 +11,8 @@ params:
 aliases: [/functions/transform.remarshal]
 ---
 
+## Usage
+
 The format must be one of `json`, `toml`, `yaml`, or `xml`. If the input is a string of serialized data, it must be valid JSON, TOML, YAML, or XML.
 
 > [!NOTE]
@@ -18,8 +20,13 @@ The format must be one of `json`, `toml`, `yaml`, or `xml`. If the input is a st
 >
 > This is not a general purpose converter, and may change without notice if required for Hugo's documentation site.
 
-Example 1
-: Convert a string of TOML to JSON.
+## Examples
+
+The following examples convert data from one serialized format to another.
+
+### TOML to JSON
+
+This example converts a string of TOML to JSON:
 
 ```go-html-template
 {{ $s := `
@@ -51,8 +58,9 @@ Rendered in browser:
 }
 ```
 
-Example 2
-: Convert a map to YAML.
+### Map to YAML
+
+This example converts a map to YAML:
 
 ```go-html-template
 {{ $m := dict

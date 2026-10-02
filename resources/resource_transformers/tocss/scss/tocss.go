@@ -78,22 +78,20 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		url = filepath.FromSlash(url)
 		prev = filepath.FromSlash(prev)
 
-		var basePath string
-		urlDir := filepath.Dir(url)
-		var prevDir string
+		var (
+			prevDir string
+			inHugo  = true
+			osDirs  = options.to.IncludePaths
+		)
 
 		if prev == "stdin" {
 			prevDir = baseDir
 		} else {
-			prevDir, _ = t.c.sfs.MakePathRelative(filepath.Dir(prev), true)
-
-			if prevDir == "" {
-				// Not a member of this filesystem. Let LibSASS handle it.
-				return "", "", false
-			}
+			prevDir, inHugo = t.c.sfs.MakePathRelative(filepath.Dir(prev), true)
+			osDirs = append([]string{filepath.Dir(prev)}, osDirs...)
 		}
 
-		basePath = filepath.Join(prevDir, urlDir)
+		urlDir := filepath.Dir(url)
 		name := filepath.Base(url)
 
 		// Libsass throws an error in cases where you have several possible candidates.
@@ -113,19 +111,36 @@ func (t *toCSSTransformation) Transform(ctx *resources.ResourceTransformationCtx
 		}
 
 		name = strings.TrimPrefix(name, "_")
+		names := make([]string, len(namePatterns))
+		for i, namePattern := range namePatterns {
+			names[i] = filepath.Join(urlDir, fmt.Sprintf(namePattern, name))
+		}
 
-		for _, namePattern := range namePatterns {
-			filenameToCheck := filepath.Join(basePath, fmt.Sprintf(namePattern, name))
-			fi, err := t.c.sfs.Fs.Stat(filenameToCheck)
-			if err == nil {
-				if fim, ok := fi.(hugofs.FileMetaInfo); ok {
-					ctx.DependencyManager.AddIdentity(identity.CleanStringIdentity(filenameToCheck))
-					return fim.Meta().Filename, "", true
+		if inHugo {
+			for _, n := range names {
+				filenameToCheck := filepath.Join(prevDir, n)
+				fi, err := t.c.sfs.Fs.Stat(filenameToCheck)
+				if err == nil {
+					if fim, ok := fi.(hugofs.FileMetaInfo); ok {
+						ctx.DependencyManager.AddIdentity(identity.CleanStringIdentity(filenameToCheck))
+						return fim.Meta().Filename, "", true
+					}
 				}
 			}
 		}
 
-		// Not found, let LibSASS handle it
+		// Not found in Hugo's file systems. LibSASS would now search relative to prev
+		// and the include paths on its own, so do that here where the result can be checked.
+		filename, err := sass.FindFile(t.c.rs.ExecHelper, osDirs, names)
+		if err != nil {
+			// The resolver cannot return an error, but @error fails the build.
+			return url, fmt.Sprintf("@error %q;", err.Error()), true
+		}
+		if filename != "" {
+			return filename, "", true
+		}
+
+		// Not found, let LibSASS report it.
 		return "", "", false
 	}
 

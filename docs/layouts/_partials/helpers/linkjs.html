@@ -3,7 +3,7 @@
 {{ if hugo.IsDevelopment }}
 	<script
 		src="{{ $r.RelPermalink }}"
-	{{ template `render-attributes` $attr }}>
+		{{ template `render-attributes` $attr }}>
 	</script>
 {{ else }}
 	{{ with $r | fingerprint }}
@@ -11,7 +11,7 @@
 			src="{{ .RelPermalink }}"
 			integrity="{{ .Data.Integrity }}"
 			crossorigin="anonymous"
-		{{ template `render-attributes` $attr }}>
+			{{ template `render-attributes` $attr }}>
 		</script>
 	{{ end }}
 {{ end }}

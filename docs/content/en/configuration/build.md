@@ -82,4 +82,4 @@ Due to the nature of partial server builds, new HTML entities are added while th
 [VS Code]: https://code.visualstudio.com/
 [`config/production`]: /configuration/introduction/#configuration-directory
 [js.Build]: /functions/js/build/
-[removing unused CSS]: /functions/resources/postprocess/
+[removing unused CSS]: /functions/templates/defer/#remove-unused-css

@@ -12,13 +12,13 @@ params:
 
 {{< new-in 0.154.0 />}}
 
-The `templates.Inner` function defines the injection point for code nested within a block style partial call. This is the core mechanism used to create a [partial decorator][].
+The `templates.Inner` function defines the injection point for code nested within a block style _partial_ template call. This is the core mechanism used to create a [partial decorator][].
 
 ## Overview
 
-The `templates.Inner` function acts as a placeholder within a partial template. When a partial is called as a decorator, it captures a block of code from the calling template rather than rendering it immediately. The `templates.Inner` function tells Hugo exactly where to inject that captured content.
+The `templates.Inner` function acts as a placeholder within a _partial_ template. When a _partial_ template is called as a decorator, it captures a block of code from the calling template rather than rendering it immediately. The `templates.Inner` function tells Hugo exactly where to inject that captured content.
 
-This signals a reversal of execution where the callee becomes the caller. The partial manages the outer structure while the calling template remains in control of the inner content.
+This signals a reversal of execution where the callee becomes the caller. The _partial_ template manages the outer structure while the calling template remains in control of the inner content.
 
 ## Usage
 
@@ -30,7 +30,7 @@ To use this function, the calling template must use the block style syntax with 
 {{ end }}
 ```
 
-Inside the partial, call `templates.Inner` to render the captured block.
+Inside the _partial_ template, call `templates.Inner` to render the captured block.
 
 ```go-html-template {file="layouts/_partials/components/card.html"}
 <div class="card-frame">
@@ -43,7 +43,7 @@ Inside the partial, call `templates.Inner` to render the captured block.
 The function accepts one optional argument: the [context](g). This argument determines the value of the dot (`.`) inside the captured block when it is rendered.
 
 - If you provide an argument, such as `{{ templates.Inner .SomeData }}`, the dot inside the captured block is rebound to that specific data.
-- If you do not provide an argument, the captured block uses the context of the caller where the partial was first invoked.
+- If you do not provide an argument, the captured block uses the context of the caller where the _partial_ template was first invoked.
 
 ## Context and scope
 

@@ -1,6 +1,6 @@
 ---
 title: js.Batch
-description: Build JavaScript bundle groups with global code splitting and flexible hooks/runners setup.
+description: Returns a batcher used to build JavaScript bundle groups with global code splitting and flexible hooks/runners setup.
 categories: []
 keywords: []
 params:
@@ -161,7 +161,7 @@ import * as params from "@params";
 import * as config from "@params/config";
 ```
 
-Setting the `Config` for a batch can be done from any template (including shortcode templates), but will only be set once (the first will win):
+Setting the `Config` for a batch can be done from any template (including _shortcode_ templates), but will only be set once (the first will win):
 
 ```go-html-template
 {{ with js.Batch "js/mybatch" }}

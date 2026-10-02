@@ -94,9 +94,9 @@ A section has one or more ancestors (including the home page), and zero or more 
 content/products/product-1/benefits/benefit-1.md
 ```
 
-The content file (benefit-1.md) has four ancestors: benefits, product-1, products, and the home page. This logical relationship allows us to use the `.Parent` and `.Ancestors` methods to traverse the site structure.
+The content file (benefit-1.md) has four ancestors: benefits, product-1, products, and the home page. This logical relationship allows us to use the `Parent` and `Ancestors` methods to traverse the site structure.
 
-For example, use the `.Ancestors` method to render breadcrumb navigation.
+For example, use the `Ancestors` method to render breadcrumb navigation.
 
 ```go-html-template {file="layouts/_partials/breadcrumb.html"}
 <nav aria-label="breadcrumb" class="breadcrumb">

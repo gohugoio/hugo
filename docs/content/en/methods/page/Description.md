@@ -18,9 +18,7 @@ description = 'Instructions for making spicy tuna hand rolls.'
 
 ```go-html-template {file="layouts/baseof.html"}
 <head>
-  ...
   <meta name="description" content="{{ .Description }}">
-  ...
 </head>
 ```
 

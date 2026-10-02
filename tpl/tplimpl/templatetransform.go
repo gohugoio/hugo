@@ -301,6 +301,7 @@ func (c *templateTransformContext) handleWithPartial(withNode *parse.WithNode) {
 			c.err = fmt.Errorf("failed to find internal partial decorator template %q after insertion", internalPartialName)
 			return
 		}
+		ti.decoratorOwner = c.t
 
 		cc := newTemplateTransformContext(ti, c.store, c.lookupFn)
 
@@ -408,7 +409,10 @@ func (c *templateTransformContext) handleWith(withNode *parse.WithNode) {
 		c.err = errors.New("resources.PostProcess cannot be used in a deferred template")
 		return
 	}
-	innerHash := hashing.XxHashFromStringHexEncoded(s)
+	// The deferred template is parsed using the owner's escaping mode. Keep
+	// identical bodies shared within that mode, but don't let HTML and plain
+	// text templates register the same deferred template.
+	innerHash := hashing.XxHashFromStringHexEncoded(fmt.Sprintf("%t:%s", c.t.D.IsPlainText, s))
 	deferredID := tpl.HugoDeferredTemplatePrefix + innerHash
 
 	c.deferNodes[deferredID] = inner

@@ -334,6 +334,8 @@ func newTestCfg(c *qt.C, mm afero.Fs) (config.Provider, *hugofs.Fs) {
 	cfg := `
 
 theme = "mytheme"
+[security]
+allowContent = ['.*']
 [languages]
 [languages.en]
 weight = 1

@@ -38,8 +38,8 @@ layouts/
 │   ├── page.html
 │   └── section.html
 ├── films/
-│   ├── view_card.html      <-- content view
-│   ├── view_li.html        <-- content view
+│   ├── _views/
+│   │   └── card.html       <-- view template
 │   ├── page.html
 │   └── section.html
 ├── baseof.html
@@ -69,7 +69,7 @@ Hugo can apply a _base_ template to the following template types: [home](#home),
 > [!NOTE]
 > If a template doesn't meet all these criteria, Hugo executes it exactly as provided, without applying a _base_ template.
 
-When Hugo applies a _base_ template, it replaces its [`block`][] actions with content from the corresponding `define` actions found in the template to which the base template is applied.
+When Hugo applies a _base_ template, it replaces its [`block`][] actions with content from the corresponding `define` actions found in the template to which the _base_ template is applied.
 
 For example, the _base_ template below calls the [`partial`][] function to include `head`, `header`, and `footer` elements. The `block` action acts as a placeholder, and its content will be replaced by a matching `define` action  from the template to which it is applied.
 
@@ -87,7 +87,7 @@ For example, the _base_ template below calls the [`partial`][] function to inclu
     {{ block "main" . }}
       This will be replaced with content from the
       corresponding "define" action found in the template
-      to which this base template is applied.
+      to which this _base_ template is applied.
     {{ end }}
   </main>
   <footer>
@@ -100,7 +100,7 @@ For example, the _base_ template below calls the [`partial`][] function to inclu
 ```go-html-template {file="layouts/home.html"}
 {{ define "main" }}
   This will replace the content of the "block" action
-  found in the base template.
+  found in the _base_ template.
 {{ end }}
 ```
 
@@ -301,6 +301,8 @@ Hugo uses this lookup order to find a matching template:
 1. `layouts/_partials/footer.de.html`
 1. `layouts/_partials/footer.html`
 
+## Inline partial
+
 A _partial_ template can also be defined inline within another template. However, it's important to note that the template namespace is global; ensuring unique names for these _partial_ templates is necessary to prevent conflicts.
 
 ```go-html-template
@@ -312,13 +314,11 @@ Value: {{ partial "my-inline-partial.html" . }}
 {{ end }}
 ```
 
-## Content view
+## View
 
-A _content view_ template is similar to a _partial_ template, invoked by calling the [`Render`][] method on a `Page` object. Unlike _partial_ templates, _content view_ templates:
+A _view_ template is similar to a _partial_ template, invoked by calling the [`Render`][] method on a `Page` object, but with key differences.
 
-- Inherit the context of the current page
-- Can target any page kind, content type, logical path, language, or output format
-- Can reside at any level within the `layouts` directory
+{{% include "/_common/render-vs-partial.md" %}}
 
 For example, Hugo applies a _base_ template to the _home_ template below, then renders the page content and a card component for each page within the `films` section of your site.
 
@@ -327,20 +327,20 @@ For example, Hugo applies a _base_ template to the _home_ template below, then r
   {{ .Content }}
   <ul>
     {{ range where site.RegularPages "Section" "films" }}
-      {{ .Render "view_card" }}
+      {{ .Render "_views/card" }}
     {{ end }}
   </ul>
 {{ end }}
 ```
 
-```go-html-template {file="layouts/films/view_card.html"}
+```go-html-template {file="layouts/films/_views/card.html"}
 <div class="card">
   <h2><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></h2>
   {{ .Summary }}
 </div>
 ```
 
-In the example above, the content view template's name starts with `view_`. While not strictly required, this naming convention helps distinguish content view templates from other templates within the same directory, improving organization and clarity.
+See the [`Render`][] method documentation for guidance on naming and organizing _view_ templates.
 
 ## Render hook
 
@@ -359,7 +359,7 @@ Learn more about [render hook templates][].
 
 ## Shortcode
 
-A _shortcode_ template is used to render a component of your site. Unlike _partial_ or _content view_ templates, _shortcode_ templates are called from content pages.
+A _shortcode_ template is used to render a component of your site. Unlike _partial_ or _view_ templates, _shortcode_ templates are called from content pages.
 
 For example, the _shortcode_ template below renders an audio element from a [global resource](g).
 

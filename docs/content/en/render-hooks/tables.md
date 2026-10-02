@@ -6,8 +6,6 @@ categories: []
 keywords: []
 ---
 
-{{< new-in 0.134.0 />}}
-
 ## Context
 
 Table _render hook_ templates receive the following [context](g):

@@ -237,7 +237,7 @@ func (l *logAdapter) Debugf(format string, v ...any) {
 }
 
 func (l *logAdapter) Debugln(v ...any) {
-	l.debugl.Logf(l.sprint(v...))
+	l.debugl.Logf("%s", l.sprint(v...))
 }
 
 func (l *logAdapter) Info() logg.LevelLogger {
@@ -253,7 +253,7 @@ func (l *logAdapter) Infof(format string, v ...any) {
 }
 
 func (l *logAdapter) Infoln(v ...any) {
-	l.infol.Logf(l.sprint(v...))
+	l.infol.Logf("%s", l.sprint(v...))
 }
 
 func (l *logAdapter) Level() logg.Level {
@@ -318,7 +318,7 @@ func (l *logAdapter) WarnCommand(command string) logg.LevelLogger {
 }
 
 func (l *logAdapter) Warnln(v ...any) {
-	l.warnl.Logf(l.sprint(v...))
+	l.warnl.Logf("%s", l.sprint(v...))
 }
 
 func (l *logAdapter) Error() logg.LevelLogger {
@@ -330,7 +330,7 @@ func (l *logAdapter) Errorf(format string, v ...any) {
 }
 
 func (l *logAdapter) Errorln(v ...any) {
-	l.errorl.Logf(l.sprint(v...))
+	l.errorl.Logf("%s", l.sprint(v...))
 }
 
 func (l *logAdapter) Errors() string {

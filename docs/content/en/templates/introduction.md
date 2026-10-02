@@ -290,7 +290,12 @@ Function|Alias
 [`strings.ToUpper`][]|`upper`
 [`strings.Replace`][]|`replace`
 
-As shown above, frequently used functions have an alias. Use aliases in your templates to reduce code length.
+As shown above, frequently used functions have an alias. Use aliases in your templates to reduce code length. For example, these are equivalent:
+
+```go-html-template
+{{ strings.ToLower "Hugo" }} → hugo
+{{ lower "Hugo" }} → hugo
+```
 
 When calling a function, separate the arguments from the function, and from each other, with a space. For example:
 

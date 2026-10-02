@@ -146,8 +146,8 @@ func Docker() error {
 
 // Run tests and linters
 func Check() {
-	if isCI() && isDarwin() {
-		// Skip on macOS in CI (disk space issues)
+	if isCI() && (isDarwin() || isWindows()) {
+		// Skip on macOS/Windows in CI (disk space issues)
 	} else {
 		mg.Deps(Fmt, Vet)
 	}
@@ -159,7 +159,7 @@ func Check() {
 
 func testGoFlags() string {
 	if isCI() {
-		return ""
+		return "-vet=off"
 	}
 
 	return "-timeout=2m"
@@ -326,6 +326,10 @@ func isUnix() bool {
 
 func isDarwin() bool {
 	return runtime.GOOS == "darwin"
+}
+
+func isWindows() bool {
+	return runtime.GOOS == "windows"
 }
 
 func isCI() bool {

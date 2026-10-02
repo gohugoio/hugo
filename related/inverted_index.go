@@ -18,12 +18,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"html"
+	"iter"
 	"maps"
 	"math"
 	"sort"
 	"strings"
 	"sync"
 	"time"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/gohugoio/hugo/common/collections"
 	"github.com/gohugoio/hugo/common/hmaps"
@@ -46,8 +50,7 @@ var validTypes = map[string]bool{
 }
 
 var (
-	_        Keyword = (*StringKeyword)(nil)
-	zeroDate         = time.Time{}
+	zeroDate = time.Time{}
 
 	// DefaultConfig is the default related config.
 	DefaultConfig = Config{
@@ -122,15 +125,22 @@ type IndexConfig struct {
 	// used in more than 50% of the documents in the index.
 	CardinalityThreshold int
 
-	// Will lower case all string values in and queries tothis index.
+	// Will lower case all string values in and queries to this index.
 	// May get better accurate results, but at a slight performance cost.
 	ToLower bool
+
+	// Whether to split multi-word values into individual keywords.
+	Tokenize bool
+
+	// Minimum token length in Unicode code points when tokenizing.
+	MinTokenLength int
 }
 
 // Document is the interface an indexable document in Hugo must fulfill.
 type Document interface {
-	// RelatedKeywords returns a list of keywords for the given index config.
-	RelatedKeywords(cfg IndexConfig) ([]Keyword, error)
+	// RelatedKeywords returns the keywords for the given index config.
+	// The returned slice may share backing with the document's data and must not be mutated.
+	RelatedKeywords(cfg IndexConfig) ([]string, error)
 
 	// When this document was or will be published.
 	PublishDate() time.Time
@@ -152,7 +162,7 @@ type FragmentProvider interface {
 // lists, for every possible search term, the documents that contain that term.
 type InvertedIndex struct {
 	cfg   Config
-	index map[string]map[Keyword][]Document
+	index map[string]map[string][]Document
 	// Counts the number of documents added to each index.
 	indexDocCount map[string]int
 
@@ -176,9 +186,9 @@ func (idx *InvertedIndex) getIndexCfg(name string) (IndexConfig, bool) {
 // NewInvertedIndex creates a new InvertedIndex.
 // Documents to index must be added in Add.
 func NewInvertedIndex(cfg Config) *InvertedIndex {
-	idx := &InvertedIndex{index: make(map[string]map[Keyword][]Document), indexDocCount: make(map[string]int), cfg: cfg}
+	idx := &InvertedIndex{index: make(map[string]map[string][]Document), indexDocCount: make(map[string]int), cfg: cfg}
 	for _, conf := range cfg.Indices {
-		idx.index[conf.Name] = make(map[Keyword][]Document)
+		idx.index[conf.Name] = make(map[string][]Document)
 		if conf.Weight < idx.minWeight {
 			// By default, the weight scale starts at 0, but we allow
 			// negative weights.
@@ -207,7 +217,7 @@ func (idx *InvertedIndex) Add(ctx context.Context, docs ...Document) error {
 
 		for _, doc := range docs {
 			var added bool
-			var words []Keyword
+			var words []string
 			words, err = doc.RelatedKeywords(config)
 			if err != nil {
 				continue
@@ -220,9 +230,25 @@ func (idx *InvertedIndex) Add(ctx context.Context, docs ...Document) error {
 
 			if config.Type == TypeFragments {
 				if fp, ok := doc.(FragmentProvider); ok {
-					for _, fragment := range fp.Fragments(ctx).Identifiers {
+					frags := fp.Fragments(ctx)
+					seenKW := make(map[string]bool)
+					for _, fragment := range frags.Identifiers {
 						added = true
-						setm[FragmentKeyword(fragment)] = append(setm[FragmentKeyword(fragment)], doc)
+						if config.Tokenize {
+							if h, found := frags.HeadingsMap[fragment]; found {
+								for word := range splitWordsSeq(h.Title) {
+									if !config.shouldSkipToken(word) {
+										kw := config.normalizeKeyword(word)
+										if !seenKW[kw] {
+											seenKW[kw] = true
+											setm[kw] = append(setm[kw], doc)
+										}
+									}
+								}
+								continue
+							}
+						}
+						setm[fragment] = append(setm[fragment], doc)
 					}
 				}
 			}
@@ -270,10 +296,10 @@ func (idx *InvertedIndex) Finalize(ctx context.Context) error {
 // search for related content.
 type queryElement struct {
 	Index    string
-	Keywords []Keyword
+	Keywords []string
 }
 
-func newQueryElement(index string, keywords ...Keyword) queryElement {
+func newQueryElement(index string, keywords ...string) queryElement {
 	return queryElement{Index: index, Keywords: keywords}
 }
 
@@ -312,7 +338,7 @@ func (r ranks) Len() int      { return len(r) }
 func (r ranks) Swap(i, j int) { r[i], r[j] = r[j], r[i] }
 func (r ranks) Less(i, j int) bool {
 	if r[i].Weight == r[j].Weight {
-		if r[i].Doc.PublishDate() == r[j].Doc.PublishDate() {
+		if r[i].Doc.PublishDate().Equal(r[j].Doc.PublishDate()) {
 			return r[i].Doc.Name() < r[j].Doc.Name()
 		}
 		return r[i].Doc.PublishDate().After(r[j].Doc.PublishDate())
@@ -363,7 +389,7 @@ func (idx *InvertedIndex) Search(ctx context.Context, opts SearchOpts) ([]Docume
 	}
 
 	for _, cfg := range configs {
-		var keywords []Keyword
+		var keywords []string
 		if opts.Document != nil {
 			k, err := opts.Document.RelatedKeywords(cfg)
 			if err != nil {
@@ -372,13 +398,27 @@ func (idx *InvertedIndex) Search(ctx context.Context, opts SearchOpts) ([]Docume
 			keywords = append(keywords, k...)
 		}
 		if cfg.Type == TypeFragments {
-			for _, fragment := range opts.Fragments {
-				keywords = append(keywords, FragmentKeyword(fragment))
-			}
+			keywords = append(keywords, opts.Fragments...)
 			if opts.Document != nil {
 				if fp, ok := opts.Document.(FragmentProvider); ok {
-					for _, fragment := range fp.Fragments(ctx).Identifiers {
-						keywords = append(keywords, FragmentKeyword(fragment))
+					frags := fp.Fragments(ctx)
+					seenKW := make(map[string]bool)
+					for _, fragment := range frags.Identifiers {
+						if cfg.Tokenize {
+							if h, found := frags.HeadingsMap[fragment]; found {
+								for word := range splitWordsSeq(h.Title) {
+									if !cfg.shouldSkipToken(word) {
+										kw := cfg.normalizeKeyword(word)
+										if !seenKW[kw] {
+											seenKW[kw] = true
+											keywords = append(keywords, kw)
+										}
+									}
+								}
+								continue
+							}
+						}
+						keywords = append(keywords, fragment)
 					}
 				}
 			}
@@ -387,7 +427,7 @@ func (idx *InvertedIndex) Search(ctx context.Context, opts SearchOpts) ([]Docume
 		queryElements = append(queryElements, newQueryElement(cfg.Name, keywords...))
 	}
 	for _, slice := range opts.NamedSlices {
-		var keywords []Keyword
+		var keywords []string
 		key := slice.KeyString()
 		if key == "" {
 			return nil, fmt.Errorf("index %q not valid", slice.Key)
@@ -413,29 +453,52 @@ func (idx *InvertedIndex) Search(ctx context.Context, opts SearchOpts) ([]Docume
 	return idx.search(ctx, queryElements...)
 }
 
-func (cfg IndexConfig) stringToKeyword(s string) Keyword {
+func (cfg IndexConfig) normalizeKeyword(s string) string {
 	if cfg.ToLower {
-		s = strings.ToLower(s)
+		return strings.ToLower(s)
 	}
-	if cfg.Type == TypeFragments {
-		return FragmentKeyword(s)
-	}
-	return StringKeyword(s)
+	return s
 }
 
-// ToKeywords returns a Keyword slice of the given input.
-func (cfg IndexConfig) ToKeywords(v any) ([]Keyword, error) {
-	var keywords []Keyword
+func (cfg IndexConfig) shouldSkipToken(word string) bool {
+	return cfg.MinTokenLength > 0 && utf8.RuneCountInString(word) < cfg.MinTokenLength
+}
 
+// appendTokens appends the normalized tokens in s to keywords.
+func (cfg IndexConfig) appendTokens(keywords []string, s string) []string {
+	for word := range splitWordsSeq(s) {
+		if !cfg.shouldSkipToken(word) {
+			keywords = append(keywords, cfg.normalizeKeyword(word))
+		}
+	}
+	return keywords
+}
+
+// ToKeywords returns the keywords for the given input.
+// The returned slice may share backing with the input and must not be mutated.
+func (cfg IndexConfig) ToKeywords(v any) ([]string, error) {
 	switch vv := v.(type) {
 	case string:
-		keywords = append(keywords, cfg.stringToKeyword(vv))
-	case []string:
-		vvv := make([]Keyword, len(vv))
-		for i := range vvv {
-			vvv[i] = cfg.stringToKeyword(vv[i])
+		if cfg.Tokenize {
+			return cfg.appendTokens(make([]string, 0, 4), vv), nil
 		}
-		keywords = append(keywords, vvv...)
+		return []string{cfg.normalizeKeyword(vv)}, nil
+	case []string:
+		if cfg.Tokenize {
+			keywords := make([]string, 0, len(vv)*2)
+			for _, s := range vv {
+				keywords = cfg.appendTokens(keywords, s)
+			}
+			return keywords, nil
+		}
+		if !cfg.ToLower {
+			return vv, nil
+		}
+		keywords := make([]string, len(vv))
+		for i, s := range vv {
+			keywords[i] = strings.ToLower(s)
+		}
+		return keywords, nil
 	case []any:
 		return cfg.ToKeywords(cast.ToStringSlice(vv))
 	case time.Time:
@@ -443,14 +506,12 @@ func (cfg IndexConfig) ToKeywords(v any) ([]Keyword, error) {
 		if cfg.Pattern != "" {
 			layout = cfg.Pattern
 		}
-		keywords = append(keywords, StringKeyword(vv.Format(layout)))
+		return []string{vv.Format(layout)}, nil
 	case nil:
-		return keywords, nil
+		return nil, nil
 	default:
-		return keywords, fmt.Errorf("indexing currently not supported for index %q and type %T", cfg.Name, vv)
+		return nil, fmt.Errorf("indexing currently not supported for index %q and type %T", cfg.Name, vv)
 	}
-
-	return keywords, nil
 }
 
 func (idx *InvertedIndex) search(ctx context.Context, query ...queryElement) ([]Document, error) {
@@ -466,7 +527,12 @@ func (idx *InvertedIndex) searchDate(ctx context.Context, self Document, upperDa
 	}()
 
 	applyDateFilter := !idx.cfg.IncludeNewer && !upperDate.IsZero()
-	var fragmentsFilter collections.SortedStringSlice
+	// Bundled into one struct so the closure below causes only one heap escape.
+	var ff struct {
+		ids     collections.SortedStringSlice
+		words   collections.SortedStringSlice
+		toLower bool
+	}
 
 	for _, el := range query {
 		setm, found := idx.index[el.Index]
@@ -477,6 +543,10 @@ func (idx *InvertedIndex) searchDate(ctx context.Context, self Document, upperDa
 		config, found := idx.getIndexCfg(el.Index)
 		if !found {
 			return []Document{}, fmt.Errorf("index config for %q not found", el.Index)
+		}
+
+		if config.Type == TypeFragments && config.ApplyFilter && config.Tokenize {
+			ff.toLower = config.ToLower
 		}
 
 		for _, kw := range el.Keywords {
@@ -494,11 +564,12 @@ func (idx *InvertedIndex) searchDate(ctx context.Context, self Document, upperDa
 					}
 
 					if config.Type == TypeFragments && config.ApplyFilter {
-						if fkw, ok := kw.(FragmentKeyword); ok {
-							fragmentsFilter = append(fragmentsFilter, string(fkw))
+						if config.Tokenize {
+							ff.words = append(ff.words, kw)
+						} else {
+							ff.ids = append(ff.ids, kw)
 						}
 					}
-
 					r, found := matchm[doc]
 					if !found {
 						r = getRank(doc, config.Weight)
@@ -528,17 +599,31 @@ func (idx *InvertedIndex) searchDate(ctx context.Context, self Document, upperDa
 	}
 
 	sort.Stable(matches)
-	sort.Strings(fragmentsFilter)
+	sort.Strings(ff.ids)
+	sort.Strings(ff.words)
 
 	result := make([]Document, len(matches))
 
 	for i, m := range matches {
 		result[i] = m.Doc
 
-		if len(fragmentsFilter) > 0 {
+		if len(ff.ids) > 0 || len(ff.words) > 0 {
 			if dp, ok := result[i].(FragmentProvider); ok {
 				result[i] = dp.ApplyFilterToHeadings(ctx, func(h *tableofcontents.Heading) bool {
-					return fragmentsFilter.Contains(h.ID)
+					if ff.ids.Contains(h.ID) {
+						return true
+					}
+					if len(ff.words) > 0 {
+						for word := range splitWordsSeq(h.Title) {
+							if ff.toLower {
+								word = strings.ToLower(word)
+							}
+							if ff.words.Contains(word) {
+								return true
+							}
+						}
+					}
+					return false
 				})
 			}
 		}
@@ -599,32 +684,19 @@ func DecodeConfig(m hmaps.Params) (Config, error) {
 	return c, nil
 }
 
-// StringKeyword is a string search keyword.
-type StringKeyword string
-
-func (s StringKeyword) String() string {
-	return string(s)
-}
-
-// FragmentKeyword represents a document fragment.
-type FragmentKeyword string
-
-func (f FragmentKeyword) String() string {
-	return string(f)
-}
-
-// Keyword is the interface a keyword in the search index must implement.
-type Keyword interface {
-	String() string
-}
-
-// StringsToKeywords converts the given slice of strings to a slice of Keyword.
-func (cfg IndexConfig) StringsToKeywords(s ...string) []Keyword {
-	kw := make([]Keyword, len(s))
-
-	for i := range s {
-		kw[i] = cfg.stringToKeyword(s[i])
+// splitWordsSeq iterates the normalized words in title, stripping HTML
+// entities and leading/trailing punctuation from each word.
+func splitWordsSeq(title string) iter.Seq[string] {
+	return func(yield func(string) bool) {
+		for w := range strings.FieldsSeq(html.UnescapeString(title)) {
+			w = strings.TrimFunc(w, isNotWordRune)
+			if w != "" && !yield(w) {
+				return
+			}
+		}
 	}
+}
 
-	return kw
+func isNotWordRune(r rune) bool {
+	return !unicode.IsLetter(r) && !unicode.IsDigit(r)
 }

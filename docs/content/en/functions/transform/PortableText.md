@@ -1,6 +1,6 @@
 ---
 title: transform.PortableText
-description: Converts Portable Text to Markdown.
+description: Returns the given Portable Text converted to Markdown.
 categories: []
 keywords: []
 params:
@@ -11,9 +11,11 @@ params:
 
 {{< new-in 0.145.0 />}}
 
+## Usage
+
 [Portable Text][] is a JSON structure that represents rich text content in the [Sanity][] CMS. In Hugo, this function is typically used in a [content adapter][] that creates pages from Sanity data.
 
-## Types supported
+Supported types:
 
 - `block` and `span`
 - `image`. Note that the image handling is currently basic; we link to the `asset.url` using `asset.altText` as the image alt text and `asset.title` as the title. For more fine-grained control you may want to process the images in an [image render hook][].
@@ -22,7 +24,9 @@ params:
 > [!NOTE]
 > Since the Portable Text gets converted to Markdown before it gets passed to Hugo, rendering of links, headings, images and code blocks can be controlled with [render hooks][].
 
-## Example
+## Examples
+
+The following example creates pages from Sanity data using a content adapter.
 
 ### Content Adapter
 
@@ -188,7 +192,7 @@ import {postType} from './postType'
 export const schemaTypes = [postType]
 ```
 
-## Server setup
+### Server setup
 
 Unfortunately, Sanity's API does not support [RFC 7234][] and their output changes even if the data has not. A recommended setup is therefore to use their cached `apicdn` endpoint (see above) and then set up a reasonable polling and file cache strategy in your Hugo configuration, e.g:
 

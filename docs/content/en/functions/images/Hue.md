@@ -10,7 +10,7 @@ params:
     signatures: [images.Hue SHIFT]
 ---
 
-The hue angle shift is typically in the range [-180, 180] where 0 has no effect.
+The hue angle shift is typically in the range `[-180, 180]` where `0` has no effect.
 
 ## Usage
 

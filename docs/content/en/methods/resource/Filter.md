@@ -1,6 +1,6 @@
 ---
 title: Filter
-description: Applicable to images, applies one or more image filters to the given image resource.
+description: Returns a new image resource with one or more image filters applied.
 categories: []
 keywords: [filter]
 params:

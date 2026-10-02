@@ -15,7 +15,7 @@ package partials_test
 
 import (
 	"bytes"
-	"fmt"
+	"context"
 	"regexp"
 	"sort"
 	"strings"
@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/htesting/hqt"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/tpl/partials"
 )
 
 func TestInclude(t *testing.T) {
@@ -170,8 +171,8 @@ D1
 
 	got := buf.String()
 
-	// Get rid of all the durations, they are never the same.
-	durationRe := regexp.MustCompile(`\b[\.\d]*(ms|ns|µs|s)\b`)
+	// Get rid of all the durations, including the space and unit, they are never the same.
+	durationRe := regexp.MustCompile(`\b[\.\d]*\s*(ms|ns|µs|s)\b`)
 
 	normalize := func(s string) string {
 		s = durationRe.ReplaceAllString(s, "")
@@ -215,37 +216,35 @@ baseURL = 'http://example.com/'
 {{ partialCached "easy1.html" "bar" }}
 {{ partialCached "easy1.html" "baz" }}
 {{ partialCached "easy2.html" "baz" }}
--- layouts/_partials/easy1.html --
+-- layouts/_partials/abc.html --
 ABCD
--- layouts/_partials/easy2.html --
-ABCDE
--- layouts/_partials/heavy.html --
-{{ $result := slice }}
-{{ range site.RegularPages }}
-{{ $result = $result | append (dict "title" .Title "link" .RelPermalink "readingTime" .ReadingTime) }}
-{{ end }}
-{{ range $result }}
-* {{ .title }} {{ .link }} {{ .readingTime }}
-{{ end }}
+-- layouts/_partials/42.html --
+{{ return 42 }}
+
 
 
 `)
 
-	for i := 1; i < 100; i++ {
-		files.WriteString(fmt.Sprintf("\n-- content/p%d.md --\n---\ntitle: page\n---\n"+strings.Repeat("FOO ", i), i))
-	}
+	bb := hugolib.Test(b, files.String())
+	ns := bb.H.TemplateStore.GetTemplateFuncsNamespace("partials").(*partials.Namespace)
 
-	cfg := hugolib.IntegrationTestConfig{
-		T:           b,
-		TxtarString: files.String(),
-	}
+	b.Run("abc", func(b *testing.B) {
+		for b.Loop() {
+			_, _ = ns.IncludeCached(context.Background(), "abc.html", "foo")
+		}
+	})
 
-	for b.Loop() {
-		b.StopTimer()
-		bb := hugolib.NewIntegrationTestBuilder(cfg)
-		b.StartTimer()
-		bb.Build()
-	}
+	b.Run("variant", func(b *testing.B) {
+		for b.Loop() {
+			_, _ = ns.IncludeCached(context.Background(), "abc.html", "foo", "variant")
+		}
+	})
+
+	b.Run("return", func(b *testing.B) {
+		for b.Loop() {
+			_, _ = ns.IncludeCached(context.Background(), "42.html", "foo")
+		}
+	})
 }
 
 func TestIncludeTimeout(t *testing.T) {
@@ -428,4 +427,135 @@ baseURL = 'http://example.com/'
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html", "42|")
+}
+
+// See issue 15373.
+func TestIncludeRelativePath(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["section", "taxonomy", "term", "sitemap", "RSS"]
+-- layouts/home.html --
+{{ partial "a/b/main.html" . }}
+{{ partial "c/main.html" . }}
+{{ partial "inline.html" . }}
+{{ define "_partials/a/inline.html" }}inline:{{ partial "./helper.html" . }}{{ end }}
+-- layouts/_partials/inline.html --
+{{ partial "a/inline.html" . }}
+-- layouts/_partials/a/b/main.html --
+same:{{ partial "./helper.html" . }}
+sub:{{ partial "./sub/helper.html" . }}
+parent:{{ partial "../helper.html" . }}
+root:{{ partial "../../root.html" . }}
+cached:{{ partialCached "./cached.html" . }}
+dynamic:{{ partial (printf "./%s.html" "helper") . }}
+include:{{ partials.Include "./helper.html" . }}
+-- layouts/_partials/a/b/helper.html --
+a/b/helper
+-- layouts/_partials/a/b/sub/helper.html --
+a/b/sub/helper
+-- layouts/_partials/a/b/cached.html --
+a/b/cached
+-- layouts/_partials/a/helper.html --
+a/helper
+-- layouts/_partials/root.html --
+root
+-- layouts/_partials/c/main.html --
+cached:{{ partialCached "./cached.html" . }}
+-- layouts/_partials/c/cached.html --
+c/cached
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"same:a/b/helper",
+		"sub:a/b/sub/helper",
+		"parent:a/helper",
+		"root:root",
+		"cached:a/b/cached",
+		"dynamic:a/b/helper",
+		"include:a/b/helper",
+		"cached:c/cached",
+		"inline:a/helper",
+	)
+}
+
+func TestIncludeRelativePathInDecoratorInner(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["section", "taxonomy", "term", "sitemap", "RSS"]
+-- layouts/home.html --
+{{ partial "a/main.html" . }}
+-- layouts/_partials/a/main.html --
+{{ with partial "b/wrapper.html" . }}{{ partial "./helper.html" . }}{{ end }}
+-- layouts/_partials/a/helper.html --
+a/helper
+-- layouts/_partials/b/wrapper.html --
+wrapper:{{ inner . }}
+-- layouts/_partials/b/helper.html --
+b/helper
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "wrapper:a/helper")
+}
+
+func TestIncludeRelativePathNotFromPartial(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["section", "taxonomy", "term", "sitemap", "RSS"]
+-- layouts/home.html --
+{{ partial "./helper.html" . }}
+-- layouts/_partials/helper.html --
+helper
+`
+
+	b, err := hugolib.TestE(t, files)
+
+	b.Assert(err, qt.ErrorMatches, `(?s).*relative partial path "./helper.html" can only be used from within a partial.*`)
+}
+
+func TestIncludeRelativePathOutsidePartials(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["section", "taxonomy", "term", "sitemap", "RSS"]
+-- layouts/home.html --
+{{ partial "a/main.html" . }}
+-- layouts/_partials/a/main.html --
+{{ partial "../../helper.html" . }}
+-- layouts/_partials/helper.html --
+helper
+`
+
+	b, err := hugolib.TestE(t, files)
+
+	b.Assert(err, qt.ErrorMatches, `(?s).*relative partial path "../../helper.html" in "_partials/a/main.html" resolves outside the partials directory.*`)
+}
+
+func TestIncludeRelativePathInDeferredBlock(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["section", "taxonomy", "term", "sitemap", "RSS"]
+-- layouts/home.html --
+{{ partial "a/main.html" . }}
+-- layouts/_partials/a/main.html --
+{{ with (templates.Defer (dict "key" "a")) }}deferred:{{ partial "./helper.html" . }}{{ end }}
+-- layouts/_partials/a/helper.html --
+a/helper
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "deferred:a/helper")
 }

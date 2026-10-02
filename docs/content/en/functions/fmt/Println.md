@@ -1,6 +1,6 @@
 ---
 title: fmt.Println
-description: Prints the default representation of the given argument using the standard `fmt.Print` function and enforces a line break.
+description: Returns the default string representation of the given arguments, followed by a line break.
 categories: []
 keywords: []
 params:

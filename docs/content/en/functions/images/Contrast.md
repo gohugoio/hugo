@@ -10,7 +10,7 @@ params:
     signatures: [images.Contrast PERCENTAGE]
 ---
 
-The percentage must be in the range [-100, 100] where 0 has no effect. A value of `-100` produces a solid grey image, and a value of `100` produces an over-contrasted image.
+The percentage must be in the range `[-100, 100]` where `0` has no effect. A value of `-100` produces a solid grey image, and a value of `100` produces an over-contrasted image.
 
 ## Usage
 

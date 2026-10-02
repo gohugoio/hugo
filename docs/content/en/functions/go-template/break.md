@@ -1,6 +1,6 @@
 ---
 title: break
-description: Used with the range statement, stops the innermost iteration and bypasses all remaining iterations.
+description: Stops the innermost range iteration and bypasses any remaining iterations.
 categories: []
 keywords: []
 params:

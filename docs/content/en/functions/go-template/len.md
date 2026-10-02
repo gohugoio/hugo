@@ -15,21 +15,21 @@ With a string:
 
 ```go-html-template
 {{ "ab" | len }} → 2
-{{ "" | len }} → 0
+{{ ""   | len }} → 0
 ```
 
 With a slice:
 
 ```go-html-template
 {{ slice "a" "b" | len }} → 2
-{{ slice | len }} → 0
+{{ slice         | len }} → 0
 ```
 
 With a map:
 
 ```go-html-template
-{{ dict "a" 1 "b" 2  | len }} → 2
-{{ dict | len }} → 0
+{{ dict "a" 1 "b" 2 | len }} → 2
+{{ dict             | len }} → 0
 ```
 
 With a collection:

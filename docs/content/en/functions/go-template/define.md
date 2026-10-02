@@ -33,7 +33,7 @@ Use with the [`partial`][] function:
 {{ end }}
 ```
 
-Use with the [`template`][] function:
+Use with the [`template`][] statement:
 
 ```go-html-template
 {{ template "foo" (dict "answer" 42) }}

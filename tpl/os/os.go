@@ -23,6 +23,7 @@ import (
 
 	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/common/herrors"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/deps"
 	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
@@ -82,7 +83,7 @@ func readFile(fs afero.Fs, filename string) (string, error) {
 		return "", errors.New("invalid filename")
 	}
 
-	b, err := afero.ReadFile(fs, filename)
+	b, err := hugio.ReadFile(fs, filename)
 	if err != nil {
 		return "", err
 	}

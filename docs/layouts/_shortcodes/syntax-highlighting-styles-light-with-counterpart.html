@@ -1,0 +1,18 @@
+{{/* gotmplfmt-ignore-all */ -}}
+
+{{/*
+Renders a list of light mode Chroma syntax highlighting styles with links to
+their dark mode counterparts.
+
+@example {{%  syntax-highlighting-styles-light-with-counterpart %}}
+*/}}
+
+Light mode style|Dark mode counterpart{{/* Do not indent. */}}
+:--|:--{{/* Do not indent. */}}
+{{- with hugo.Data.docs.chroma.styles }}
+	{{- $styles := where . "mode" "light" }}
+	{{- $styles := where $styles "counterpart" "ne" "" }}
+	{{- range $styles }}
+[{{ .name }}](#{{ .name }})|[{{ .counterpart }}](#{{ .counterpart }}){{/* Do not indent. */}}
+	{{- end }}
+{{- end }}

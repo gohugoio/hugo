@@ -13,7 +13,7 @@ The `GetPage` method is also available on `Page` objects, allowing you to specif
 
 When using the `GetPage` method on a `Site` object, specify a path relative to the `content` directory.
 
-If Hugo cannot resolve the path to a page, the method returns nil.
+If Hugo cannot resolve the path to a page, the method returns `nil`.
 
 Consider this content structure:
 

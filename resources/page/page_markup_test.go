@@ -38,6 +38,14 @@ func TestExtractSummaryFromHTML(t *testing.T) {
 		{media.Builtin.MarkdownType, "<p>First paragraph</p>", false, 10, "<p>First paragraph</p>", ""},
 		{media.Builtin.MarkdownType, "<p>First paragraph</p><p>Second paragraph</p>", false, 2, "<p>First paragraph</p>", "<p>Second paragraph</p>"},
 		{media.Builtin.MarkdownType, "<p>First paragraph</p><p>Second paragraph</p><p>Third paragraph</p>", false, 3, "<p>First paragraph</p><p>Second paragraph</p>", "<p>Third paragraph</p>"},
+		{media.Builtin.MarkdownType, "<blockquote>\n<p>foo</p>\n</blockquote>\n<p>bar</p>", false, 1, "<blockquote>\n<p>foo</p>\n</blockquote>", "<p>bar</p>"},
+		{media.Builtin.MarkdownType, "<ul>\n<li>\n<p>item 1 line 1</p>\n<p>item 1 line 2</p>\n</li>\n</ul>\n<p>bar</p>", false, 1, "<ul>\n<li>\n<p>item 1 line 1</p>\n<p>item 1 line 2</p>\n</li>\n</ul>", "<p>bar</p>"},
+		{media.Builtin.HTMLType, "<div><p>foo</p></div><p>bar</p>", false, 1, "<div><p>foo</p></div>", "<p>bar</p>"},
+		{media.Builtin.HTMLType, "<DIV><p>foo</p></DIV><p>bar</p>", false, 1, "<DIV><p>foo</p></DIV>", "<p>bar</p>"},
+		{media.Builtin.HTMLType, "<div><!-- <span> --><p>foo</p></div><p>bar</p>", false, 1, "<div><!-- <span> --><p>foo</p></div>", "<p>bar</p>"},
+		{media.Builtin.HTMLType, `<div><p title="a>b"><img src="x"/>foo</p></div><p>bar</p>`, false, 1, `<div><p title="a>b"><img src="x"/>foo</p></div>`, "<p>bar</p>"},
+		{media.Builtin.HTMLType, "<div><script>var a = '<div>';</script><p>foo</p></div><p>bar</p>", false, 1, "<div><script>var a = '<div>';</script><p>foo</p></div>", "<p>bar</p>"},
+		{media.Builtin.HTMLType, "<div><p>foo</p><p>bar</p>", false, 1, "<div><p>foo</p>", "<p>bar</p>"},
 		{media.Builtin.AsciiDocType, "<div><p>First paragraph</p></div><div><p>Second paragraph</p></div>", false, 2, "<div><p>First paragraph</p></div>", "<div><p>Second paragraph</p></div>"},
 		{media.Builtin.MarkdownType, "<p>这是中文，全中文</p><p>a这是中文，全中文</p>", true, 5, "<p>这是中文，全中文</p>", "<p>a这是中文，全中文</p>"},
 	}
@@ -172,25 +180,18 @@ func TestIsProbablyHTMLToken(t *testing.T) {
 }
 
 func BenchmarkSummaryFromHTML(b *testing.B) {
-
-	input := "<p>First paragraph</p><p>Second paragraph</p>"
-
-	for b.Loop() {
-		summary := ExtractSummaryFromHTML(media.Builtin.MarkdownType, input, 2, false)
-		if s := summary.Content(); s != input {
-			b.Fatalf("unexpected content: %q", s)
-		}
-		if s := summary.ContentWithoutSummary(); s != "<p>Second paragraph</p>" {
-			b.Fatalf("unexpected content without summary: %q", s)
-		}
-		if s := summary.Summary(); s != "<p>First paragraph</p>" {
-			b.Fatalf("unexpected summary: %q", s)
-		}
+	run := func(name, input string) {
+		b.Run(name, func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				_ = ExtractSummaryFromHTML(media.Builtin.MarkdownType, input, 2, false)
+			}
+		})
 	}
+	run("basic", "<p>First paragraph</p><p>Second paragraph</p>")
+	run("list", "<ul>\n<li>\n<p>item 1 line 1</p>\n<p>item 1 line 2</p>\n</li>\n</ul>\n<p>bar</p>")
 }
 
 func BenchmarkSummaryFromHTMLWithDivider(b *testing.B) {
-
 	input := "<p>First paragraph</p><p>FOOO</p><p>Second paragraph</p>"
 
 	for b.Loop() {

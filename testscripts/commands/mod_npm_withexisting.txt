@@ -37,7 +37,8 @@ path="github.com/gohugoio/hugoTestModule2"
     "@babel/preset-env": "7.9.5",
     "postcss-cli": "7.1.0"
   },
-  "name": "script-mod_npm_withexisting",
+  "name": "hugoautogen",
+  "private": true,
   "version": "0.1.0"
 }
 -- golden/package.json --

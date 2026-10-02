@@ -18,7 +18,7 @@ disableLanguages = []
 {{< /code-toggle >}}
 
 `defaultContentLanguage`
-: (`string`) The projects's default content language, conforming to the syntax described in [RFC 5646][]. This value must match one of the defined [language keys][]. Default is `en`.
+: (`string`) The project's [default language](g), conforming to the syntax described in [RFC 5646][]. When one or more languages are defined, this value must match one of the defined [language keys][].
 
 `defaultContentLanguageInSubdir`
 : (`bool`) Whether to publish the default content language to a subdirectory matching the [`defaultContentLanguage`](#defaultcontentlanguage). Default is `false`.

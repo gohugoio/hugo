@@ -73,6 +73,7 @@ var (
 		"func (s *state) walkTemplate(", "func (s *state) walkTemplateOld(",
 		"func (s *state) validateType(", "func (s *state) _validateType(",
 		"func isTrue(val reflect.Value) (truth, ok bool) {", "func isTrueOld(val reflect.Value) (truth, ok bool) {",
+		"func safeCall(", "func safeCallOld(",
 	)
 
 	testEnvReplacers = strings.NewReplacer(

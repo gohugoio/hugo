@@ -110,6 +110,29 @@ func TestConvertIfPossible(t *testing.T) {
 			ok:    false, // overflow
 		},
 		{
+			// float64(math.MaxInt64) rounds up to 2^63, which is out of range.
+			name:  "float64(math.MaxInt64) to int64",
+			value: float64(math.MaxInt64),
+			typ:   int64(0),
+			ok:    false, // overflow
+		},
+		{
+			// The largest float64 that is a valid int64.
+			name:     "float64(9223372036854774784) to int64",
+			value:    float64(9223372036854774784),
+			typ:      int64(0),
+			ok:       true,
+			expected: int64(9223372036854774784),
+		},
+		{
+			// float64(math.MinInt64) is exact, so this is in range.
+			name:     "float64(math.MinInt64) to int64",
+			value:    float64(math.MinInt64),
+			typ:      int64(0),
+			ok:       true,
+			expected: int64(math.MinInt64),
+		},
+		{
 			name:     "float64(32767) to int16",
 			value:    float64(32767),
 			typ:      int16(0),
@@ -171,18 +194,49 @@ func TestConvertIfPossible(t *testing.T) {
 			expected: float32(32767),
 		},
 		{
-			name:     "int64(math.MaxInt64) to float32",
-			value:    int64(math.MaxInt64),
-			typ:      float32(0),
-			ok:       true,
-			expected: float32(math.MaxInt64),
+			name:  "int64(math.MaxInt64) to float32",
+			value: int64(math.MaxInt64),
+			typ:   float32(0),
+			ok:    false, // loss of precision
 		},
 		{
-			name:     "int64(math.MaxInt64) to float64",
-			value:    int64(math.MaxInt64),
+			name:  "int64(math.MaxInt64) to float64",
+			value: int64(math.MaxInt64),
+			typ:   float64(0),
+			ok:    false, // loss of precision
+		},
+		{
+			name:     "int64(1<<53) to float64",
+			value:    int64(1 << 53),
 			typ:      float64(0),
 			ok:       true,
-			expected: float64(math.MaxInt64),
+			expected: float64(1 << 53),
+		},
+		{
+			name:  "int64(1<<53+1) to float64",
+			value: int64(1<<53 + 1),
+			typ:   float64(0),
+			ok:    false, // loss of precision
+		},
+		{
+			name:     "int64(1<<60) to float64",
+			value:    int64(1 << 60),
+			typ:      float64(0),
+			ok:       true,
+			expected: float64(1 << 60),
+		},
+		{
+			name:     "int64(math.MinInt64) to float64",
+			value:    int64(math.MinInt64),
+			typ:      float64(0),
+			ok:       true,
+			expected: float64(math.MinInt64),
+		},
+		{
+			name:  "int64(1<<24+1) to float32",
+			value: int64(1<<24 + 1),
+			typ:   float32(0),
+			ok:    false, // loss of precision
 		},
 		// Int to uint.
 		{
@@ -211,6 +265,21 @@ func TestConvertIfPossible(t *testing.T) {
 			ok:       true,
 			expected: uint64(3),
 		},
+		{
+			// float64(math.MaxUint64) rounds up to 2^64, which is out of range.
+			name:  "float64(math.MaxUint64) to uint64",
+			value: float64(math.MaxUint64),
+			typ:   uint64(0),
+			ok:    false, // overflow
+		},
+		{
+			// The largest float64 that is a valid uint64.
+			name:     "float64(18446744073709549568) to uint64",
+			value:    float64(18446744073709549568),
+			typ:      uint64(0),
+			ok:       true,
+			expected: uint64(18446744073709549568),
+		},
 		// From uint to float.
 		{
 			name:     "uint64(math.MaxInt16) to float64",
@@ -219,13 +288,44 @@ func TestConvertIfPossible(t *testing.T) {
 			ok:       true,
 			expected: float64(math.MaxInt16),
 		},
+		{
+			name:     "uint64(1<<63) to float64",
+			value:    uint64(1 << 63),
+			typ:      float64(0),
+			ok:       true,
+			expected: float64(1 << 63),
+		},
+		{
+			name:  "uint64(math.MaxUint64) to float64",
+			value: uint64(math.MaxUint64),
+			typ:   float64(0),
+			ok:    false, // loss of precision
+		},
+		{
+			name:  "uint64(1<<24+1) to float32",
+			value: uint64(1<<24 + 1),
+			typ:   float32(0),
+			ok:    false, // loss of precision
+		},
 		// Float to float.
 		{
-			name:     "float64(3.14) to float32",
-			value:    float64(3.14),
+			name:  "float64(3.14) to float32",
+			value: float64(3.14),
+			typ:   float32(0),
+			ok:    false, // loss of precision
+		},
+		{
+			name:     "float64(0.5) to float32",
+			value:    float64(0.5),
 			typ:      float32(0),
 			ok:       true,
-			expected: float32(3.14),
+			expected: float32(0.5),
+		},
+		{
+			name:  "float64(math.MaxFloat64) to float32",
+			value: float64(math.MaxFloat64),
+			typ:   float32(0),
+			ok:    false, // overflow
 		},
 		{
 			name:     "float32(3.14) to float64",
@@ -260,20 +360,27 @@ func TestConvertIfPossibleMisc(t *testing.T) {
 		i64        = int64(i)
 		iv     any = i
 		ip         = &i
-		inil   any = (*int32)(nil)
 		shello     = s("hello")
 	)
 
-	convertOK := func(v any, typ any) any {
-		rv, ok := ConvertIfPossible(reflect.ValueOf(v), reflect.TypeOf(typ))
+	convertOK := func(v reflect.Value, typ any) any {
+		rv, ok := ConvertIfPossible(v, reflect.TypeOf(typ))
 		c.Assert(ok, qt.IsTrue)
 		return rv.Interface()
 	}
 
-	c.Assert(convertOK(shello, ""), qt.Equals, "hello")
-	c.Assert(convertOK(ip, int64(0)), qt.Equals, i64)
-	c.Assert(convertOK(iv, int64(0)), qt.Equals, i64)
-	c.Assert(convertOK(inil, int64(0)), qt.Equals, int64(0))
+	c.Assert(convertOK(reflect.ValueOf(shello), ""), qt.Equals, "hello")
+	c.Assert(convertOK(reflect.ValueOf(iv), int64(0)), qt.Equals, i64)
+
+	// Elements of a []any are of kind Interface.
+	c.Assert(convertOK(reflect.ValueOf([]any{iv}).Index(0), int64(0)), qt.Equals, i64)
+	c.Assert(convertOK(reflect.ValueOf([]any{nil}).Index(0), int64(0)), qt.Equals, int64(0))
+
+	// Pointers are not dereferenced.
+	_, ok := ConvertIfPossible(reflect.ValueOf(ip), reflect.TypeOf(int64(0)))
+	c.Assert(ok, qt.IsFalse)
+	_, ok = ConvertIfPossible(reflect.ValueOf((*int32)(nil)), reflect.TypeOf(int64(0)))
+	c.Assert(ok, qt.IsFalse)
 }
 
 func BenchmarkToInt64(b *testing.B) {

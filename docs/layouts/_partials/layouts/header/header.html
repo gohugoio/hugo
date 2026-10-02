@@ -43,10 +43,10 @@
 
 	<div class="-my-5 pl-0 sm:pl-2 grow-0 flex items-center gap-0">
 		{{/* Search. */}}
-		{{ partial "layouts/search/input.html" . }}
+		{{ partialCached "layouts/search/input.html" . }}
 		{{/* Theme selector - shown inline on mobile */}}
 		<div class="sm:hidden">
-			{{ partial "layouts/header/theme.html" . }}
+			{{ partialCached "layouts/header/theme.html" . }}
 		</div>
 	</div>
 	<div
@@ -54,16 +54,16 @@
 		{{/* QR code. */}}
 		{{ partial "layouts/header/qr.html" . }}
 		{{/* Theme selector - hidden on mobile (shown above) */}}
-		{{ partial "layouts/header/theme.html" . }}
+		{{ partialCached "layouts/header/theme.html" . }}
 
 		{{/* Social. */}}
 		<div
 			class="hidden sm:block ml-2 sm:ml-6 h-6 fill-slate-400 group-hover:fill-slate-500 dark:group-hover:fill-slate-300">
-			{{ partial "layouts/header/githubstars.html" . }}
+			{{ partialCached "layouts/header/githubstars.html" . }}
 		</div>
 		<div
 			class="hidden sm:block ml-2 sm:ml-6 h-6">
-			{{ partial "layouts/header/mastodon.html" . }}
+			{{ partialCached "layouts/header/mastodon.html" . }}
 		</div>
 	</div>
 
@@ -80,4 +80,4 @@
 </header>
 
 {{/* Mobile menu panel */}}
-{{ partial "layouts/header/mobilemenu.html" . }}
+{{ partialCached "layouts/header/mobilemenu.html" . }}

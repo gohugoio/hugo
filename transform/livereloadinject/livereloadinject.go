@@ -73,7 +73,7 @@ func New(baseURL *url.URL) transform.Transformer {
 		copy(c[idx+len(script):], b[idx:])
 
 		if _, err := ft.To().Write(c); err != nil {
-			loggers.Log().Warnf("Failed to inject LiveReload script:", err)
+			loggers.Log().Warnf("Failed to inject LiveReload script: %s", err)
 		}
 		return nil
 	}

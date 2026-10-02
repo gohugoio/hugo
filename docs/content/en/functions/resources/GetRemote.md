@@ -13,7 +13,7 @@ params:
 {{< new-in 0.141.0 >}}
 The `Err` method on the returned resource was removed in v0.141.0.
 
-Use the [`try`][] statement instead, as shown in the [error handling](#error-handling) example below.
+Use the [`try`](/functions/go-template/try/) statement instead, as shown in the [error handling](#error-handling) example below.
 {{< /new-in >}}
 
 ```go-html-template
@@ -28,6 +28,8 @@ Use the [`try`][] statement instead, as shown in the [error handling](#error-han
   {{ end }}
 {{ end }}
 ```
+
+When you publish a remote resource with the [`Permalink`][], [`RelPermalink`][], or [`Publish`][] methods as shown above, Hugo places the resulting file in the root of [`publishDir`][] with the basename of the URL. To ensure unique cache keys, Hugo appends a hash to the original filename.
 
 ## Options
 
@@ -155,7 +157,7 @@ When retrieving remote data, use the [`transform.Unmarshal`][] function to [unma
 Use the [`try`][] statement to capture HTTP request errors. If you do not handle the error yourself, Hugo will fail the build.
 
 > [!NOTE]
-> Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns nil.
+> Hugo does not classify an HTTP response with status code 404 as an error. In this case `resources.GetRemote` returns `nil`.
 
 ```go-html-template
 {{ $url := "https://broken-example.org/images/a.jpg" }}
@@ -233,6 +235,10 @@ Note that the entry above is:
 [Content-Type]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
 [`Data.Headers`]: /methods/resource/data/#headers
 [`Data`]: /methods/resource/data/
+[`Permalink`]: /methods/resource/permalink/
+[`Publish`]: /methods/resource/publish/
+[`RelPermalink`]: /methods/resource/relpermalink/
+[`publishDir`]: /configuration/all/#publishdir
 [`transform.Unmarshal`]: /functions/transform/unmarshal/
 [`try`]: /functions/go-template/try/
 [allowlist]: https://en.wikipedia.org/wiki/Whitelist

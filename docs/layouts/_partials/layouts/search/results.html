@@ -84,7 +84,7 @@
 				class="z-40 fixed pointer-events-auto bottom-0 right-0 dark:text-gray-300 text-gray-800 float-right mr-8 mb-4 text-sm lg:text-md"
 				x-show="open"
 				x-transition.opacity.duration.800ms>
-				{{ partial "layouts/search/algolialogo.html" }}
+				{{ partialCached "layouts/search/algolialogo.html" . }}
 			</div>
 		</div>
 	</div>

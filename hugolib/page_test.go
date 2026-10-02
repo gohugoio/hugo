@@ -788,6 +788,36 @@ Content: {{ .Content }}|
 		"Content: <p>This is <strong>summary</strong>.")
 }
 
+// See issue 14044.
+func TestSummaryAutoBalancesContainerTags(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+summaryLength = 1
+-- content/p1.md --
+---
+title: p1
+---
+> foo
+-- content/p2.md --
+---
+title: p2
+---
+- item 1 line 1
+
+  item 1 line 2
+-- layouts/page.html --
+|{{ .Summary }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "|<blockquote>\n<p>foo</p>\n</blockquote>|")
+	b.AssertFileContent("public/p2/index.html", "|<ul>\n<li>\n<p>item 1 line 1</p>\n<p>item 1 line 2</p>\n</li>\n</ul>|")
+}
+
 // #2973
 func TestSummaryWithHTMLTagsOnNextLine(t *testing.T) {
 	htesting.SkipSlowTestUnlessCI(t)
@@ -1456,6 +1486,8 @@ func TestPageManualSummary(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "http://example.com/"
+[security]
+allowContent = ['.*']
 -- content/page-md-shortcode.md --
 ---
 title: "Hugo"
@@ -1913,6 +1945,56 @@ func TestRenderWithoutArgument(t *testing.T) {
 	b.Assert(err, qt.IsNotNil)
 }
 
+// See issue 15077.
+func TestRenderWithContext(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/p1.md --
+---
+title: "P1"
+---
+-- layouts/page.html --
+{{ .Render "li" }}|{{ .Render "li" (dict "Title" "Custom") }}
+-- layouts/li.html --
+Title: {{ .Title }}{{- /**/ -}}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "Title: P1|Title: Custom")
+}
+
+// See issue 15077.
+func TestRenderWithContextErrors(t *testing.T) {
+	t.Parallel()
+
+	filesTemplate := `
+-- hugo.toml --
+-- content/p1.md --
+---
+title: "P1"
+---
+-- layouts/li.html --
+li
+-- layouts/page.html --
+RENDER
+`
+
+	for _, test := range []struct {
+		render  string
+		message string
+	}{
+		{`{{ .Render "li" "foo" "bar" }}`, `(?s).*too many arguments, expected VIEW \[CONTEXT\].*`},
+		{`{{ .Render (slice "li") }}`, `(?s).*failed to convert view argument to string: unable to cast \[\]string{"li"} of type \[\]string to string.*`},
+	} {
+		files := strings.ReplaceAll(filesTemplate, "RENDER", test.render)
+		b, err := TestE(t, files)
+		b.Assert(err, qt.ErrorMatches, test.message)
+	}
+}
+
 // Issue #13021
 func TestAllStores(t *testing.T) {
 	t.Parallel()
@@ -1972,6 +2054,8 @@ func TestHomePageIsLeafBundle(t *testing.T) {
 -- hugo.toml --
 defaultContentLanguage = 'de'
 defaultContentLanguageInSubdir = true
+[security]
+allowContent = ['.*']
 [languages.de]
 weight = 1
 [languages.en]

@@ -10,7 +10,7 @@ params:
     signatures: [images.Saturation PERCENTAGE]
 ---
 
-The percentage must be in the range [-100, 500] where 0 has no effect.
+The percentage must be in the range `[-100, 500]` where `0` has no effect.
 
 ## Usage
 

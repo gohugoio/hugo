@@ -16,6 +16,7 @@ package highlight
 
 import (
 	"fmt"
+	gohtml "html"
 	"strconv"
 	"strings"
 
@@ -95,7 +96,8 @@ func (cfg Config) toHTMLOptions() ([]html.Option, error) {
 	)
 
 	if cfg.LineAnchors != "" {
-		lineAnchors = cfg.LineAnchors + "-"
+		// Chroma writes this verbatim into id and href attributes.
+		lineAnchors = gohtml.EscapeString(cfg.LineAnchors) + "-"
 	}
 
 	switch v := cfg.LineNos.(type) {

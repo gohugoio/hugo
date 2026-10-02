@@ -17,6 +17,7 @@ import (
 	"context"
 	"fmt"
 	"html/template"
+	"math"
 	"math/rand"
 	"reflect"
 	"strings"
@@ -24,6 +25,7 @@ import (
 	"time"
 
 	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/htesting"
 )
 
 func TestWhere(t *testing.T) {
@@ -690,13 +692,21 @@ func TestCheckCondition(t *testing.T) {
 		isError bool
 	}
 
-	for i, test := range []struct {
+	type testCase struct {
 		value reflect.Value
 		match reflect.Value
 		op    string
 		expect
-	}{
+	}
+
+	tests := []testCase{
 		{reflect.ValueOf(123), reflect.ValueOf(123), "", expect{true, false}},
+		{reflect.ValueOf(uint64(1<<53 + 1)), reflect.ValueOf(uint8(1)), ">", expect{true, false}},
+		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf(float64(1 << 53)), "", expect{false, false}},
+		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf(float64(1 << 53)), ">", expect{true, false}},
+		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf(uint64(1<<53 + 1)), "", expect{true, false}},
+		{reflect.ValueOf(-1), reflect.ValueOf(uint64(math.MaxUint64)), "<", expect{true, false}},
+		{reflect.ValueOf(uint64(math.MaxUint64)), reflect.ValueOf(uint8(1)), ">", expect{true, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf("foo"), "", expect{true, false}},
 		{
 			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
@@ -762,6 +772,19 @@ func TestCheckCondition(t *testing.T) {
 		},
 		{reflect.ValueOf(123), reflect.ValueOf([]int{45, 678}), "not in", expect{true, false}},
 		{reflect.ValueOf(123), reflect.ValueOf([]int{}), "not in", expect{true, false}},
+		// Numbers match across types in "in" and "not in".
+		{reflect.ValueOf(int64(123)), reflect.ValueOf([]int{123}), "in", expect{true, false}},
+		{reflect.ValueOf(uint64(123)), reflect.ValueOf([]int{123}), "in", expect{true, false}},
+		{reflect.ValueOf(123.0), reflect.ValueOf([]int{123}), "in", expect{true, false}},
+		{reflect.ValueOf(123), reflect.ValueOf([]float64{123}), "in", expect{true, false}},
+		{reflect.ValueOf(123), reflect.ValueOf([]any{123.0}), "in", expect{true, false}},
+		{reflect.ValueOf(123.5), reflect.ValueOf([]int{123}), "in", expect{false, false}},
+		{reflect.ValueOf(int64(123)), reflect.ValueOf([]string{"123"}), "in", expect{false, false}},
+		{reflect.ValueOf(int64(123)), reflect.ValueOf([]string{"123"}), "not in", expect{true, false}},
+		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf([]float64{1 << 53}), "in", expect{false, false}},
+		{reflect.ValueOf(int64(1<<53 + 1)), reflect.ValueOf([]any{float64(1 << 53)}), "not in", expect{true, false}},
+		{reflect.ValueOf(uint64(math.MaxUint64)), reflect.ValueOf([]any{uint64(math.MaxUint64)}), "in", expect{true, false}},
+		{reflect.ValueOf(uint64(math.MaxUint64)), reflect.ValueOf([]any{-1}), "in", expect{false, false}},
 		{reflect.ValueOf("foo"), reflect.ValueOf([]string{"bar", "baz"}), "not in", expect{true, false}},
 		{
 			reflect.ValueOf(time.Date(2015, time.May, 26, 19, 18, 56, 12345, time.UTC)),
@@ -793,7 +816,18 @@ func TestCheckCondition(t *testing.T) {
 		{reflect.ValueOf([]string{"a"}), reflect.ValueOf([]any{"a", "b"}), "intersect", expect{true, false}},
 		{reflect.ValueOf([]any{1, 2}), reflect.ValueOf([]int{1}), "intersect", expect{true, false}},
 		{reflect.ValueOf([]int{1}), reflect.ValueOf([]any{1, 2}), "intersect", expect{true, false}},
-	} {
+	}
+
+	if !htesting.Is32Bit() {
+		big := int64(1<<53 + 1)
+		tests = append(tests, []testCase{
+			{reflect.ValueOf(big), reflect.ValueOf(int(big)), "", expect{true, false}},
+			{reflect.ValueOf(big), reflect.ValueOf(int(big - 1)), ">", expect{true, false}},
+			{reflect.ValueOf(big), reflect.ValueOf([]int{int(big)}), "in", expect{true, false}},
+		}...)
+	}
+
+	for i, test := range tests {
 		result, err := ns.checkCondition(test.value, test.match, test.op)
 		if test.expect.isError {
 			if err == nil {

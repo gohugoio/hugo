@@ -66,6 +66,22 @@ func TestFirstUpper(t *testing.T) {
 	}
 }
 
+func TestFirstLower(t *testing.T) {
+	c := qt.New(t)
+	for _, this := range []struct {
+		in     string
+		expect string
+	}{
+		{"Foo", "foo"},
+		{"Foo Bar", "foo Bar"},
+		{"foo bar", "foo bar"},
+		{"", ""},
+		{"Å", "å"},
+	} {
+		c.Assert(helpers.FirstLower(this.in), qt.Equals, this.expect)
+	}
+}
+
 func TestHasStringsPrefix(t *testing.T) {
 	for i, this := range []struct {
 		s      []string

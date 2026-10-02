@@ -20,7 +20,7 @@ hugo && rsync -avz --delete public/ www-data@ftp.topologix.fr:~/www/
 
 As you will see, we'll put this command in a shell script file, which makes building and deployment as easy as executing `./deploy`.
 
-## Copy Your SSH Key to your host
+## Copy your SSH key to your host
 
 To make logging in to your server more secure and less interactive, you can upload your SSH key. If you have already installed your SSH key to your server, you can move on to the next section.
 

@@ -1,6 +1,6 @@
 ---
 title: css.TailwindCSS
-description: Processes the given resource with the Tailwind CSS CLI.
+description: Returns a resource created by processing the given resource with the Tailwind CSS CLI.
 categories: []
 keywords: []
 params:
@@ -57,6 +57,8 @@ Step 2
       disableWatch = true
       source = 'hugo_stats.json'
       target = 'assets/notwatching/hugo_stats.json'
+  [security.exec]
+    allow = ['^(dart-)?sass$', '^go$', '^git$', '^node$', '^postcss$', '^tailwindcss$']
   {{< /code-toggle >}}
 
 Step 3
@@ -89,7 +91,7 @@ Step 4
   ```
 
 Step 5
-: Call the _partial_ template from your base template, deferring template execution until after all sites and output formats have been rendered:
+: Call the _partial_ template from your _base_ template, deferring template execution until after all sites and output formats have been rendered:
 
   ```go-html-template {file="layouts/baseof.html" copy=true}
   <head>
@@ -103,15 +105,19 @@ Step 5
 
 The `css.TailwindCSS` function accepts an options map.
 
+`disableInlineImports`
+: {{< new-in 0.147.4 />}}
+: (`bool`) Whether to disable inlining of `@import` statements. Inlining is performed recursively, but currently once only per file. It is not possible to import the same file in different scopes (root, media query, etc.). Note that this import routine does not care about the CSS specification, so you can have `@import` statements anywhere in the file. Default is `false`.
+
+`importContext`
+: {{< new-in 0.165.0 />}}
+: (`resource.ResourceGetter`) A [resource getter](g) to use when resolving `@import` statements. Hugo searches this context first, matching by the path as written in the statement, before falling back to the file system. Has no effect when [`disableInlineImports`](#disableinlineimports) is `true`.
+
 `minify`
 : (`bool`) Whether to optimize and minify the output. Default is `false`.
 
 `optimize`
 : (`bool`) Whether to optimize the output without minifying. Default is `false`.
-
-`disableInlineImports`
-: {{< new-in 0.147.4 />}}
-: (`bool`) Whether to disable inlining of `@import` statements. Inlining is performed recursively, but currently once only per file. It is not possible to import the same file in different scopes (root, media query, etc.). Note that this import routine does not care about the CSS specification, so you can have `@import` statements anywhere in the file. Default is `false`.
 
 `skipInlineImportsNotFound`
 : (`bool`) Whether to allow the build process to continue despite unresolved import statements, preserving the original import declarations. It is important to note that the inline importer does not process URL-based imports or those with media queries, and these will remain unaltered even when this option is disabled. Default is `false`.

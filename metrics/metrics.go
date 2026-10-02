@@ -178,12 +178,26 @@ func (s *Store) WriteMetrics(w io.Writer) {
 	}
 
 	sort.Sort(bySum(results))
+
 	for _, v := range results {
 		if s.calculateHints {
-			fmt.Fprintf(w, "  %15s  %12s  %12s  %9d  %7.f  %6d  %5d  %s\n", v.sum, v.avg, v.max, v.cacheFactor, float64(v.cacheCount)/float64(v.count)*100, v.cacheCount, v.count, v.key)
+			fmt.Fprintf(w, "  %15s  %12s  %12s  %9d  %7.f  %6d  %5d  %s\n", formatDuration(v.sum), formatDuration(v.avg), formatDuration(v.max), v.cacheFactor, float64(v.cacheCount)/float64(v.count)*100, v.cacheCount, v.count, v.key)
 		} else {
-			fmt.Fprintf(w, "  %15s  %12s  %12s  %5d  %s\n", v.sum, v.avg, v.max, v.count, v.key)
+			fmt.Fprintf(w, "  %15s  %12s  %12s  %5d  %s\n", formatDuration(v.sum), formatDuration(v.avg), formatDuration(v.max), v.count, v.key)
 		}
+	}
+}
+
+func formatDuration(d time.Duration) string {
+	switch {
+	case d >= time.Second:
+		return fmt.Sprintf("%.2f  s", float64(d)/float64(time.Second)) // additional spacing between value and unit
+	case d >= time.Millisecond:
+		return fmt.Sprintf("%.2f ms", float64(d)/float64(time.Millisecond))
+	case d >= time.Microsecond:
+		return fmt.Sprintf("%.2f µs", float64(d)/float64(time.Microsecond))
+	default:
+		return fmt.Sprintf("%.2f ns", float64(d)/float64(time.Nanosecond))
 	}
 }
 

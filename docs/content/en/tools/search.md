@@ -35,11 +35,14 @@ A static website with a dynamic search function? Yes, Hugo provides an alternati
 [JS & Fuse.js tutorial][]
 : A simple client-side search solution, using FuseJS (does not require jQuery).
 
-[Hugo Lyra][]
-: Hugo-Lyra is a JavaScript module to integrate [Lyra][] into a Hugo website. It contains the server-side part to generate the index and the client-side library (optional) to bootstrap the search engine easily.
+[hugo-zbsearch][]
+: A Hugo Module providing client-side full-text search powered by [ZBSearch][]. Supports 27 languages with stemming, typo tolerance, field boosting, and works with any theme. Distributed as a Hugo Module with zero configuration needed beyond `hugo mod get`.
 
 [INFINI Pizza for WebAssembly][]
 : Pizza is a super-lightweight yet fully featured search engine written in Rust. You can quickly add offline search functionality to your Hugo website in just five minutes with only three lines of code. For a step-by-step guide on integrating it with Hugo, check out [this blog tutorial][].
+
+[searchmysite.net][]
+: An ad-free privacy-aware alternative to Google Programmable Search focussed on personal websites: add your site to searchmysite.net (if it isn't there already), and add a site search box to your Hugo site with one line of code. The free tier shows the search box on your site and results on searchmysite.net, and the paid tier shows results embedded in your site (and lets you reindex on demand etc.). All [open source][] with self-hosting an option. See [Website Search Tool][] and a [blog post with a Hugo-specific example][].
 
 ## Commercial
 
@@ -59,15 +62,19 @@ A static website with a dynamic search function? Yes, Hugo provides an alternati
 [Fuse.js]: https://fusejs.io/
 [GitHub Gist for Fuse.js integration]: https://gist.github.com/eddiewebb/735feb48f50f0ddd65ae5606a1cb41ae
 [GitHub Gist for Hugo Workflow]: https://gist.github.com/sebz/efddfc8fdcb6b480f567
-[Hugo Lyra]: https://github.com/paolomainardi/hugo-lyra
 [INFINI Pizza for WebAssembly]: https://github.com/infinilabs/pizza-docsearch
 [JS & Fuse.js tutorial]: https://makewithhugo.com/add-search-to-a-hugo-site/
-[Lyra]: https://github.com/LyraSearch/lyra
 [Pagefind]: https://github.com/cloudcannon/pagefind
 [hugo-lunr-zh]: https://www.npmjs.com/package/hugo-lunr-zh
 [hugo-lunr]: https://www.npmjs.com/package/hugo-lunr
 [hugo-search-index]: https://www.npmjs.com/package/hugo-search-index
+[hugo-zbsearch]: https://github.com/serenasensini/hugo-zbsearch
 [hugofastsearch]: https://gist.github.com/cmod/5410eae147e4318164258742dd053993
 [lunr.js]: https://lunrjs.com/
 [this blog tutorial]: https://dev.to/medcl/adding-search-functionality-to-a-hugo-static-site-based-on-infini-pizza-for-webassembly-4h5e
 [this guide from the docs]: https://bonsai.io/docs/hugo
+[ZBSearch]: https://github.com/micheleriva/zbsearch
+[searchmysite.net]: https://searchmysite.net/
+[open source]: https://github.com/searchmysite/searchmysite.net
+[Website Search Tool]: https://searchmysite.net/pages/website-search-tool/
+[blog post with a Hugo-specific example]: https://blog.searchmysite.net/posts/one-line-to-add-a-site-specific-search-to-your-site/

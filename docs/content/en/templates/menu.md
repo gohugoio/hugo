@@ -68,7 +68,7 @@ This _partial_ template recursively "walks" a menu structure, rendering a locali
 {{- end }}
 ```
 
-Call the partial above, passing a menu ID and the current page in context.
+Call the _partial_ template above, passing a menu ID and the current page in context.
 
 ```go-html-template {file="layouts/page.html"}
 {{ partial "menu.html" (dict "menuID" "main" "page" .) }}

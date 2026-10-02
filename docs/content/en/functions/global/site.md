@@ -1,12 +1,12 @@
 ---
 title: site
-description: Provides global access to the current Site object.
+description: Returns the Site object of the current site, accessible from any context.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: []
-    returnType:
+    returnType: page.siteWrapper
     signatures: [site]
 aliases: [/functions/site]
 ---

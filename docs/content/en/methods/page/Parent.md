@@ -41,7 +41,7 @@ content/
 └── _index.md             <-- parent: nil
 ```
 
-In the example above, note the parent section of the home page is nil. Code defensively by verifying existence of the parent section before calling methods on its `Page` object. To create a link to the parent section page of the current page:
+In the example above, note the parent section of the home page is `nil`. Code defensively by verifying existence of the parent section before calling methods on its `Page` object. To create a link to the parent section page of the current page:
 
 ```go-html-template
 {{ with .Parent }}

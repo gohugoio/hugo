@@ -131,14 +131,13 @@ func (c *Scratch) DeleteInMap(key string, mapKey string) string {
 // GetSortedMapValues returns a sorted map previously filled with SetInMap.
 func (c *Scratch) GetSortedMapValues(key string) any {
 	c.mu.RLock()
+	defer c.mu.RUnlock()
 
 	if c.values[key] == nil {
-		c.mu.RUnlock()
 		return nil
 	}
 
 	unsortedMap := c.values[key].(map[string]any)
-	c.mu.RUnlock()
 	var keys []string
 	for mapKey := range unsortedMap {
 		keys = append(keys, mapKey)

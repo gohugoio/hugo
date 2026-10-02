@@ -76,9 +76,10 @@ func flagsToCfgWithAdditionalConfigBase(cd *simplecobra.Commandeer, cfg config.P
 
 	// Flags with a different name in the config.
 	keyMap := map[string]string{
-		"minify":      "minify.minifyOutput",
-		"destination": "publishDir",
-		"editor":      "newContentEditor",
+		"minify":              "minify.minifyOutput",
+		"destination":         "publishDir",
+		"editor":              "newContentEditor",
+		"cleanDestinationDir": "build.cleanDestinationDir.enable",
 	}
 
 	// Flags that we for some reason don't want to expose in the project config.

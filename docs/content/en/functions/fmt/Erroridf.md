@@ -1,6 +1,6 @@
 ---
 title: fmt.Erroridf
-description: Log a suppressible ERROR from a template.
+description: Logs a suppressible ERROR from a template.
 categories: []
 keywords: []
 params:

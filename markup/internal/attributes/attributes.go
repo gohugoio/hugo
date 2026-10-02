@@ -187,12 +187,7 @@ func RenderASTAttributes(w hugio.FlexiWriter, attributes ...ast.Attribute) {
 		_, _ = w.Write(attr.Name)
 		_, _ = w.WriteString(`="`)
 
-		switch v := attr.Value.(type) {
-		case []byte:
-			_, _ = w.Write(util.EscapeHTML(v))
-		default:
-			w.WriteString(cast.ToString(v))
-		}
+		writeAttributeValue(w, attr.Value)
 
 		_ = w.WriteByte('"')
 	}
@@ -211,13 +206,22 @@ func RenderAttributes(w hugio.FlexiWriter, skipClass bool, attributes ...Attribu
 		_, _ = w.WriteString(attr.Name)
 		_, _ = w.WriteString(`="`)
 
-		switch v := attr.Value.(type) {
-		case []byte:
-			_, _ = w.Write(util.EscapeHTML(v))
-		default:
-			w.WriteString(cast.ToString(v))
-		}
+		writeAttributeValue(w, attr.Value)
 
 		_ = w.WriteByte('"')
+	}
+}
+
+// writeAttributeValue writes v HTML-escaped as a double-quoted HTML attribute
+// value. Note that New converts string values from a []byte to a string, so
+// the string case is the common one and must be escaped too.
+func writeAttributeValue(w hugio.FlexiWriter, v any) {
+	switch vv := v.(type) {
+	case []byte:
+		_, _ = w.Write(util.EscapeHTML(vv))
+	case string:
+		_, _ = w.Write(util.EscapeHTML([]byte(vv)))
+	default:
+		_, _ = w.Write(util.EscapeHTML([]byte(cast.ToString(vv))))
 	}
 }

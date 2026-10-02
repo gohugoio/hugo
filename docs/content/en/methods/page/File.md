@@ -1,6 +1,6 @@
 ---
 title: File
-description: For pages backed by a file, returns file information for the given page.
+description: Returns file information for the given page, or nil if the page is not backed by a file.
 categories: []
 keywords: []
 params:

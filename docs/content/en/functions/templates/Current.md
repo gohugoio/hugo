@@ -22,10 +22,10 @@ The `templates.Current` function provides introspection capabilities, allowing y
 Use these methods on the `CurrentTemplateInfo` object.
 
 `Ancestors`
-: (`tpl.CurrentTemplateInfos`) Returns a slice containing information about each template in the current execution chain, starting from the parent of the current template and going up towards the initial template called. It excludes any base template applied via `define` and `block`. You can chain the `Reverse` method to this result to get the slice in chronological execution order.
+: (`tpl.CurrentTemplateInfos`) Returns a slice containing information about each template in the current execution chain, starting from the parent of the current template and going up towards the initial template called. It excludes any _base_ template applied via `define` and `block`. You can chain the `Reverse` method to this result to get the slice in chronological execution order.
 
 `Base`
-: (`tpl.CurrentTemplateInfoCommonOps`) Returns an object representing the base template that was applied to the current template, if any. This may be `nil`.
+: (`tpl.CurrentTemplateInfoCommonOps`) Returns an object representing the _base_ template that was applied to the current template, if any. This may be `nil`.
 
 `Filename`
 : (`string`) Returns the absolute path of the current template. This will be empty for embedded templates.
@@ -81,7 +81,7 @@ To display the chain of templates that led to the current one, create a _partial
 {{ end }}
 ```
 
-Then call the partial from any template:
+Then call the _partial_ template from any template:
 
 ```go-html-template {file="layouts/_partials/footer/copyright.html" copy=true}
 {{ if site.Params.debug }}
@@ -128,7 +128,7 @@ To render links that, when clicked, will open the template in Microsoft Visual S
 {{ end }}
 ```
 
-Then call the partial from any template:
+Then call the _partial_ template from any template:
 
 ```go-html-template {file="layouts/page.html" copy=true}
 {{ define "main" }}

@@ -46,7 +46,7 @@ What is the difference between an&nbsp;`index.md`&nbsp;file and an&nbsp;`_index.
 : A directory with an `index.md file` is a [leaf bundle](g). A directory with an&nbsp;`_index.md`&nbsp;file is a [branch bundle](g). See [details][page bundles].
 
 Why is my _partial_ template not rendered as expected?
-: You may have neglected to pass the required [context](g) when calling the partial. For example:
+: You may have neglected to pass the required [context](g) when calling the _partial_ template. For example:
 
   ```go-html-template
   {{/* incorrect */}}

@@ -23,7 +23,7 @@ The following examples use these map definitions:
 {{ $m3 := dict "x" "baz" "y" "wobble" "z" (dict "a" "huey") }}
 ```
 
-Example 1
+This example merges `$m1`, `$m2`, and `$m3`, in that order:
 
 ```go-html-template
 {{ $merged := merge $m1 $m2 $m3 }}
@@ -33,7 +33,7 @@ Example 1
 {{ $merged.z.a }} → huey
 ```
 
-Example 2
+This example merges `$m3`, `$m2`, and `$m1`, in that order:
 
 ```go-html-template
 {{ $merged := merge $m3 $m2 $m1 }}
@@ -43,7 +43,7 @@ Example 2
 {{ $merged.z.a }} → huey
 ```
 
-Example 3
+This example merges `$m2`, `$m3`, and `$m1`, in that order:
 
 ```go-html-template
 {{ $merged := merge $m2 $m3 $m1 }}
@@ -53,7 +53,7 @@ Example 3
 {{ $merged.z.a }} → huey
 ```
 
-Example 4
+This example merges `$m1`, `$m3`, and `$m2`, in that order:
 
 ```go-html-template
 {{ $merged := merge $m1 $m3 $m2 }}

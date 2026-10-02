@@ -293,9 +293,23 @@ func (l PermalinkExpander) pageToPermalinkDate(p Page, dateField string) (string
 	return p.Date().Format(dateField), nil
 }
 
-// pageToPermalinkTitle returns the URL-safe form of the title
+// segmentReplacer replaces path separators in a title before it's used to
+// build a single path segment (e.g. an automatically derived slug). Without
+// this, a title containing a "/" would silently introduce an extra, unintended
+// path segment in the resulting URL. See #3577.
+var segmentReplacer = strings.NewReplacer("/", "-", "\\", "-")
+
+// pageToPermalinkTitle returns the URL-safe form of the title.
 func (l PermalinkExpander) pageToPermalinkTitle(p Page, _ string) (string, error) {
-	return l.urlize(p.Title()), nil
+	title := p.Title()
+	if p.Kind() != kinds.KindTaxonomy && p.Kind() != kinds.KindTerm {
+		// Taxonomy and term pages are allowed to have '/' in their title
+		// (the term itself) to build multi-level taxonomy hierarchies.
+		// See #5571. All other kinds derive a single path segment from the
+		// title, so path separators must not be allowed through.
+		title = segmentReplacer.Replace(title)
+	}
+	return l.urlize(title), nil
 }
 
 // pageToPermalinkFilename returns the URL-safe form of the filename

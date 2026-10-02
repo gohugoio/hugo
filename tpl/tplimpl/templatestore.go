@@ -251,6 +251,9 @@ type TemplInfo struct {
 	// The base template used, if any.
 	base *TemplInfo
 
+	// For partial decorator inner templates, the template the inner block was defined in.
+	decoratorOwner *TemplInfo
+
 	// The descriptior that this template represents.
 	D TemplateDescriptor
 
@@ -638,6 +641,31 @@ func (s *TemplateStore) LookupPartial(pth string) *TemplInfo {
 	return ti
 }
 
+// ResolvePartialName resolves partial names starting with "./" or "../"
+// relative to the directory of the calling partial.
+func (s *TemplateStore) ResolvePartialName(ctx context.Context, name string) (string, error) {
+	if !strings.HasPrefix(name, "./") && !strings.HasPrefix(name, "../") {
+		return name, nil
+	}
+	cur := tpl.Context.CurrentTemplate.Get(ctx)
+	if cur == nil {
+		return "", fmt.Errorf("relative partial path %q can only be used from within a partial", name)
+	}
+	ti := cur.CurrentTemplateInfoOps.(*TemplInfo)
+	for ti.decoratorOwner != nil {
+		ti = ti.decoratorOwner
+	}
+	if ti.category != CategoryPartial {
+		return "", fmt.Errorf("relative partial path %q can only be used from within a partial, called from %q", name, ti.Name())
+	}
+	dir := strings.TrimPrefix(strings.TrimPrefix(ti.PathInfo.Dir(), "/"+containerPartials), "/")
+	resolved := path.Join(dir, name)
+	if resolved == ".." || strings.HasPrefix(resolved, "../") {
+		return "", fmt.Errorf("relative partial path %q in %q resolves outside the partials directory", name, ti.Name())
+	}
+	return resolved, nil
+}
+
 func (s *TemplateStore) LookupShortcodeByName(name string) *TemplInfo {
 	name = strings.ToLower(name)
 	ti, _ := s.shortcodesByName.Get(name)
@@ -812,7 +840,12 @@ func (t *TemplateStore) TextParseContentAdapter(name, content string) (*TemplInf
 		if err != nil {
 			return nil, err
 		}
-		ti.inlinePartials[key] = &TemplInfo{Template: scoped, D: TemplateDescriptor{IsPlainText: true}}
+		ti.inlinePartials[key] = &TemplInfo{
+			Template: scoped,
+			category: CategoryPartial,
+			PathInfo: t.opts.PathParser.Parse(files.ComponentFolderLayouts, path.Join(containerPartials, key)).ForType(paths.TypePartial),
+			D:        TemplateDescriptor{IsPlainText: true},
+		}
 	}
 	return ti, nil
 }
@@ -992,10 +1025,12 @@ func (t *TemplateStore) addDeferredTemplate(owner *TemplInfo, name string, n *pa
 	}
 
 	t.templatesByPath.Set(name, &TemplInfo{
-		Fi:       owner.Fi,
-		PathInfo: owner.PathInfo,
-		D:        owner.D,
-		Template: templ,
+		Fi:             owner.Fi,
+		PathInfo:       owner.PathInfo,
+		D:              owner.D,
+		Template:       templ,
+		category:       owner.category,
+		decoratorOwner: owner.decoratorOwner,
 	})
 
 	return nil
@@ -2144,7 +2179,7 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 	// Note that for render hook templates, we need to make
 	// the embedded render hook template win if they're a better match,
 	// e.g. render-codeblock-goat.html.
-	if best.templ.category != CategoryMarkup && best.w.w1 > 0 {
+	if (best.templ.category != CategoryMarkup || best.templ.D.Variant1 == "table") && best.w.w1 > 0 {
 		currentBestIsEmbedded := best.templ.subCategory == SubCategoryEmbedded
 		if currentBestIsEmbedded {
 			if ti.subCategory != SubCategoryEmbedded {

@@ -1,13 +1,13 @@
 ---
 title: strings.ReplaceRE
-description: Returns a copy of INPUT, replacing all occurrences of a regular expression with a replacement pattern.
+description: Returns the given string, replacing all occurrences of a regular expression with a replacement pattern.
 categories: []
 keywords: []
 params:
   functions_and_methods:
     aliases: [replaceRE]
     returnType: string
-    signatures: ['strings.ReplaceRE PATTERN REPLACEMENT INPUT [LIMIT]']
+    signatures: ['strings.ReplaceRE PATTERN REPLACEMENT STRING [LIMIT]']
 aliases: [/functions/replacere]
 ---
 

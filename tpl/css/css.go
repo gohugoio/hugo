@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/bep/logg"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugio"
@@ -88,7 +89,8 @@ func (ns *Namespace) ChromaStyles(opts any) (resource.Resource, error) {
 					return hugio.NewReadSeekerNoOpCloserFromString(css), nil
 				},
 				TargetPath: o.TargetPath,
-			})
+			},
+		)
 	})
 }
 
@@ -162,7 +164,6 @@ func (ns *Namespace) Sass(args ...any) (resource.Resource, error) {
 			case sass.TranspilerDart:
 				transpiler = cast.ToString(t)
 			case sass.TranspilerLibSass:
-				hugo.Deprecate("css.Sass: libsass", "Use dartsass instead. See https://gohugo.io/functions/css/sass/#dart-sass", "v0.153.0")
 				transpiler = cast.ToString(t)
 			default:
 				return nil, fmt.Errorf("unsupported transpiler %q; valid values are %q or %q", t, sass.TranspilerLibSass, sass.TranspilerDart)
@@ -171,6 +172,11 @@ func (ns *Namespace) Sass(args ...any) (resource.Resource, error) {
 	}
 
 	if transpiler == sass.TranspilerLibSass {
+		// See https://github.com/gohugoio/hugo/issues/15405
+		// We deprecated this in v0.153.0 but only warned about it if the user explicitly set the transpiler to libsass.
+		// So, anyone using the default transpiler (which is libsass) without explicitly setting it will not see this warning.
+		// Given this, we need to stay with the warning for one more version, then ERROR, then remove in v0.170.0.
+		hugo.DeprecateLevelMax("css.Sass: libsass", "Use dartsass instead. See https://gohugo.io/functions/css/sass/#dart-sass", "v0.153.0", logg.LevelWarn)
 		var options scss.Options
 		if targetPath != "" {
 			options.TargetPath = paths.ToSlashTrimLeading(targetPath)
@@ -248,37 +254,44 @@ func init() {
 			Context: func(cctx context.Context, args ...any) (any, error) { return ctx, nil },
 		}
 
-		ns.AddMethodMapping(ctx.ChromaStyles,
+		ns.AddMethodMapping(
+			ctx.ChromaStyles,
 			nil,
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.PostCSS,
+		ns.AddMethodMapping(
+			ctx.PostCSS,
 			[]string{"postCSS"},
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.Quoted,
+		ns.AddMethodMapping(
+			ctx.Quoted,
 			nil,
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.Sass,
+		ns.AddMethodMapping(
+			ctx.Sass,
 			[]string{"toCSS"},
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.Build,
+		ns.AddMethodMapping(
+			ctx.Build,
 			nil,
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.TailwindCSS,
+		ns.AddMethodMapping(
+			ctx.TailwindCSS,
 			nil,
 			[][2]string{},
 		)
 
-		ns.AddMethodMapping(ctx.Unquoted,
+		ns.AddMethodMapping(
+			ctx.Unquoted,
 			nil,
 			[][2]string{},
 		)

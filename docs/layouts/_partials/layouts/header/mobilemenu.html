@@ -77,7 +77,7 @@
 	{{/* Social links */}}
 	<div class="px-4 py-2 space-y-1">
 		{{/* GitHub */}}
-		{{ with partialCached "helpers/funcs/get-github-info.html" . "-" }}
+		{{ with partialCached "helpers/funcs/get-github-info.html" . }}
 			<a
 				href="{{ .html_url | safeURL }}"
 				target="_blank"

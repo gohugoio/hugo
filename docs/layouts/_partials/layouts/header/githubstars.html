@@ -1,4 +1,4 @@
-{{ with partialCached "helpers/funcs/get-github-info.html" . "-" }}
+{{ with partialCached "helpers/funcs/get-github-info.html" . }}
 	<a
 		href="{{ .html_url | safeURL }}"
 		target="_blank"

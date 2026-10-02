@@ -119,7 +119,10 @@ Use these methods within a content adapter.
 
 ## Page map
 
-Set any [front matter field][] in the map passed to the [`AddPage`](#addpage) method, excluding `markup`. Instead of setting the `markup` field, specify the `content.mediaType` as described below.
+Set any [front matter field][] in the map passed to the [`AddPage`](#addpage) method, with these exceptions:
+
+- Instead of setting the `markup` field, specify the `content.mediaType` as described below.
+- Instead of setting taxonomy keys such as `tags` and `categories` at the top level, place them inside the `params` map.
 
 This table describes the fields most commonly passed to the `AddPage` method.
 
@@ -296,7 +299,7 @@ content/
     └── _index.en.md
 ```
 
-### Translations by content directory
+### Translations by directory
 
 With this project configuration:
 

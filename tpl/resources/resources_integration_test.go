@@ -60,7 +60,7 @@ Copy3: {{ $copy3.RelPermalink}}|{{ $copy3.MediaType }}|{{ $copy3.Content | safeJ
 
 	b.AssertFileContent("public/index.html", `
 Image Orig:  /blog/images/pixel.png|image/png|1|1|
-Image Copy1:  /blog/images/copy_hu_ef85c36d9b9eff0.png|image/png|3|4|
+Image Copy1:  /blog/images/copy_hu_e592d810de530dee.png|image/png|3|4|
 Image Copy2:  /blog/images/copy2.png|image/png|3|4|
 Image Copy3:  image/png|3|4|
 Orig: /blog/js/foo.js|text/javascript|let foo;|
@@ -271,7 +271,8 @@ disableKinds = ['page','section','rss','sitemap','taxonomy','term']
 
 	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		".dartsass{color:red}",
 		".libsass{color:blue}",
 	)

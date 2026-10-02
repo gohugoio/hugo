@@ -1,6 +1,6 @@
 ---
 title: crypto.Hash
-description: Hashes the given input with the given algorithm and returns its checksum encoded to a hexadecimal string.
+description: Returns the checksum of the given input, encoded to a hexadecimal string, using the given hash algorithm.
 categories: []
 keywords: []
 params:
@@ -23,7 +23,7 @@ If you omit the algorithm, it defaults to `sha256`:
 {{ "Hello world" | crypto.Hash }} → 64ec88ca00b268e5ba1a35678a1b5316d212f4f366b2477232534a8aeca37f3c
 ```
 
-The supported algorithms match those used for the [Subresource Integrity] hash in [`.Data.Integrity`] on a fingerprinted resource. Combine `crypto.Hash` with [`encoding.HexDecode`] and [`encoding.Base64Encode`] to construct an SRI hash from a string:
+The supported algorithms match those used for the [Subresource Integrity][] hash in [`.Data.Integrity`][] on a fingerprinted resource. Combine `crypto.Hash` with [`encoding.HexDecode`][] and [`encoding.Base64Encode`][] to construct an SRI hash from a string:
 
 ```go-html-template
 {{ $algo := "sha256" }}
@@ -32,5 +32,5 @@ The supported algorithms match those used for the [Subresource Integrity] hash i
 
 [Subresource Integrity]: https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 [`.Data.Integrity`]: /methods/resource/data/
-[`encoding.HexDecode`]: /functions/encoding/hexdecode/
 [`encoding.Base64Encode`]: /functions/encoding/base64encode/
+[`encoding.HexDecode`]: /functions/encoding/hexdecode/

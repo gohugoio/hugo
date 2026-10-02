@@ -80,7 +80,7 @@ disableAliases = true
   [markup.highlight]
     lineNumbersInTable = false
     noClasses          = false
-    style              = 'solarized-dark'
+    style              = 'modus-operandi'
     wrapperClass       = 'highlight not-prose'
 
 [mediaTypes]
@@ -138,6 +138,8 @@ disableAliases = true
     weight = 1
 
 [security]
+  [security.exec]
+    allow = ['^go$', '^git$', '^node$', '^tailwindcss$']
   [security.funcs]
     getenv = ['^HUGO_', '^REPOSITORY_URL$', '^BRANCH$']
 

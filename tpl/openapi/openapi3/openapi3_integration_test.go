@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
@@ -61,7 +62,11 @@ disableLiveReload = true
 API: {{ $api.Info.Title | safeHTML }}
   `
 
-	b := hugolib.TestRunning(t, files)
+	b := hugolib.TestRunning(t, files, hugolib.TestOptWithConfig(func(c *hugolib.IntegrationTestConfig) {
+		c.FileContentPrefix = hugio.BOM
+	}))
+
+	b.AssertStringPublished("! " + hugio.BOM)
 
 	b.AssertFileContent("public/index.html", `API: Sample API`)
 
@@ -214,7 +219,8 @@ func TestUnmarshalRefLocal(t *testing.T) {
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		`Reference in reference example`,
 		"RequestBody:  Properties: data:  Properties: definition_reference:  Properties: id: Format: int32|$ref_prop_part:  Properties: idPart: Format: int64|$",
 		"Response:  Properties: id: Format: uint64|$",
@@ -226,13 +232,15 @@ func TestUnmarshalRefLocalEdit(t *testing.T) {
 
 	b := hugolib.TestRunning(t, files)
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		"RequestBody:  Properties: data:  Properties: definition_reference:  Properties: id: Format: int32|$ref_prop_part:  Properties: idPart: Format: int64|$",
 	)
 
 	b.EditFileReplaceAll("assets/api/messages/dataPart.json", "int64", "int8").Build()
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		"RequestBody:  Properties: data:  Properties: definition_reference:  Properties: id: Format: int32|$ref_prop_part:  Properties: idPart: Format: int8|$",
 	)
 }
@@ -281,7 +289,8 @@ func TestUnmarshalRefRemote(t *testing.T) {
 	t.Run("Build", func(t *testing.T) {
 		b := hugolib.Test(t, createFiles(t))
 
-		b.AssertFileContent("public/index.html",
+		b.AssertFileContent(
+			"public/index.html",
 			`Reference in reference example`,
 			"RequestBody:  Properties: data:  Properties: definition_reference:  Properties: id: Format: int32|$ref_prop_part:  Properties: idPart: Format: int8|$",
 			"Response:  Properties: id: Format: uint64|$",
@@ -291,14 +300,16 @@ func TestUnmarshalRefRemote(t *testing.T) {
 	t.Run("Rebuild", func(t *testing.T) {
 		b := hugolib.TestRunning(t, createFiles(t))
 
-		b.AssertFileContent("public/index.html",
+		b.AssertFileContent(
+			"public/index.html",
 			"idPart: Format: int8|$",
 		)
 
 		// Rebuild triggered by remote polling.
 		time.Sleep(800 * time.Millisecond)
 
-		b.AssertFileContent("public/index.html",
+		b.AssertFileContent(
+			"public/index.html",
 			"idPart: Format: int16|$",
 		)
 	})

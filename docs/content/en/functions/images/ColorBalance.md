@@ -10,7 +10,7 @@ params:
     signatures: [images.ColorBalance PCTRED PCTGREEN PCTBLUE]
 ---
 
-The percentage for each channel (red, green, blue) must be in the range [-100, 500].
+The percentage for each channel (red, green, blue) must be in the range `[-100, 500]`.
 
 ## Usage
 

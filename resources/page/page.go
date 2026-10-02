@@ -327,8 +327,9 @@ type PageMetaInternalProvider interface {
 
 // PageRenderProvider provides a way for a Page to render content.
 type PageRenderProvider interface {
-	// Render renders the given layout with this Page as context.
-	Render(ctx context.Context, layout ...string) (template.HTML, error)
+	// Render renders the given view (a layout template) with this Page as
+	// the data context, or, if given, the second argument CONTEXT.
+	Render(ctx context.Context, args ...any) (template.HTML, error)
 	// RenderString renders the first value in args with the content renderer defined
 	// for this Page.
 	// It takes an optional map as a second argument:
@@ -448,7 +449,7 @@ type RefProvider interface {
 type RelatedKeywordsProvider interface {
 	// Make it indexable as a related.Document
 	// RelatedKeywords is meant for internal usage only.
-	RelatedKeywords(cfg related.IndexConfig) ([]related.Keyword, error)
+	RelatedKeywords(cfg related.IndexConfig) ([]string, error)
 }
 
 // ShortcodeInfoProvider provides info about the shortcodes in a Page.

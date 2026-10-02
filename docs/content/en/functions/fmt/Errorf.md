@@ -1,6 +1,6 @@
 ---
 title: fmt.Errorf
-description: Log an ERROR from a template.
+description: Logs an ERROR from a template.
 categories: []
 keywords: []
 params:

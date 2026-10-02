@@ -122,6 +122,31 @@ Polling and HTTP caching interact as follows:
 - If polling is enabled but HTTP caching is disabled, the remote is checked for changes only after the file cache's TTL expires (e.g., a `maxAge` of `10h` with a `1s` polling interval is inefficient).
 - If both polling and HTTP caching are enabled, changes are checked for even before the file cache's TTL expires. Cached `eTag` and `last-modified` values are sent in `if-none-match` and `if-modified-since` headers, respectively, and a cached response is returned on HTTP [304][].
 
+## Example
+
+Consider a site that renders remote data fetched with the [`resources.GetRemote`][] function. With the default configuration Hugo bypasses the HTTP cache for every remote resource, and polling is disabled. As a result, while running `hugo server` you will not detect changes to the remote data until you restart the server.
+
+The configuration below enables HTTP caching for remote JSON resources, and polls them for changes while watching. Hugo checks as often as every 10 seconds after a recent change, then backs off towards once every 5 minutes when the resource is stable:
+
+{{< code-toggle file=hugo >}}
+[HTTPCache.cache.for]
+includes = ['**.json']
+excludes = []
+
+[[HTTPCache.polls]]
+disable = false
+high = '5m'
+low = '10s'
+[HTTPCache.polls.for]
+includes = ['**.json']
+excludes = []
+{{< /code-toggle >}}
+
+The glob patterns are matched against the full remote URL, using `/` as the path separator. With this configuration Hugo will:
+
+- Cache responses for remote JSON resources in the [file cache][configure file caches], honoring the `ETag` and `Last-Modified` headers returned by the server.
+- Detect changes to those resources while watching, triggering a rebuild of every page that depends on them.
+
 [304]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/304
 [RFC 9111]: https://datatracker.ietf.org/doc/html/rfc9111
 [`resources.GetRemote`]: /functions/resources/getremote/

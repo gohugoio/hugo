@@ -1,6 +1,6 @@
 ---
 title: lang.Translate
-description: Translates a string using the translation tables in the i18n directory.
+description: Returns a translated string using the translation tables in the i18n directory.
 categories: []
 keywords: []
 params:

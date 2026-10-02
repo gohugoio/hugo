@@ -77,7 +77,8 @@ func New(deps *deps.Deps) *Namespace {
 		func(...any) bool {
 			cache.clear()
 			return false
-		})
+		},
+	)
 
 	return &Namespace{
 		deps:           deps,
@@ -110,6 +111,10 @@ func (ns *Namespace) Include(ctx context.Context, name string, contextList ...an
 }
 
 func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) includeResult {
+	name, err := ns.deps.TemplateStore.ResolvePartialName(ctx, name)
+	if err != nil {
+		return includeResult{err: err}
+	}
 	v, err := ns.lookup(ctx, name)
 	if err != nil {
 		return includeResult{err: err}
@@ -180,17 +185,25 @@ func (ns *Namespace) doInclude(ctx context.Context, key string, templ *tplimpl.T
 // Note that ctx is provided by Hugo, not the end user.
 func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any, variants ...any) (any, error) {
 	start := time.Now()
+	name, err := ns.deps.TemplateStore.ResolvePartialName(ctx, name)
+	if err != nil {
+		return nil, err
+	}
+	cacheName := ns.deps.TemplateStore.PartialCacheName(ctx, name)
+	keyString := cacheName
+	if len(variants) > 0 {
+		key := partialCacheKey{
+			Name:     cacheName,
+			Variants: variants,
+		}
+		keyString = key.Key()
+	}
+
+	depsManagerIn := tpl.Context.GetDependencyManagerInCurrentScope(ctx)
 	ti, err := ns.lookup(ctx, name)
 	if err != nil {
 		return nil, err
 	}
-	key := partialCacheKey{
-		Name:     ns.deps.TemplateStore.PartialCacheName(ctx, name),
-		Variants: variants,
-	}
-	keyString := key.Key()
-
-	depsManagerIn := tpl.Context.GetDependencyManagerInCurrentScope(ctx)
 
 	if parent := tpl.Context.CurrentTemplate.Get(ctx); parent != nil {
 		for parent != nil {

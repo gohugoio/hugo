@@ -13,11 +13,13 @@
       }
 		</style>
 
-		{{ partial "layouts/head/head-js.html" . }}
+		{{ partialCached "layouts/head/head-js.html" . }}
 		{{ with (templates.Defer (dict "key" "global")) }}
 			{{ $t := debug.Timer "tailwindcss" }}
 			{{ with resources.Get "css/styles.css" }}
-				{{ $opts := dict "minify" (not hugo.IsDevelopment) }}
+				{{ $light := css.ChromaStyles (dict "targetPath" "css/components/chroma.css" "mode" "light") }}
+				{{ $dark := css.ChromaStyles (dict "targetPath" "css/components/chroma_dark.css" "mode" "dark" "modeSelector" true) }}
+				{{ $opts := dict "minify" (not hugo.IsDevelopment) "importContext" (slice $light $dark) }}
 				{{ with . | css.TailwindCSS $opts }}
 					{{ partial "helpers/linkcss.html" (dict "r" .) }}
 				{{ end }}
@@ -26,12 +28,7 @@
 		{{ end }}
 		{{ $noop := .WordCount }}
 		{{ if .Page.Store.Get "hasMath" }}
-			<link
-				rel="stylesheet"
-				href="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.css"
-				integrity="sha384-WcoG4HRXMzYzfCgiyfrySxx90XSl2rxY5mnVY5TwtWE6KLrArNKn0T/mOgNL0Mmi"
-				crossorigin="anonymous"
-			>
+			<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.18.4/dist/katex.min.css" integrity="sha384-u1zONI5gPXUx0UKI62c75/zww972y0v2rSK5ZYlVdS6xEuWDeZWUI66v6t1gvlXJ" crossorigin="anonymous">
 		{{ end }}
 		{{ partial "layouts/head/head.html" . }}
 	</head>
@@ -65,12 +62,12 @@
 			{{ end }}
 		</div>
 		{{/* Common icons. */}}
-		{{ partial "layouts/icons.html" . }}
+		{{ partialCached "layouts/icons.html" . }}
 		{{/* Common templates. */}}
-		{{ partial "layouts/templates.html" . }}
+		{{ partialCached "layouts/templates.html" . }}
 		{{/* Footer. */}}
 		{{ block "footer" . }}
-			{{ partial "layouts/footer.html" . }}
+			{{ partialCached "layouts/footer.html" . }}
 		{{ end }}
 		{{ partial "layouts/hooks/body-end.html" . }}
 	</body>

@@ -54,7 +54,7 @@ func newPagesCollector(
 		infoLogger:  infoLogger,
 		buildConfig: buildConfig,
 		ids:         ids,
-		seenDirs:    make(map[string]bool),
+		seen:        make(map[string]bool),
 	}
 }
 
@@ -72,8 +72,8 @@ type pagesCollector struct {
 	buildConfig *BuildCfg
 
 	// List of paths that have changed. Used in partial builds.
-	ids      []pathChange
-	seenDirs map[string]bool
+	ids  []pathChange
+	seen map[string]bool
 
 	g rungroup.Group[hugofs.FileMetaInfo]
 }
@@ -223,8 +223,11 @@ func (c *pagesCollector) Collect() (collectErr error) {
 }
 
 func (c *pagesCollector) collectDir(dirPath *paths.Path, isDir bool, inFilter func(fim hugofs.FileMetaInfo) bool) error {
-	var dpath string
+	var dpath, key string
 	if dirPath != nil {
+		// Several changed files may live in the same directory, each collected
+		// with its own filter, so dedupe on the path, not the directory.
+		key = dirPath.Path()
 		if isDir {
 			dpath = filepath.FromSlash(dirPath.Unnormalized().Path())
 		} else {
@@ -232,10 +235,10 @@ func (c *pagesCollector) collectDir(dirPath *paths.Path, isDir bool, inFilter fu
 		}
 	}
 
-	if c.seenDirs[dpath] {
+	if c.seen[key] {
 		return nil
 	}
-	c.seenDirs[dpath] = true
+	c.seen[key] = true
 
 	root, err := c.fs.Stat(dpath)
 	if err != nil {

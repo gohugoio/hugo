@@ -21,7 +21,7 @@ exit
 A fenced code block consists of:
 
 - A leading [code fence][]
-- An optional [info string][]
+- An optional [info string](g)
 - A code sample
 - A trailing code fence
 
@@ -106,7 +106,7 @@ For example, to create a code block render hook to render [Mermaid][] diagrams:
 {{ .Page.Store.Set "hasMermaid" true }}
 ```
 
-Then include this snippet at the _bottom_ of your base template, before the closing `body` tag:
+Then include this snippet at the _bottom_ of your _base_ template, before the closing `body` tag:
 
 ```go-html-template {file="layouts/baseof.html" copy=true}
 {{ if .Store.Get "hasMermaid" }}
@@ -132,4 +132,3 @@ Hugo includes an [embedded code block render hook][] to render [GoAT diagrams][]
 [diagrams]: /content-management/diagrams/#mermaid-diagrams
 [embedded code block render hook]: <{{% eturl render-codeblock-goat %}}>
 [highlighting options]: /functions/transform/highlight/#options
-[info string]: https://spec.commonmark.org/current/#info-string

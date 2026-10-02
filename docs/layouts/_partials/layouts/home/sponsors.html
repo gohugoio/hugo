@@ -1,5 +1,4 @@
 {{ $gtag := .gtag | default "unknown" }}
-{{ $gtag := .gtag | default "unknown" }}
 {{ $isFooter := (eq $gtag "footer") }}
 {{ $utmSource := cond $isFooter "hugofooter" "hugohome" }}
 {{ $containerClass := .containerClass | default "mx-auto max-w-7xl px-6 lg:px-8" }}

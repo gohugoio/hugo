@@ -243,7 +243,7 @@ func (b *tocBuilder) writeHeading(level, indent int, h *Heading) {
 	b.indent(indent)
 	b.s.WriteString("<li>")
 	if !h.IsZero() {
-		b.s.WriteString("<a href=\"#" + h.ID + "\">" + h.Title + "</a>")
+		b.s.WriteString("<a href=\"#" + template.HTMLEscapeString(h.ID) + "\">" + h.Title + "</a>")
 	}
 	b.writeHeadings(level, indent, h.Headings)
 	b.s.WriteString("</li>\n")

@@ -2,7 +2,7 @@
 title: canonical output format
 ---
 
-The _canonical output format_ is the [_output format_](g) for the current page where the format's [`rel`][] property is set to `canonical` in your project configuration, if such a format exists. If there is only one _output format_ for the current page, that is the _canonical output format_, regardless of whether the format's `rel` property is set to `canonical`.
+The _canonical output format_ is the [_output format_](g) for the current page where the format's [`rel`][] property is set to `canonical` in your project configuration, if such a format exists. If there is only one _output format_ for the current page and it is a predefined format, Hugo automatically treats it as the _canonical output format_ regardless of whether its `rel` property is set to `canonical`. Custom output formats are not subject to this rule; `rel` must be explicitly set to `canonical`.
 
   By default, `html` is the only predefined _output format_ with this setting; the `rel` property for all others is set to `alternate`. If two or more _output formats_ for the current page have their `rel` property set to `canonical`, the _canonical output format_ is the first one specified in:
 

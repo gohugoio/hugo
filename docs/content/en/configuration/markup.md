@@ -127,7 +127,7 @@ Markdown|Replaced by|Description
 `”`|`&rdquo;`|right double quote
 `’`|`&rsquo;`|right single quote
 
-### Goldmark settings explained
+### Settings
 
 Most of the Goldmark settings above are self-explanatory, but some require explanation.
 
@@ -197,9 +197,9 @@ Most of the Goldmark settings above are self-explanatory, but some require expla
 
 This is the default configuration for the AsciiDoc renderer:
 
-{{< code-toggle config=markup.asciidocExt />}}
+{{< code-toggle config=markup.asciiDocExt />}}
 
-### AsciiDoc settings explained
+### Settings {#settings-asciidoc}
 
 `attributes`
 : (`map`) A map of key-value pairs, each a document attribute. See Asciidoctor's [attributes][].
@@ -241,6 +241,7 @@ This is the default configuration for the AsciiDoc renderer:
 
 {{< code-toggle file=hugo >}}
 [markup.asciidocExt]
+backend = 'html5s'
 extensions = ['asciidoctor-html5s','asciidoctor-diagram']
 workingFolderCurrent = true
 [markup.asciidocExt.attributes]
@@ -248,7 +249,7 @@ my-base-url = 'https://example.com/'
 my-attribute-name = 'my value'
 {{< /code-toggle >}}
 
-### Syntax highlighting
+### Syntax highlighting {#syntax-highlighting-asciidoc}
 
 Follow the steps below to enable syntax highlighting.
 
@@ -264,19 +265,17 @@ Step 2
 : Generate the highlighter CSS. For example:
 
   ```sh
-  rougify style monokai.sublime > assets/css/syntax.css
+  rougify style monokai.sublime > assets/css/highlight.css
   ```
 
 Step 3
-: In your base template add a link to the CSS file:
+: In your _base_ template add a link to the CSS file:
 
   ```go-html-template {file="layouts/baseof.html"}
   <head>
-    ...
-    {{ with resources.Get "css/syntax.css" }}
+    {{ with resources.Get "css/highlight.css" }}
       <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
     {{ end }}
-    ...
   </head>
   ```
 
@@ -284,27 +283,85 @@ Step 4
 : Add the code to be highlighted to your markup:
 
   ```text
-  [#hello,ruby]
+  [#hello,go]
   ----
-  require 'sinatra'
+  package main
 
-  get '/hi' do
-    "Hello World!"
-  end
+  import "fmt"
+
+  func main() {
+      fmt.Println("Hello, World!")
+  }
   ----
   ```
 
 ### Troubleshooting
 
-Run `hugo build --logLevel debug` to examine Hugo's call to the Asciidoctor executable:
+Run `hugo build --logLevel debug` to examine Hugo's call to the `asciidoctor` executable:
 
 ```txt
 INFO 2019/12/22 09:08:48 Rendering book-as-pdf.adoc with C:\Ruby26-x64\bin\asciidoctor.bat using asciidoc args [--no-header-footer -r asciidoctor-html5s -b html5s -r asciidoctor-diagram --base-dir D:\prototypes\hugo_asciidoc_ddd\docs -a outdir=D:\prototypes\hugo_asciidoc_ddd\build -] ...
 ```
 
+## reStructuredText
+
+This is the default configuration for the reStructuredText renderer:
+
+{{< code-toggle config=markup.rst />}}
+
+### Settings {#settings-restructuredtext}
+
+`syntaxHighlight`
+: (`string`) Token name set for parsing code with Pygments, one of `long`, `short`, or `none`. Default is `long`.
+
+### Syntax highlighting {#syntax-highlighting-restructuredtext}
+
+Follow the steps below to enable syntax highlighting.
+
+Step 1
+: Set `syntaxHighlight` to `short` in your project configuration.
+
+  {{< code-toggle file=hugo >}}
+  [markup.rst]
+    syntaxHighlight = 'short'
+  {{< /code-toggle >}}
+
+Step 2
+: Generate the highlighter CSS. For example:
+
+  ```sh
+  pygmentize -S monokai -f html > assets/css/highlight.css
+  ```
+
+Step 3
+: In your _base_ template add a link to the CSS file:
+
+  ```go-html-template {file="layouts/baseof.html"}
+  <head>
+    {{ with resources.Get "css/highlight.css" }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+    {{ end }}
+  </head>
+  ```
+
+Step 4
+: Add the code to be highlighted to your markup:
+
+  ```text
+  .. code-block:: go
+
+    package main
+
+    import "fmt"
+
+    func main() {
+        fmt.Println("Hello, World!")
+    }
+  ```
+
 ## Highlight
 
-This is the default configuration.
+These settings apply to fenced code blocks in Markdown, the embedded [`highlight`][] shortcode, the [`transform.Highlight`][] function, and the [`transform.HighlightCodeBlock`][] function. The default configuration is shown below.
 
 {{< code-toggle config=markup.highlight />}}
 
@@ -346,6 +403,9 @@ This is the default configuration for the table of contents, applicable to Goldm
 [Pandoc]: https://pandoc.org/
 [`Fragments.Identifiers`]: /methods/page/fragments/#identifiers
 [`TableOfContents`]: /methods/page/tableofcontents/
+[`highlight`]: /shortcodes/highlight/
+[`transform.HighlightCodeBlock`]: /functions/transform/highlightcodeblock/
+[`transform.Highlight`]: /functions/transform/highlight/
 [`urls.Anchorize`]: /functions/urls/anchorize/
 [asciidoctor-diagram]: https://asciidoctor.org/docs/asciidoctor-diagram/
 [attributes]: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#attributes-and-substitutions

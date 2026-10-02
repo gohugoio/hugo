@@ -151,7 +151,7 @@ Workspaces simplify local development of sites with modules. Create a `.work` fi
 A `.work` file example:
 
 ```text
-go 1.26
+go 1.27
 
 use .
 use ../my-hugo-module

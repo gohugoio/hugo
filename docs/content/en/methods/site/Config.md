@@ -34,7 +34,7 @@ You must capitalize each identifier as shown above.
 
 See [configure privacy][].
 
-For example, to disable usage of the built-in YouTube shortcode:
+For example, to disable usage of the built-in `youtube` shortcode:
 
 {{< code-toggle file=hugo >}}
 [privacy.youtube]

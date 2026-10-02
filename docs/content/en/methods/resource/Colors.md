@@ -1,6 +1,6 @@
 ---
 title: Colors
-description: Applicable to images, returns a slice of the most dominant colors using a simple histogram method.
+description: Returns a slice of an image's most dominant colors, ordered from most to least dominant, using a simple histogram method.
 categories: []
 keywords: []
 params:
@@ -20,7 +20,7 @@ The `Colors` method returns a slice of the most dominant colors in a [processabl
 
 This method is fast, but if you downscale your image first, you can further improve performance by extracting colors from the smaller resource.
 
-## Methods
+### Methods
 
 Each color in the slice is an object with the following methods:
 
@@ -28,12 +28,12 @@ Each color in the slice is an object with the following methods:
 : (`string`) Returns the [hexadecimal color][] value, prefixed with a hash sign.
 
 `Luminance`
-: (`float64`) Returns the [relative luminance][] of the color in the sRGB colorspace in the range [0, 1]. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
+: (`float64`) Returns the [relative luminance][] of the color in the sRGB colorspace in the range `[0, 1]`. A value of `0` represents the darkest black, while a value of `1` represents the lightest white.
 
 > [!NOTE]
 > Image filters such as [`images.Dither`][], [`images.Padding`][], and [`images.Text`][] accept either hexadecimal color values or `images.Color` objects as arguments. Hugo renders an `images.Color` object as a hexadecimal color value.
 
-## Sorting
+### Sorting
 
 As a contrived example, create a table of an image's dominant colors with the most dominant color first, and display the relative luminance of each dominant color:
 
@@ -89,6 +89,8 @@ To sort by relative luminance with the lightest color first, use either of these
 ```
 
 ## Examples
+
+The following examples use an image's dominant colors to style page elements.
 
 ### Image borders
 

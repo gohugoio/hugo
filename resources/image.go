@@ -321,8 +321,24 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 		return nil, err
 	}
 
-	confMain.Action = "filter"
-	confMain.Key = hashing.HashString(gfilters)
+	confMain.Action = images.ActionFilter
+	opts := []any{gfilters}
+	if images.MainImageVersionNumber > 0 {
+		opts = append(opts, images.MainImageVersionNumber)
+	}
+	if v := images.FormatVersionNumbers[confMain.TargetFormat]; v > 0 {
+		opts = append(opts, v)
+	}
+	confMain.Key = hashing.HashString(opts...)
+
+	// Geometric filters cannot introduce colors outside the source palette.
+	for _, f := range gfilters {
+		switch images.UnwrapFilter(f).(type) {
+		case images.ImageProcessSpecProvider, images.ImageFilterFromOrientationProvider:
+		default:
+			confMain.PreserveSourcePalette = false
+		}
+	}
 
 	return i.doWithImageConfig(confMain, func(src image.Image) (image.Image, error) {
 		var filters []gift.Filter
@@ -438,7 +454,7 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 			converted = tmp
 		}
 
-		if conf.TargetFormat == images.PNG {
+		if conf.TargetFormat == images.PNG && conf.PreserveSourcePalette {
 			// Apply the colour palette from the source
 			if paletted, ok := src.(*image.Paletted); ok {
 				palette := paletted.Palette

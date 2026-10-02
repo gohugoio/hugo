@@ -3,7 +3,7 @@ _comment: Do not remove front matter.
 ---
 
 <!--
-This description list intentionally excludes the `pageRef` and `url` properties. Add those properties manually after using the include shortcode to include this list.
+This description list intentionally excludes the `pageRef` and `url` properties. Add those properties manually after using the `include` shortcode to include this list.
 -->
 
 `identifier`

@@ -148,7 +148,7 @@ To access output formats, each `Page` object provides two methods: [`OutputForma
 
 ## Link to output formats
 
-By default, a `Page` object's [`Permalink`][] and [`RelPermalink`][] methods return the URL of the [primary output format](g), typically `html`. This behavior remains consistent regardless of the template used.
+The URL returned by a `Page` object's [`Permalink`][] and [`RelPermalink`][] methods depends on the current output format. For output formats with [`permalinkable`](#permalinkable) set to `true`, such as `html` and `amp`, the methods return that format's own URL. For all other output formats, the methods return the URL of the page's [primary output format](g).
 
 For example, in `page.json.json`, you'll see:
 

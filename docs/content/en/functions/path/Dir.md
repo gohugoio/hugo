@@ -1,6 +1,6 @@
 ---
 title: path.Dir
-description: Replaces path separators with slashes (/) and returns all but the last element of the given path.
+description: Returns all but the last element of the given path, after replacing path separators with slashes (`/`).
 categories: []
 keywords: []
 params:

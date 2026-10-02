@@ -10,8 +10,6 @@ aliases: [/taxonomies/overview/,/taxonomies/usage/,/indexes/overview/,/doc/index
 
 Hugo includes support for user-defined groupings of content called **taxonomies**. Taxonomies are classifications of logical relationships between content.
 
-### Definitions
-
 Taxonomy
 : A categorization that can be used to classify content
 
@@ -21,7 +19,7 @@ Term
 Value
 : A piece of content assigned to a term
 
-## Example taxonomy: movie website
+## Example taxonomy
 
 Let's assume you are making a website about movies. You may want to include the following taxonomies:
 
@@ -68,6 +66,18 @@ Moonrise Kingdom            <- Value
         Wes Anderson        <- Term
     ...
 ```
+
+### Assign terms in front matter
+
+Continuing with the example above, assign the terms for each movie in its front matter. Use the plural name of each taxonomy as the field name, and assign the terms as an array, even when a movie has only one term for a given taxonomy:
+
+{{< code-toggle file=content/movies/unbreakable.md fm=true >}}
+title = 'Unbreakable'
+actors = ['Bruce Willis','Samuel L. Jackson']
+directors = ['M. Night Shyamalan']
+{{< /code-toggle >}}
+
+Each term is a string, and a taxonomy is a flat list of terms rather than a nested data structure. To associate additional data with a term, create a page for the term as described in [Metadata](#metadata).
 
 ### Default destinations
 

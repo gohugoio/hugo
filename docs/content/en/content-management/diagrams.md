@@ -46,7 +46,7 @@ Hugo does not provide a built-in template for Mermaid diagrams. Create your own 
 {{ .Page.Store.Set "hasMermaid" true }}
 ```
 
-Then include this snippet at the _bottom_ of your base template, before the closing `body` tag:
+Then include this snippet at the _bottom_ of your _base_ template, before the closing `body` tag:
 
 ```go-html-template {file="layouts/baseof.html" copy=true}
 {{ if .Store.Get "hasMermaid" }}
@@ -76,6 +76,8 @@ sequenceDiagram
 ````
 
 ## Goat ASCII diagram examples
+
+The following examples demonstrate the range of diagrams you can create with GoAT.
 
 ### Graphics
 

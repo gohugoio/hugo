@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config/security"
 )
 
@@ -471,4 +472,110 @@ func mkdirAndWrite(t *testing.T, path, content string) {
 	if err := os.WriteFile(path, []byte(content), 0o755); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestCheckNodeSymlinks(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("symlinks")
+	}
+	c := qt.New(t)
+
+	base := t.TempDir()
+	site := filepath.Join(base, "site")
+	outside := filepath.Join(base, "outside")
+	c.Assert(os.MkdirAll(filepath.Join(site, "assets", "css"), 0o755), qt.IsNil)
+	c.Assert(os.MkdirAll(filepath.Join(site, "node_modules", ".bin"), 0o755), qt.IsNil)
+	c.Assert(os.MkdirAll(outside, 0o755), qt.IsNil)
+	c.Assert(os.WriteFile(filepath.Join(outside, "secret.txt"), []byte("secret"), 0o644), qt.IsNil)
+	c.Assert(os.WriteFile(filepath.Join(site, "node_modules", "tool.js"), nil, 0o644), qt.IsNil)
+	c.Assert(os.Symlink(filepath.Join("..", "tool.js"), filepath.Join(site, "node_modules", ".bin", "tool")), qt.IsNil)
+	c.Assert(os.Symlink(filepath.Join(site, "doesnotexist"), filepath.Join(site, "dangling")), qt.IsNil)
+
+	newExec := func(allowRead ...string) *Exec {
+		sc := security.DefaultConfig
+		sc.Node.Permissions.AllowRead = allowRead
+		return New(sc, site, loggers.NewDefault())
+	}
+
+	c.Run("Relative and dangling symlinks inside", func(c *qt.C) {
+		e := newExec(".")
+		c.Assert(e.checkNodeSymlinks("allowRead", e.nodeReadRoots("")), qt.IsNil)
+	})
+
+	c.Assert(os.Symlink(filepath.Join(outside, "secret.txt"), filepath.Join(site, "assets", "css", "slink.css")), qt.IsNil)
+
+	c.Run("Symlink outside", func(c *qt.C) {
+		e := newExec(".")
+		err := e.checkNodeSymlinks("allowRead", e.nodeReadRoots(""))
+		c.Assert(err, qt.ErrorMatches, `symlink ".*slink.css" resolves to ".*secret.txt" outside .*allowRead`)
+	})
+
+	c.Run("Target added to allowRead", func(c *qt.C) {
+		e := newExec(".", outside)
+		c.Assert(e.checkNodeSymlinks("allowRead", e.nodeReadRoots("")), qt.IsNil)
+	})
+
+	c.Run("Wildcard", func(c *qt.C) {
+		e := newExec("*")
+		c.Assert(e.checkNodeSymlinks("allowRead", e.nodeReadRoots("")), qt.IsNil)
+	})
+
+	c.Run("Empty write set", func(c *qt.C) {
+		e := newExec(".")
+		c.Assert(e.checkNodeSymlinks("allowWrite", e.nodeWriteRoots()), qt.IsNil)
+	})
+}
+
+func TestTopLevelDirs(t *testing.T) {
+	c := qt.New(t)
+	fs := func(ss ...string) []string {
+		for i, s := range ss {
+			ss[i] = filepath.FromSlash(s)
+		}
+		return ss
+	}
+	c.Assert(topLevelDirs(fs("/a/b", "/a", "/ab", "/a/c", "/a")), qt.DeepEquals, fs("/a", "/ab"))
+}
+
+func TestCheckReadPath(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("symlinks")
+	}
+	c := qt.New(t)
+
+	base := t.TempDir()
+	site := filepath.Join(base, "site")
+	outside := filepath.Join(base, "outside")
+	c.Assert(os.MkdirAll(filepath.Join(site, "assets"), 0o755), qt.IsNil)
+	c.Assert(os.MkdirAll(outside, 0o755), qt.IsNil)
+	inside := filepath.Join(site, "assets", "a.js")
+	secret := filepath.Join(outside, "secret.txt")
+	slink := filepath.Join(site, "assets", "slink.js")
+	c.Assert(os.WriteFile(inside, nil, 0o644), qt.IsNil)
+	c.Assert(os.WriteFile(secret, nil, 0o644), qt.IsNil)
+	c.Assert(os.Symlink(secret, slink), qt.IsNil)
+
+	newExec := func(allowRead ...string) *Exec {
+		sc := security.DefaultConfig
+		sc.Node.Permissions.AllowRead = allowRead
+		return New(sc, site, loggers.NewDefault())
+	}
+
+	e := newExec(".")
+	c.Assert(e.CheckReadPath(inside), qt.IsNil)
+	c.Assert(e.CheckReadPath(filepath.Join(site, "assets", "..", "assets", "a.js")), qt.IsNil)
+	c.Assert(e.CheckReadPath(secret), qt.ErrorMatches, `".*secret.txt" resolves to ".*secret.txt" outside the project.*allowRead.*`)
+	c.Assert(e.CheckReadPath(slink), qt.ErrorMatches, `".*slink.js" resolves to ".*secret.txt" outside the project.*allowRead.*`)
+	c.Assert(e.CheckReadPath(filepath.Join(site, "doesnotexist.js")), qt.ErrorMatches, `.*no such file.*`)
+
+	e = newExec(".", outside)
+	c.Assert(e.CheckReadPath(secret), qt.IsNil)
+	c.Assert(e.CheckReadPath(slink), qt.IsNil)
+
+	e = newExec("*")
+	c.Assert(e.CheckReadPath(secret), qt.IsNil)
+
+	e = newExec(".")
+	e.SetNodeReadPaths([]string{outside})
+	c.Assert(e.CheckReadPath(secret), qt.IsNil)
 }

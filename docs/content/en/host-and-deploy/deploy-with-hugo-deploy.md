@@ -6,7 +6,7 @@ keywords: []
 aliases: [/hosting-and-deployment/hugo-deploy/]
 ---
 
-Use the `hugo deploy` command to deploy your site Amazon S3, Azure Blob Storage, or Google Cloud Storage.
+Use the `hugo deploy` command to deploy your site to Amazon S3, Azure Blob Storage, or Google Cloud Storage.
 
 > [!NOTE]
 > This feature requires the deploy or extended/deploy edition. See the [installation][] section for details.
@@ -24,7 +24,7 @@ Use the `hugo deploy` command to deploy your site Amazon S3, Azure Blob Storage,
 
 1. You have created a bucket to deploy to. If you want your site to be
   public, be sure to configure the bucket to be publicly readable as a static website.
-    - AWS: [create a bucket](https://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html) and [host a static website](https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html)
+    - AWS: [create a bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html) and [host a static website](https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html)
     - Azure: [create a storage container][] and [host a static website](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-static-website)
     - Google Cloud: [create a bucket](https://cloud.google.com/storage/docs/creating-buckets) and [host a static website](https://cloud.google.com/storage/docs/hosting-static-website)
 

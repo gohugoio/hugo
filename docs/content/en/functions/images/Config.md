@@ -23,6 +23,8 @@ aliases: [/functions/imageconfig]
 
 Supported image formats include AVIF, BMP, GIF, HEIC, HEIF, JPEG, PNG, TIFF, and WebP.
 
+Hugo caches the result, so calling the function multiple times with the same path incurs no additional overhead.
+
 [`Height`]: /methods/resource/height/
 [`Width`]: /methods/resource/width/
 [image processing]: /content-management/image-processing/

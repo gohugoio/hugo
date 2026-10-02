@@ -1,6 +1,6 @@
 ---
 title: math.Add
-description: Adds two or more numbers.
+description: Returns the result of adding one or more numbers to the first number.
 categories: []
 keywords: []
 params:

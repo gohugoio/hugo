@@ -26,6 +26,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/niklasfasching/go-org/org"
 
 	xml "github.com/clbanning/mxj/v2"
@@ -106,7 +107,7 @@ func (d Decoder) UnmarshalFileToMap(fs afero.Fs, filename string) (map[string]an
 		return nil, fmt.Errorf("%q is not a valid configuration format", filename)
 	}
 
-	data, err := afero.ReadFile(fs, filename)
+	data, err := hugio.ReadFile(fs, filename)
 	if err != nil {
 		return nil, err
 	}

@@ -134,7 +134,7 @@ func TestImageTransformBasic(t *testing.T) {
 
 	smart, err := image.Fill("200x100 smart")
 	c.Assert(err, qt.IsNil)
-	c.Assert(smart.RelPermalink(), qt.Equals, "/a/sunset_hu_e548e0b0d6759ee7.jpg")
+	c.Assert(smart.RelPermalink(), qt.Equals, "/a/sunset_hu_68598cde516f4179.jpg")
 	assertWidthHeight(smart, 200, 100)
 
 	// Check cache
@@ -149,7 +149,7 @@ func TestImageTransformBasic(t *testing.T) {
 
 	smartcropped, err := image.Crop("200x200 smart")
 	c.Assert(err, qt.IsNil)
-	c.Assert(smartcropped.RelPermalink(), qt.Equals, "/a/sunset_hu_2ffd7547f08a145d.jpg")
+	c.Assert(smartcropped.RelPermalink(), qt.Equals, "/a/sunset_hu_5a29f30d38eb4aea.jpg")
 	assertWidthHeight(smartcropped, 200, 200)
 
 	// Check cache
@@ -216,7 +216,7 @@ func TestImageTransformFormat(t *testing.T) {
 
 	imagePng, err := image.Resize("450x png")
 	c.Assert(err, qt.IsNil)
-	c.Assert(imagePng.RelPermalink(), qt.Equals, "/a/sunset_hu_63ccccb11ff4e285.png")
+	c.Assert(imagePng.RelPermalink(), qt.Equals, "/a/sunset_hu_ae7e4a663628f945.png")
 	c.Assert(imagePng.ResourceType(), qt.Equals, "image")
 	assertExtWidthHeight(imagePng, ".png", 450, 281)
 	c.Assert(imagePng.Name(), qt.Equals, "sunset.jpg")
@@ -391,7 +391,7 @@ func TestImageResize8BitPNG(t *testing.T) {
 	resized, err := image.Resize("800x")
 	c.Assert(err, qt.IsNil)
 	c.Assert(resized.MediaType().Type, qt.Equals, "image/png")
-	c.Assert(resized.RelPermalink(), qt.Equals, "/a/gohugoio_hu_626cfc4db4222bfe.png")
+	c.Assert(resized.RelPermalink(), qt.Equals, "/a/gohugoio_hu_3ddd57bfb01f7376.png")
 	c.Assert(resized.Width(), qt.Equals, 800)
 }
 

@@ -1,6 +1,6 @@
 ---
 title: path.BaseName
-description: Replaces path separators with slashes (`/`) and returns the last element of the given path, removing the extension if present.
+description: Returns the last element of the given path with its extension removed, if present, after replacing path separators with slashes (`/`).
 categories: []
 keywords: []
 params:

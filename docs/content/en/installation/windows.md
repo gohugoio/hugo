@@ -17,6 +17,8 @@ weight: 30
 
 ## Package managers
 
+You can also install Hugo using one of the following package managers.
+
 ### Chocolatey
 
 [Chocolatey][] is a free and open-source package manager for Windows. To install the extended edition of Hugo:

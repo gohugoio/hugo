@@ -88,7 +88,7 @@ weight = 2
 
 ## Example
 
-Some of the methods above are commonly used in a base template as attributes for the `html` element.
+Some of the methods above are commonly used in a _base_ template as attributes for the `html` element.
 
 ```go-html-template
 <html

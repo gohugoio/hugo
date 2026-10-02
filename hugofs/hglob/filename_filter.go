@@ -19,7 +19,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/gobwas/glob"
+	"github.com/gohugoio/hugo/common/hstrings"
 )
 
 type FilenameFilter struct {
@@ -44,7 +44,7 @@ const (
 const NegationPrefix = "! "
 
 type globFilenameFilterEntry struct {
-	g glob.Glob
+	g hstrings.Matcher
 	t globFilenameFilterEntryType
 }
 

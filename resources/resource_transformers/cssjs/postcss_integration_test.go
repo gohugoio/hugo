@@ -456,3 +456,58 @@ export default { plugins: [postcssImport()] };
 		"RelPermalink: /css/styles.css|HasBody: true|",
 	)
 }
+
+// Node's permission model follows symlinks outside the allowed paths, so Hugo
+// rejects them before invoking Node.
+func TestTransformPostCSSSymlinkOutsideAllowRead(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
+	if runtime.GOOS == "windows" {
+		t.Skip("symlinks")
+	}
+
+	c := qt.New(t)
+	tempDir, clean, err := htesting.CreateTempDir(hugofs.Os, "hugo-integration-test")
+	c.Assert(err, qt.IsNil)
+	c.Cleanup(clean)
+
+	site := filepath.Join(tempDir, "site")
+	outside := filepath.Join(tempDir, "outside")
+	c.Assert(os.MkdirAll(filepath.Join(site, "assets", "css"), 0o755), qt.IsNil)
+	c.Assert(os.MkdirAll(outside, 0o755), qt.IsNil)
+	c.Assert(os.WriteFile(filepath.Join(outside, "secret.txt"), []byte("secret"), 0o644), qt.IsNil)
+	c.Assert(os.Symlink(filepath.Join(outside, "secret.txt"), filepath.Join(site, "assets", "css", "slink.css")), qt.IsNil)
+
+	files := `
+-- hugo.toml --
+disableKinds = ['taxonomy', 'term', 'page', 'section', 'rss', 'sitemap']
+[security.node.permissions]
+allowRead = ['.']
+-- assets/css/styles.css --
+body { color: red; }
+-- layouts/home.html --
+{{ $styles := resources.Get "css/styles.css" | css.PostCSS }}
+Styles: {{ $styles.Content | safeCSS }}|
+-- package.json --
+{
+	"devDependencies": {
+		"postcss": "8.5.6",
+		"postcss-cli": "11.0.0"
+	}
+}
+-- postcss.config.js --
+module.exports = { plugins: [] }
+`
+
+	withWorkingDir := hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
+		cfg.WorkingDir = site
+	})
+
+	b, err := hugolib.TestE(c, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), withWorkingDir)
+	b.Assert(err, qt.ErrorMatches, `.*symlink ".*slink.css" resolves to ".*secret.txt" outside .*allowRead.*`)
+
+	files = strings.ReplaceAll(files, "allowRead = ['.']", fmt.Sprintf("allowRead = ['.', %q]", outside))
+	b = hugolib.Test(c, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), withWorkingDir)
+	b.AssertFileContent("public/index.html", "Styles: body { color: red; }|")
+}

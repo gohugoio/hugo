@@ -17,8 +17,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gobwas/glob"
 	"github.com/gohugoio/hugo/common/hmaps"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/predicate"
@@ -153,7 +153,8 @@ func (s *segmentsBuilder) buildOne(f []SegmentMatcherFields) (predicate.PR[Segme
 
 	for _, fields := range f {
 		if len(fields.Kind) > 0 {
-			if err := addToSection(fields,
+			if err := addToSection(
+				fields,
 				func(fields SegmentMatcherFields) []string { return fields.Kind },
 				func(fields SegmentQuery) string { return fields.Kind },
 			); err != nil {
@@ -161,7 +162,8 @@ func (s *segmentsBuilder) buildOne(f []SegmentMatcherFields) (predicate.PR[Segme
 			}
 		}
 		if len(fields.Path) > 0 {
-			if err := addToSection(fields,
+			if err := addToSection(
+				fields,
 				func(fields SegmentMatcherFields) []string { return fields.Path },
 				func(fields SegmentQuery) string { return fields.Path },
 			); err != nil {
@@ -185,7 +187,8 @@ func (s *segmentsBuilder) buildOne(f []SegmentMatcherFields) (predicate.PR[Segme
 			)
 		}
 		if len(fields.Output) > 0 {
-			if err := addToSection(fields,
+			if err := addToSection(
+				fields,
 				func(fields SegmentMatcherFields) []string { return fields.Output },
 				func(fields SegmentQuery) string { return fields.Output },
 			); err != nil {
@@ -275,7 +278,7 @@ type SegmentMatcherFields struct {
 	Sites  sitesmatrix.Sites // Note that we only use Sites.Matrix for now.
 }
 
-func getGlob(s string) (glob.Glob, error) {
+func getGlob(s string) (hstrings.Matcher, error) {
 	if s == "" {
 		return nil, nil
 	}

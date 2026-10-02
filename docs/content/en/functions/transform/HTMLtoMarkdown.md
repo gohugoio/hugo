@@ -1,6 +1,6 @@
 ---
 title: transform.HTMLToMarkdown
-description: Converts HTML to Markdown.
+description: Returns the given HTML converted to Markdown.
 categories: []
 keywords: []
 params:

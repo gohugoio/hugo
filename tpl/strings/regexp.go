@@ -104,12 +104,17 @@ func (ns *Namespace) ReplaceRE(pattern, repl, s any, n ...any) (_ string, err er
 		return "", err
 	}
 
-	return re.ReplaceAllStringFunc(ss, func(str string) string {
-		if nn == 0 {
-			return str
-		}
+	// Expand against the original string. ReplaceAllStringFunc hands the
+	// callback the match on its own, so a pattern with a zero-width assertion
+	// such as \b would not match again inside it.
+	var b []byte
+	last := 0
 
-		nn -= 1
-		return re.ReplaceAllString(str, sr)
-	}), nil
+	for _, m := range re.FindAllStringSubmatchIndex(ss, nn) {
+		b = append(b, ss[last:m[0]]...)
+		b = re.ExpandString(b, sr, ss, m)
+		last = m[1]
+	}
+
+	return string(b) + ss[last:], nil
 }

@@ -27,6 +27,8 @@ You must also be comfortable working from the command line.
 
 ## Create a project
 
+Use these commands to create a new Hugo project.
+
 ### Commands
 
 > [!NOTE]

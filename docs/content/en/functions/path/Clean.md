@@ -1,6 +1,6 @@
 ---
 title: path.Clean
-description: Replaces path separators with slashes (`/`) and returns the shortest path name equivalent to the given path.
+description: Returns the shortest path name equivalent to the given path, after replacing path separators with slashes (`/`).
 categories: []
 keywords: []
 params:

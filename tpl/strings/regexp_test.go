@@ -99,6 +99,11 @@ func TestReplaceRE(t *testing.T) {
 		{"^https?://([^/]+).*", "$2", "http://gohugo.io/docs", nil, ""},
 		{"(ab)", "AB", "aabbaab", nil, "aABbaAB"},
 		{"(ab)", "AB", "aabbaab", []any{1}, "aABbaab"},
+		// A zero-width assertion needs the surrounding text to match.
+		{`\Bcd`, "-", "abcdef", nil, "ab-ef"},
+		{`\b`, "|", "foo bar", nil, "|foo| |bar|"},
+		{`\Bb`, "X", "foobar bar bab", nil, "fooXar bar baX"},
+		{`\Bb`, "X", "foobar bar bab", []any{1}, "fooXar bar bab"},
 		// errors
 		{"(ab", "AB", "aabb", nil, false}, // invalid re
 		{tstNoStringer{}, "$2", "http://gohugo.io/docs", nil, false},

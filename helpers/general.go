@@ -48,7 +48,16 @@ func TCPListen() (net.Listener, *net.TCPAddr, error) {
 	return nil, nil, fmt.Errorf("unable to obtain a valid tcp port: %v", addr)
 }
 
-// FirstUpper returns a string with the first character as upper case.
+// FirstLower returns s with the first Unicode letter mapped to lowercase.
+func FirstLower(s string) string {
+	if s == "" {
+		return ""
+	}
+	r, n := utf8.DecodeRuneInString(s)
+	return string(unicode.ToLower(r)) + s[n:]
+}
+
+// FirstUpper returns s with the first Unicode letter mapped to uppercase.
 func FirstUpper(s string) string {
 	if s == "" {
 		return ""
@@ -57,23 +66,7 @@ func FirstUpper(s string) string {
 	return string(unicode.ToUpper(r)) + s[n:]
 }
 
-// ReaderToBytes takes an io.Reader argument, reads from it
-// and returns bytes.
-func ReaderToBytes(lines io.Reader) []byte {
-	if lines == nil {
-		return []byte{}
-	}
-	b := bp.GetBuffer()
-	defer bp.PutBuffer(b)
-
-	b.ReadFrom(lines)
-
-	bc := make([]byte, b.Len())
-	copy(bc, b.Bytes())
-	return bc
-}
-
-// ReaderToString is the same as ReaderToBytes, but returns a string.
+// ReaderToString reads from an io.Reader and returns its content as a string.
 func ReaderToString(lines io.Reader) string {
 	if lines == nil {
 		return ""

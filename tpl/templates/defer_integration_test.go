@@ -323,6 +323,30 @@ End.
 	b.AssertFileContent("public/index.html", "Home.", "Defer 1", "Defer 2", "Defer 3", "End.")
 }
 
+// See issue 15234.
+func TestDeferDifferentOutputFormats(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[outputFormats.probe]
+mediaType = "text/plain"
+baseName = "index"
+isPlainText = true
+[outputs]
+home = ["html", "probe"]
+-- layouts/home.html --
+{{ $v := "<b>&" }}OUT[{{ $v }}]{{ with (templates.Defer (dict "key" "K" "data" (dict "v" $v))) }}IN[{{ .v }}]{{ end }}
+-- layouts/home.probe.txt --
+{{ $v := "<b>&" }}OUT[{{ $v }}]{{ with (templates.Defer (dict "key" "K" "data" (dict "v" $v))) }}IN[{{ .v }}]{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "OUT[&lt;b&gt;&amp;]IN[&lt;b&gt;&amp;]")
+	b.AssertFileContent("public/index.txt", "OUT[<b>&]IN[<b>&]")
+}
+
 // See issue 13492.
 func TestDeferInsidePartialCachedShouldFail(t *testing.T) {
 	t.Parallel()

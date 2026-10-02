@@ -10,11 +10,11 @@ params:
     signatures: [images.Colorize HUE SATURATION PERCENTAGE]
 ---
 
-The hue is the angle on the color wheel, typically in the range [0, 360].
+The hue is the angle on the color wheel, typically in the range `[0, 360]`.
 
-The saturation must be in the range [0, 100].
+The saturation must be in the range `[0, 100]`.
 
-The percentage specifies the strength of the effect, and must be in the range [0, 100].
+The percentage specifies the strength of the effect, and must be in the range `[0, 100]`.
 
 ## Usage
 

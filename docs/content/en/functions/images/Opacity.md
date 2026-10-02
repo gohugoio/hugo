@@ -10,7 +10,7 @@ params:
     signatures: [images.Opacity OPACITY]
 ---
 
-The opacity value must be in the range [0, 1]. A value of `0` produces a transparent image, and a value of `1` produces an opaque image (no transparency).
+The opacity value must be in the range `[0, 1]`. A value of `0` produces a transparent image, and a value of `1` produces an opaque image (no transparency).
 
 ## Usage
 

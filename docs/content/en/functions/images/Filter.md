@@ -1,6 +1,6 @@
 ---
 title: images.Filter
-description: Applies one or more image filters to the given image resource.
+description: Returns a new image resource created by applying one or more image filters to the given image resource.
 categories: []
 keywords: [filter]
 params:

@@ -2,7 +2,7 @@
 <div class="flex flex-col w-full p-0 m-0">
 	{{ partial "layouts/home/opensource.html" . }}
 	<hr class="border-t border-gray-200 dark:border-gray-800 my-10 lg:my-14">
-	{{ partial "layouts/home/sponsors.html" (dict "ctx" . "gtag" "home") }}
+	{{ partial "layouts/home/sponsors.html" (dict "gtag" "home") }}
 	<hr class="border-t border-gray-200 dark:border-gray-800 my-10 lg:my-14">
 	{{ partial "layouts/home/features.html" . }}
 </div>
@@ -27,7 +27,7 @@
 				fun again.
 			</div>
 			<div class="mt-10 flex items-center justify-center gap-x-6">
-				{{ with site.GetPage "/getting-started" }}
+				{{ with site.GetPage "/documentation" }}
 					<a
 						href="{{ .RelPermalink }}"
 						class="rounded-md uppercase tracking-wide bg-blue-600  hover:bg-blue-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"

@@ -54,12 +54,22 @@ string = 'foo'
 {{- $examples := $examples | append $example }}
 
 {{- /* Render */}}
-{{- with hugo.Data.docs.chroma.styles }}
-	{{- range $style := . }}
+{{- range hugo.Data.docs.chroma.styles }}
+	{{- $style := .name }}
+	{{- $counterpart := .counterpart }}
+	{{- $mode := .mode }}
 
 ### {{ $style }} {class="!mt-7 !mb-6"}{{/* Do not indent. */}}
 
-		{{- range $examples }}
+	{{- if $counterpart }}
+		{{- $oppositeMode := cond (eq $mode "light") "dark" "light" }}
+{{ printf "mode: %[1]s\\\n%[2]s mode counterpart: [%[3]s](#%[3]s)"  $mode $oppositeMode $counterpart }}{{/* Do not indent. */}}
+{class="!mb-8 !-mt-3"}{{/* Do not indent. */}}
+	{{- else }}
+{{ printf "mode: %s" $mode }}{{/* Do not indent. */}}
+{class="!mb-8 !-mt-3"}{{/* Do not indent. */}}
+	{{- end }}
+	{{- range $examples }}
 
 {{ .lang }}{{/* Do not indent. */}}
 {class="text-sm !-mt-3 !-mb-5"}{{/* Do not indent. */}}
@@ -67,7 +77,5 @@ string = 'foo'
 ```{{ .lang }} {noClasses=true style="{{ $style }}"}{{/* Do not indent. */}}
 {{- .code | safeHTML -}}{{/* Do not indent. */}}
 ```{{/* Do not indent. */}}
-
-		{{- end }}
 	{{- end }}
 {{- end }}

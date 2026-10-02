@@ -21,7 +21,7 @@
 <link rel=manifest href=/manifest.json>
 <link rel=mask-icon href=/safari-pinned-tab.svg color=#0594cb>
 
-{{ partial "layouts/head/speculationrules.html" . }}
+{{ partialCached "layouts/head/speculationrules.html" . }}
 
 {{ range .AlternativeOutputFormats -}}
 	<link
@@ -37,5 +37,5 @@
 {{ partial "twitter_cards.html" . }}
 
 {{ if hugo.IsProduction }}
-	{{ partial "helpers/gtag.html" . }}
+	{{ partialCached "helpers/gtag.html" . }}
 {{ end }}

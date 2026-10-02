@@ -10,7 +10,7 @@ params:
     signatures: [images.Sepia PERCENTAGE]
 ---
 
-The percentage must be in the range [0, 100] where 0 has no effect.
+The percentage must be in the range `[0, 100]` where `0` has no effect.
 
 ## Usage
 

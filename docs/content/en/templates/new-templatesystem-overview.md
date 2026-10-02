@@ -11,7 +11,7 @@ In [Hugo v0.146.0][], we performed a full re-implementation of how Go templates 
 
 We have aimed to maintain as much backward compatibility as possible by mapping "old to new," but some reported breakages have occurred. We're working on a full overhaul of the documentation on this topic – until then, this is a one-pager with the most important changes.
 
-## Changes to the `layouts` folder
+## Changes to the layouts folder
 
 | Description                                                                                                                                                                                                                                                                                                                                                                                                             | Action required                                                                                                                                                   |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -21,7 +21,7 @@ We have aimed to maintain as much backward compatibility as possible by mapping 
 | Any folder in `layouts` that does not start with `_` represents the root of a [Page path][]. In [Hugo v0.146.0][], this can be nested as deeply as needed, and `_shortcodes` and `_markup` folders can be placed at any level in the tree.                                                                                                                                                                              | No action required.                                                                                                                                               |
 | The above also means that there's no top-level `layouts/taxonomy` or `layouts/section` folders anymore, unless it represents a [Page path][].                                                                                                                                                                                                                                                                           | Move them up to `layouts/` with one of the [Page kinds][] `section`, `taxonomy` or `term` as the base name, or place the layouts into the taxonomy [Page path][]. |
 | A template named `taxonomy.html` used to be a candidate for both Page kind `term` and `taxonomy`, now it's only considered for `taxonomy`.                                                                                                                                                                                                                                                                              | Create both `taxonomy.html` and `term.html` or create a more general layout, e.g. `list.html`.                                                                    |
-| For base templates (e.g., `baseof.html`), in previous Hugo versions, you could prepend one identifier (layout, type, or kind) with a hyphen in front of the baseof keyword.                                                                                                                                                                                                                                             | Move that identifier after the first "dot," e.g., rename`list-baseof.html` to `baseof.list.html`.                                                                 |
+| For _base_ templates (e.g., `baseof.html`), in previous Hugo versions, you could prepend one identifier (layout, type, or kind) with a hyphen in front of the baseof keyword.                                                                                                                                                                                                                                           | Move that identifier after the first "dot," e.g., rename`list-baseof.html` to `baseof.list.html`.                                                                 |
 | We have added a new `all` "catch-all" layout. This means that if you have, e.g., `layouts/all.html` and that is the only template, that layout will be used for all HTML page rendering.                                                                                                                                                                                                                                |                                                                                                                                                                   |
 | We have removed the concept of `_internal` Hugo templates.[^internal]                                                                                                                                                                                                                                                                                                                                                   | Replace constructs similar to `{{ template "_internal/opengraph.html" . }}` with `{{ partial "opengraph.html" . }}`.                                              |
 | The identifiers that can be used in a template filename are one of the [Page kinds][] (`home`, `page`, `section`, `taxonomy`, or `term`), one of the standard layouts (`list`, `single`, or `all`), a custom layout (as defined in the `layout` front matter field), a language (e.g., `en`), an output format (e.g., `html`, `rss`), and a suffix representing the media type. E.g., `all.en.html` and `home.rss.xml`. |                                                                                                                                                                   |
@@ -29,9 +29,9 @@ We have aimed to maintain as much backward compatibility as possible by mapping 
 
 Also, see the [Example folder structure](#example-folder-structure) below for a more concrete example of the new layout system.
 
-## Changes to template lookup order
+## Changes to lookup order
 
-We have consolidated the template lookup so it works the same across all [template types][]. The previous setup was difficult to understand and had a massive number of variants. The new setup aims to feel natural with few surprises.
+We have consolidated the template lookup so it works the same across all [template types][], with the exception of _partial_ templates which are not context-aware. The previous setup was difficult to understand and had a massive number of variants. The new setup aims to feel natural with few surprises.
 
 The identifiers used in the template weighting, in order of importance, are:
 
@@ -50,7 +50,7 @@ The identifiers used in the template weighting, in order of importance, are:
 For templates placed in a `layouts` folder partly or completely matching a [Page path][], a closer match upwards will be considered _better_. In the [Example folder structure](#example-folder-structure) below, this means that:
 
 - `layouts/docs/api/_markup/render-link.html` will be used to render links from the Page path `/docs/api` and below.
-- `layouts/docs/baseof.html` will be used as the base template for the Page path `/docs` and below.
+- `layouts/docs/baseof.html` will be used as the _base_ template for the Page path `/docs` and below.
 - `layouts/tags/term.html` will be used for all `term` rendering in the `tags` taxonomy, except for the `blue` term, which will use `layouts/tags/blue/list.html`.
 
 ## Example folder structure
@@ -89,7 +89,7 @@ layouts
         └── list.html
 ```
 
-[^internal]: The old way of doing it made it difficult or impossible to, e.g., override `_internal/disqus.html` in a theme. Now you can just create a partial with the same name.
+[^internal]: The old way of doing it made it difficult or impossible to, e.g., override `_internal/disqus.html` in a theme. Now you can just create a _partial_ template with the same name.
 [^type]: The `type` set in front matter will effectively replace the `section` folder in [Page path][] when doing lookups.
 
 [Hugo v0.146.0]: https://github.com/gohugoio/hugo/releases/tag/v0.146.0

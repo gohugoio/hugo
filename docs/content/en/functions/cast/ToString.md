@@ -1,6 +1,6 @@
 ---
 title: cast.ToString
-description: Converts a value to a string.
+description: Returns the given value converted to a string.
 categories: []
 keywords: []
 params:

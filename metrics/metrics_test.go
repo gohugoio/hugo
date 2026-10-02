@@ -17,6 +17,7 @@ import (
 	"html/template"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gohugoio/hugo/resources/page"
 
@@ -64,5 +65,23 @@ func BenchmarkHowSimilar(b *testing.B) {
 
 	for b.Loop() {
 		howSimilar(s1, s2)
+	}
+}
+
+func TestFormatDuration(t *testing.T) {
+	c := qt.New(t)
+	tests := []struct {
+		duration time.Duration
+		want     string
+	}{
+		{4*time.Second + 342*time.Millisecond, "4.34  s"}, // additional spacing between value and unit
+		{170*time.Millisecond + 289*time.Microsecond, "170.29 ms"},
+		{16*time.Microsecond + 90*time.Nanosecond, "16.09 µs"},
+		{147 * time.Nanosecond, "147.00 ns"},
+	}
+
+	for _, tt := range tests {
+		got := formatDuration(tt.duration)
+		c.Assert(got, qt.Equals, tt.want)
 	}
 }

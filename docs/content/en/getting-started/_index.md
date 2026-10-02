@@ -3,6 +3,6 @@ title: Getting started
 description: How to get started with Hugo.
 categories: []
 keywords: []
-weight: 10
+weight: 8
 aliases: [/overview/introduction/]
 ---

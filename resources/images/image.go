@@ -189,7 +189,14 @@ func (p *ImageProcessor) FiltersFromConfig(src image.Image, conf ImageConfig) ([
 
 	if conf.Rotate != 0 {
 		// Apply any rotation before any resize.
-		filters = append(filters, gift.Rotate(float32(conf.Rotate), color.Transparent, gift.NearestNeighborInterpolation))
+		rotate := gift.Rotate(float32(conf.Rotate), color.Transparent, gift.NearestNeighborInterpolation)
+		filters = append(filters, rotate)
+		if conf.usesSmartCrop() {
+			// Smart crop must analyze the image in the orientation the crop is applied to.
+			rotated := image.NewNRGBA(rotate.Bounds(src.Bounds()))
+			gift.New(rotate).Draw(rotated, src)
+			src = rotated
+		}
 	}
 
 	switch conf.Action {
@@ -344,7 +351,8 @@ func (p *ImageProcessor) doFilter(src image.Image, targetFormat Format, filters 
 
 func newImageConfig() ImageConfig {
 	return ImageConfig{
-		Anchor: -1, // The real values start at 0.
+		Anchor:                -1, // The real values start at 0.
+		PreserveSourcePalette: true,
 	}
 }
 

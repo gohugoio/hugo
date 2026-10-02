@@ -1,6 +1,6 @@
 ---
 title: compare.Ge
-description: Returns the boolean truth of arg1 >= arg2 && arg1 >= arg3.
+description: Reports whether the first argument is greater than or equal to all of the subsequent arguments.
 categories: []
 keywords: []
 params:
@@ -11,25 +11,37 @@ params:
 aliases: [/functions/ge]
 ---
 
+## Usage
+
+The `compare.Ge` function reports whether the first argument is greater than or equal to all of the subsequent arguments. Numbers are compared by value, regardless of type. You can also use this function to compare strings, boolean values, dates, and other comparable data types.
+
+## Examples
+
 ```go-html-template
-{{ ge 1 1 }} → true
-{{ ge 1 2 }} → false
-{{ ge 2 1 }} → true
+{{ compare.Ge 1 1 }} → true
+{{ compare.Ge 1 2 }} → false
+{{ compare.Ge 2 1 }} → true
 
-{{ ge 1 1 1 }} → true
-{{ ge 1 1 2 }} → false
-{{ ge 1 2 1 }} → false
-{{ ge 1 2 2 }} → false
+{{ compare.Ge 1 1 1 }} → true
+{{ compare.Ge 1 1 2 }} → false
+{{ compare.Ge 1 2 1 }} → false
+{{ compare.Ge 1 2 2 }} → false
 
-{{ ge 2 1 1 }} → true
-{{ ge 2 1 2 }} → true
-{{ ge 2 2 1 }} → true
+{{ compare.Ge 2 1 1 }} → true
+{{ compare.Ge 2 1 2 }} → true
+{{ compare.Ge 2 2 1 }} → true
 ```
 
-Use the `compare.Ge` function to compare other data types as well:
+Comparing numbers of different types:
 
 ```go-html-template
-{{ ge "ab" "a" }} → true
-{{ ge time.Now (time.AsTime "1964-12-30") }} → true
-{{ ge true false }} → true
+{{ compare.Ge 1 1.0 }} → true
+```
+
+Comparing other data types:
+
+```go-html-template
+{{ compare.Ge "ab" "a" }} → true
+{{ compare.Ge time.Now (time.AsTime "1964-12-30") }} → true
+{{ compare.Ge true false }} → true
 ```

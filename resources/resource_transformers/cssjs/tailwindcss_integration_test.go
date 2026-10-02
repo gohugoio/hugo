@@ -99,7 +99,8 @@ CSS: {{ $css.Content | safeCSS }}|
 	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptInfo())
 
 	// foo.css resolves in the import context before the assets filesystem.
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		".foo {\n    color: blue;\n  }",
 		".bar {\n    color: green;\n  }",
 	)
@@ -162,4 +163,51 @@ target = 'assets/css'
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "Can't resolve 'colors/red.css'")
 	b.Assert(err.Error(), qt.Contains, "You may want to set the 'disableInlineImports' option to false")
+}
+
+// This tests an internal feature used in the Hugo themes sites building to allow us to build with
+// default security policy and still get a partial build even for themes using TailwindCSS.
+func TestTailwindCSSIgnoreSecError(t *testing.T) {
+	if !htesting.IsCI() {
+		t.Skip("Skip long running test when running locally")
+	}
+
+	files := `
+-- hugo.toml --
+[internalExternal]
+ignoreTailwindCSSSecurityError = true
+-- package.json --
+{
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bep/hugo-starter-tailwind-basic.git"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.0.1",
+    "tailwindcss": "^4.0.1"
+  },
+  "name": "hugo-starter-tailwind-basic",
+  "version": "0.1.0"
+}
+-- assets/css/styles.css --
+@import "tailwindcss";
+
+@theme {
+  --font-family-display: "Satoshi", "sans-serif";
+
+  --breakpoint-3xl: 1920px;
+
+  --color-neon-pink: oklch(71.7% 0.25 360);
+  --color-neon-lime: oklch(91.5% 0.258 129);
+  --color-neon-cyan: oklch(91.3% 0.139 195.8);
+}
+-- layouts/home.html --
+{{ $css := resources.Get "css/styles.css" | css.TailwindCSS }}
+CSS: {{ $css.Content | safeCSS }}|
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptInfo())
+
+	b.AssertFileContent("public/index.html", ".tailwindcss-security-error-ignored")
 }

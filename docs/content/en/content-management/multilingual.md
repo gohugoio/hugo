@@ -35,7 +35,7 @@ By having the same path and base file name, the content pieces are linked togeth
 > [!NOTE]
 > If a file has no language code, it will be assigned the default language.
 
-### Translation by content directory
+### Translation by directory
 
 This system uses different content directories for each of the languages. Each language's `content` directory is set using the `contentDir` parameter.
 
@@ -226,9 +226,11 @@ Localization of menu entries depends on how you define them:
 - When you define menu entries in [front matter][], they are already localized based on the front matter itself. If the front matter values are insufficient, use translation tables to localize each entry.
 - When you define menu entries in your [project configuration][], you must create language-specific menu entries under each language key. If the names of the menu entries are insufficient, use translation tables to localize each entry.
 
-### Create language-specific menu entries
+### Language-specific menus
 
-#### Method 1 -- Use a single configuration file
+Define language-specific menu entries using a single configuration file, or using the configuration directory structure.
+
+#### Single configuration file
 
 For a simple menu with a small number of entries, use a single configuration file. For example:
 
@@ -264,7 +266,7 @@ pageRef = '/services'
 weight = 20
 {{< /code-toggle >}}
 
-#### Method 2 -- Use a configuration directory
+#### Configuration directory
 
 With a more complex menu structure, create a [configuration directory][] and split the menu entries into multiple files, one file per language. For example:
 
@@ -362,7 +364,7 @@ To support Multilingual mode in your themes, some considerations must be taken f
 
 If there is more than one language defined, the `LanguagePrefix` method will return `/en` (or whatever the current language is). If not enabled, it will be an empty string (and is therefore harmless for single-language Hugo websites).
 
-## Generate multilingual content with `hugo new content`
+## Generate multilingual content
 
 If you organize content with translations in the same directory:
 

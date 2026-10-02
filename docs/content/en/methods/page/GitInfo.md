@@ -1,6 +1,6 @@
 ---
 title: GitInfo
-description: Provides access to commit metadata for a given page.
+description: Returns commit metadata for the given page.
 categories: []
 keywords: []
 params:
@@ -44,7 +44,7 @@ Hugo retrieves commit metadata for files tracked within your project's local rep
 Hugo also retrieves commit metadata for content provided by modules. This allows you to display commit data for remote repositories that are mounted as content directories, such as when aggregating documentation from multiple sources.
 
 > [!NOTE]
-> The `GitInfo` method returns nil for module content in these cases:
+> The `GitInfo` method returns `nil` for module content in these cases:
 >
 > - The module is vendored via `hugo mod vendor`
 > - A [module replacement][] is configured via a `replace` directive in `go.mod` or the [`replacements`][] configuration parameter

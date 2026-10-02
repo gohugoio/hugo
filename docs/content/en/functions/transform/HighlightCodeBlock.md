@@ -1,6 +1,6 @@
 ---
 title: transform.HighlightCodeBlock
-description: Highlights code received in context within a code block render hook.
+description: Returns highlighted code received in context within a code block render hook.
 categories: []
 keywords: [highlight]
 params:

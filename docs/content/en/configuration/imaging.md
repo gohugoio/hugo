@@ -148,6 +148,7 @@ The following parameters allow you to control how Hugo extracts and filters meta
 `sources`
 : (`[]string`) The metadata sources to include, one or more of `exif`, `iptc`, or `xmp`. Default is `['exif', 'iptc']`. The XMP metadata is excluded by default to improve performance.
 
+[`Meta`]: /methods/resource/meta/
 [`avifenc`]: https://github.com/aomediacodec/libavif
 [`cwebp`]: https://developers.google.com/speed/webp/docs/cwebp
 [`muesli/smartcrop`]: https://github.com/muesli/smartcrop

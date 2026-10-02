@@ -18,6 +18,7 @@ import (
 
 	qt "github.com/frankban/quicktest"
 	"github.com/gobwas/glob"
+	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/predicate"
 )
 
@@ -127,7 +128,7 @@ var intP4 = func(i int) predicate.Match {
 func TestNewStringPredicateFromGlobs(t *testing.T) {
 	c := qt.New(t)
 
-	getGlob := func(pattern string) (glob.Glob, error) {
+	getGlob := func(pattern string) (hstrings.Matcher, error) {
 		return glob.Compile(pattern)
 	}
 
@@ -160,7 +161,7 @@ func TestNewIndexStringPredicateFromGlobsAndRanges(t *testing.T) {
 		}
 		return -1
 	}
-	getGlob := func(pattern string) (glob.Glob, error) {
+	getGlob := func(pattern string) (hstrings.Matcher, error) {
 		return glob.Compile(pattern)
 	}
 

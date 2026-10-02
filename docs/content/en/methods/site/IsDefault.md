@@ -37,7 +37,7 @@ weight = 2
 [versions.'v3.0.0']
 {{< /code-toggle >}}
 
-If you call an initialization partial to handle one-time build logic or global variable setup, wrap that call in an [`if`][] statement using this function. This prevents the logic from being executed for every dimensional variation.
+If you call an initialization _partial_ template to handle one-time build logic or global variable setup, wrap that call in an [`if`][] statement using this function. This prevents the logic from being executed for every dimensional variation.
 
 ```go-html-template
 {{ if .Site.IsDefault }}
@@ -45,6 +45,8 @@ If you call an initialization partial to handle one-time build logic or global v
 {{ end }}
 ```
 
-In this setup, the code block is only executed for the English version v3.0.0 site. English is selected because it has the lowest weight, and version v3.0.0 is selected because it is the first version when sorted semantically in descending order.
+In this setup, the code block is only executed for the English version v3.0.0 site. English is selected because the [`defaultContentLanguage`][] setting is not defined, making English the [default language](g). Version v3.0.0 is selected because the [`defaultContentVersion`][] setting is not defined, making v3.0.0 the [default version](g).
 
+[`defaultContentLanguage`]: /configuration/all/#defaultcontentlanguage
+[`defaultContentVersion`]: /configuration/all/#defaultcontentversion
 [`if`]: /functions/go-template/if/

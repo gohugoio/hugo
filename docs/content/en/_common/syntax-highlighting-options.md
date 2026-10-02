@@ -38,11 +38,24 @@ _comment: Do not remove front matter.
 : (`bool`) Whether to render the highlighted code in an HTML table with two cells. The left table cell contains the line numbers, while the right table cell contains the code. Irrelevant if `lineNos` is `false`. Default is `true`.
 
 `noClasses`
-: (`bool`) Whether to use inline CSS styles instead of an external CSS file. Default is `true`. To use an external CSS file, set this value to `false` and generate the CSS file from the command line:
+: (`bool`) Whether to use inline CSS styles instead of an external CSS file. Default is `true`. To use an external CSS file, set this value to `false` and generate the CSS file using the [`hugo gen chromastyles`][] command:
 
   ```sh
-  hugo gen chromastyles --style=monokai > syntax.css
+  hugo gen chromastyles --style=github > assets/css/highlight.css
   ```
+
+  {{< new-in 0.164.0 />}}
+  
+  Some styles provide separate light and dark color palettes. Use the `--mode` flag to generate a stylesheet for a specific mode, and the `--modeSelector` flag to scope each selector under a top-level mode class (e.g., `.dark .chroma`):
+
+  ```sh
+  hugo gen chromastyles --style=monokai --mode=light > assets/css/highlight.css
+  hugo gen chromastyles --style=monokai --mode=dark --modeSelector > assets/css/highlight-dark.css
+  ```
+
+  Toggle dark mode by adding or removing the `dark` class on the root element. If `--mode` is omitted, Hugo generates the stylesheet using the style's default mode.
+
+  Alternatively, use the [`css.ChromaStyles`][] function to generate the stylesheet within your templates.
 
 `style`
 : (`string`) The CSS styles to apply to the highlighted code. This value is case-insensitive. Default is `monokai`. See [syntax highlighting styles][].
@@ -54,4 +67,6 @@ _comment: Do not remove front matter.
 : {{< new-in 0.140.2 />}}
 : (`string`) The class or classes to use for the outermost element of the highlighted code. Default is `highlight`.
 
+[`css.ChromaStyles`]: /functions/css/chromastyles/
+[`hugo gen chromastyles`]: /commands/hugo_gen_chromastyles/
 [syntax highlighting styles]: /quick-reference/syntax-highlighting-styles/

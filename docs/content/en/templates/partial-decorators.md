@@ -12,11 +12,11 @@ weight: 170
 
 {{% glossary-term "partial decorator" %}}
 
-This approach creates a connection between two files. The calling template provides a block of code and the partial decorator determines where that code appears. This allows the partial to wrap around content without needing to know the specific markup or internal logic of the enclosed block.
+This approach creates a connection between two files. The calling template provides a block of code and the partial decorator determines where that code appears. This allows the _partial_ template to wrap around content without needing to know the specific markup or internal logic of the enclosed block.
 
 ## Implementation
 
-To use a partial decorator, use a block-style call in your templates. The [`with`][] statement is required to initiate the partial and create a container for the content. This block can include any valid template code including page methods and functions.
+To use a partial decorator, use a block-style call in your templates. The [`with`][] statement is required to initiate the _partial_ template and create a container for the content. This block can include any valid template code including page methods and functions.
 
 ```go-html-template {file="layouts/home.html" copy=true}
 {{ with partial "components/wrapper.html" . }}
@@ -25,7 +25,7 @@ To use a partial decorator, use a block-style call in your templates. The [`with
 {{ end }}
 ```
 
-Inside the partial template, place the `templates.Inner` function call where the wrapped content should appear.
+Inside the _partial_ template, place the `templates.Inner` function call where the wrapped content should appear.
 
 ```go-html-template {file="layouts/_partials/components/wrapper.html" copy=true}
 <div class="wrapper-styling">
@@ -33,7 +33,7 @@ Inside the partial template, place the `templates.Inner` function call where the
 </div>
 ```
 
-The `with` statement creates a new [scope](g). Variables defined outside of the `with` block are not available inside it. To use external data within the wrapped content, you must ensure it is part of the [context](g) passed in the partial call.
+The `with` statement creates a new [scope](g). Variables defined outside of the `with` block are not available inside it. To use external data within the wrapped content, you must ensure it is part of the [context](g) passed in the _partial_ template call.
 
 A key feature of the `templates.Inner` function is its ability to accept a context argument. By passing a context to the function, you define what the dot (`.`) represents inside the wrapped block. This ensures that the injected content has access to the correct data even when nested inside multiple layers of wrappers.
 
@@ -41,8 +41,8 @@ A key feature of the `templates.Inner` function is its ability to accept a conte
 
 Using partial decorators to build wrapper components provides several advantages:
 
-- It eliminates the need to use separate partials for opening and closing tags when encapsulating a block of code.
-- It prevents parameter bloat because a standard partial no longer requires an extensive list of arguments to account for every possible variation of the content inside it.
+- It eliminates the need to use separate _partial_ templates for opening and closing tags when encapsulating a block of code.
+- It prevents parameter bloat because a standard _partial_ template no longer requires an extensive list of arguments to account for every possible variation of the content inside it.
 - It enables clean composition where the wrapped block can execute any template logic without the wrapper needing to receive or process that data.
 
 This approach separates container logic from content logic. The wrapper handles structural requirements like specific class hierarchies or CSS grid containers. The calling template retains control over the inner markup and how data is displayed.
@@ -51,7 +51,7 @@ This approach separates container logic from content logic. The wrapper handles 
 
 The following templates illustrate how to nest three wrapper components including a section, a column, and a card while passing context through each layer.
 
-The _home_ template initiates the structure by calling the section, column, and card partials as decorators:
+The _home_ template initiates the structure by calling the section, column, and card _partial_ templates as decorators:
 
 ```go-html-template {file="layouts/home.html" copy=true}
 {{ $ctx := dict

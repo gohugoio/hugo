@@ -1,6 +1,6 @@
 ---
 title: cast.ToFloat
-description: Converts a value to a decimal floating-point number (base 10).
+description: Returns the given value converted to a decimal floating-point number (base 10).
 categories: []
 keywords: []
 params:

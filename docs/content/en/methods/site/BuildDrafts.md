@@ -1,6 +1,6 @@
 ---
 title: BuildDrafts
-description: Reports reports whether draft publishing is enabled for the current build.
+description: Reports whether draft publishing is enabled for the current build.
 categories: []
 keywords: []
 params:

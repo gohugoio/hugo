@@ -1,6 +1,6 @@
 ---
 title: Permalink
-description: Publishes the given resource and returns its permalink.
+description: Returns the permalink of the given resource, publishing it in the process.
 categories: []
 keywords: []
 params:

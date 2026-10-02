@@ -1,6 +1,6 @@
 ---
 title: compare.Gt
-description: Returns the boolean truth of arg1 > arg2 && arg1 > arg3.
+description: Reports whether the first argument is greater than all of the subsequent arguments.
 categories: []
 keywords: []
 params:
@@ -11,25 +11,37 @@ params:
 aliases: [/functions/gt]
 ---
 
+## Usage
+
+The `compare.Gt` function reports whether the first argument is greater than all of the subsequent arguments. Numbers are compared by value, regardless of type. You can also use this function to compare strings, boolean values, dates, and other comparable data types.
+
+## Examples
+
 ```go-html-template
-{{ gt 1 1 }} → false
-{{ gt 1 2 }} → false
-{{ gt 2 1 }} → true
+{{ compare.Gt 1 1 }} → false
+{{ compare.Gt 1 2 }} → false
+{{ compare.Gt 2 1 }} → true
 
-{{ gt 1 1 1 }} → false
-{{ gt 1 1 2 }} → false
-{{ gt 1 2 1 }} → false
-{{ gt 1 2 2 }} → false
+{{ compare.Gt 1 1 1 }} → false
+{{ compare.Gt 1 1 2 }} → false
+{{ compare.Gt 1 2 1 }} → false
+{{ compare.Gt 1 2 2 }} → false
 
-{{ gt 2 1 1 }} → true
-{{ gt 2 1 2 }} → false
-{{ gt 2 2 1 }} → false
+{{ compare.Gt 2 1 1 }} → true
+{{ compare.Gt 2 1 2 }} → false
+{{ compare.Gt 2 2 1 }} → false
 ```
 
-Use the `compare.Gt` function to compare other data types as well:
+Comparing numbers of different types:
 
 ```go-html-template
-{{ gt "ab" "a" }} → true
-{{ gt time.Now (time.AsTime "1964-12-30") }} → true
-{{ gt true false }} → true
+{{ compare.Gt 1 1.0 }} → false
+```
+
+Comparing other data types:
+
+```go-html-template
+{{ compare.Gt "ab" "a" }} → true
+{{ compare.Gt time.Now (time.AsTime "1964-12-30") }} → true
+{{ compare.Gt true false }} → true
 ```

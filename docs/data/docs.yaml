@@ -1571,6 +1571,8 @@ config:
       style: monokai
       tabWidth: 4
       wrapperClass: highlight
+    rst:
+      syntaxHighlight: long
     tableOfContents:
       endLevel: 3
       ordered: false
@@ -1595,6 +1597,10 @@ config:
       suffixes:
       - xml
       - rss
+    application/source-map:
+      delimiter: .
+      suffixes:
+      - map
     application/toml:
       delimiter: .
       suffixes:
@@ -1620,6 +1626,14 @@ config:
       delimiter: .
       suffixes:
       - ttf
+    font/woff:
+      delimiter: .
+      suffixes:
+      - woff
+    font/woff2:
+      delimiter: .
+      suffixes:
+      - woff2
     image/avif:
       delimiter: .
       suffixes:
@@ -2189,23 +2203,29 @@ config:
     indices:
     - applyFilter: false
       cardinalityThreshold: 0
+      minTokenLength: 0
       name: keywords
       pattern: ''
       toLower: false
+      tokenize: false
       type: basic
       weight: 100
     - applyFilter: false
       cardinalityThreshold: 0
+      minTokenLength: 0
       name: date
       pattern: ''
       toLower: false
+      tokenize: false
       type: basic
       weight: 10
     - applyFilter: false
       cardinalityThreshold: 0
+      minTokenLength: 0
       name: tags
       pattern: ''
       toLower: false
+      tokenize: false
       type: basic
       weight: 80
     threshold: 80
@@ -2221,15 +2241,15 @@ config:
   security:
     allowContent:
     - '! ^text/html$'
+    - '! ^text/org$'
     enableInlineShortcodes: false
     exec:
       allow:
-      - ^(dart-)?sass(-embedded)?$
+      - ^(dart-)?sass$
       - ^go$
       - ^git$
       - ^node$
       - ^postcss$
-      - ^tailwindcss$
       osEnv:
       - '(?i)^((HTTPS?|NO)_PROXY|PATH(EXT)?|APPDATA|TE?MP|TERM|GO\w+|(XDG_CONFIG_)?HOME|USERPROFILE|SSH_AUTH_SOCK|DISPLAY|LANG|SYSTEMDRIVE|PROGRAMDATA)$'
     funcs:
@@ -2240,9 +2260,10 @@ config:
       mediaTypes: null
       methods:
       - (?i)GET|POST
+      proxyFromEnvironment: false
       urls:
       - (?i)^https?://[a-z0-9]
-      - '! ^https?://\d+\.'
+      - '! (?i)^https?://\d+\.'
       - '! (?i)localhost'
       - '! (?i)^https?://[^/?#]*@'
     node:
@@ -2821,6 +2842,26 @@ tpl:
         Examples:
         - - '{{ hmac "sha256" "Secret key" "Hello world, gophers!" }}'
           - b6d11b6c53830b9d87036272ca9fe9d19306b8f9d8aa07b15da27d89e6e34f40
+      Hash:
+        Aliases: null
+        Args:
+        - args
+        Description: |-
+          Hash returns the hex-encoded checksum of v using the given algorithm; one of
+          md5, sha1, sha256 (the default), sha384 or sha512.
+          
+          The supported algorithms match those used for the Subresource Integrity (SRI)
+          hash in .Data.Integrity on fingerprinted resources, so an SRI hash can be
+          constructed by combining this with encoding.HexDecode and encoding.Base64Encode.
+        Examples:
+        - - '{{ crypto.Hash "sha256" "Hello world, gophers!" }}'
+          - 6ec43b78da9669f50e4e422575c54bf87536954ccd58280219c393f2ce352b46
+        - - '{{ "Hello world" | crypto.Hash "sha256" }}'
+          - 64ec88ca00b268e5ba1a35678a1b5316d212f4f366b2477232534a8aeca37f3c
+        - - '{{ "Hello world" | crypto.Hash }}'
+          - 64ec88ca00b268e5ba1a35678a1b5316d212f4f366b2477232534a8aeca37f3c
+        - - '{{ "Hello world" | crypto.Hash "sha512" }}'
+          - b7f783baed8297f0db917462184ff4f08e69c2d5e5f79a942600f9725f58ce1f29c18139bf80b06c0fff2bdd34738452ecf40c488c22a7e3d80cdf6f9c1c0d47
       MD5:
         Aliases:
         - md5
@@ -2858,6 +2899,16 @@ tpl:
         Description: |-
           Build processes the given CSS Resource with ESBuild.
           Note that this method is identical to the one in the js Namespace.
+        Examples: []
+      ChromaStyles:
+        Aliases: null
+        Args:
+        - opts
+        Description: |-
+          ChromaStyles generates a CSS stylesheet for the Chroma code highlighter
+          and returns it as a Resource. This stylesheet is needed if
+          markup.highlight.noClasses is disabled in config.
+          The style defaults to the markup.highlight.style config setting.
         Examples: []
       PostCSS:
         Aliases:
@@ -2970,6 +3021,22 @@ tpl:
         Examples:
         - - '{{ "Hello world" | base64Encode }}'
           - SGVsbG8gd29ybGQ=
+      HexDecode:
+        Aliases: null
+        Args:
+        - content
+        Description: HexDecode returns the hex decoding of the given content.
+        Examples:
+        - - '{{ "48656c6c6f20776f726c64" | encoding.HexDecode }}'
+          - Hello world
+      HexEncode:
+        Aliases: null
+        Args:
+        - content
+        Description: HexEncode returns the hex encoding of the given content.
+        Examples:
+        - - '{{ "Hello world" | encoding.HexEncode }}'
+          - 48656c6c6f20776f726c64
       Jsonify:
         Aliases:
         - jsonify
@@ -3134,11 +3201,6 @@ tpl:
         Description: ''
         Examples: null
       IsExtended:
-        Aliases: null
-        Args: null
-        Description: ''
-        Examples: null
-      IsMultiHost:
         Aliases: null
         Args: null
         Description: ''
@@ -4001,6 +4063,11 @@ tpl:
         - args
         Description: 'GetRemote gets the URL (via HTTP(s)) in the first argument in args and creates Resource object that can be used for\nfurther transformations.\n\nA second argument may be provided with an option map.\n\nNote: This method does not return any error as a second return value,\nfor any error situations the error can be checked in .Err.'
         Examples: []
+      Key:
+        Aliases: null
+        Args: null
+        Description: ''
+        Examples: null
       Match:
         Aliases: null
         Args:
@@ -4036,7 +4103,13 @@ tpl:
         Aliases: null
         Args:
         - r
-        Description: PostProcess processes r after the build.
+        Description: 'PostProcess processes r after the build.\n\nDeprecated: Use templates.Defer instead.'
+        Examples: []
+      Publish:
+        Aliases: null
+        Args:
+        - r
+        Description: Publish publishes r to the destination and returns it.
         Examples: []
     safe:
       CSS:
@@ -4665,6 +4738,17 @@ tpl:
           Inner executes the inner content of a partial decorator.
           Note that there is only one inner block per partial decorator, but inner may be called multiple times with, typically, different data.
         Examples: []
+    testinginternal:
+      HashString:
+        Aliases: null
+        Args: null
+        Description: ''
+        Examples: null
+      NewCachedResourceGetter:
+        Aliases: null
+        Args: null
+        Description: ''
+        Examples: null
     time:
       AsTime:
         Aliases: null

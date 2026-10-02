@@ -16,6 +16,7 @@ package collections
 import (
 	"errors"
 	"fmt"
+	"math"
 	"reflect"
 
 	"github.com/gohugoio/hugo/common/hashing"
@@ -33,15 +34,18 @@ var (
 // or get the hash values if not Comparable (such as map or struct)
 // to make them comparable
 func normalize(v reflect.Value) any {
+	if v.Kind() == reflect.Interface {
+		if v.IsNil() {
+			return nil
+		}
+		v = v.Elem()
+	}
 	k := v.Kind()
 	switch {
 	case !v.Type().Comparable():
 		return hashing.HashUint64(v.Interface())
 	case hreflect.IsNumber(k):
-		f, err := hreflect.ToFloat64E(v)
-		if err == nil {
-			return f
-		}
+		return numericKey(v)
 	}
 
 	vv := types.Unwrapv(v.Interface())
@@ -50,6 +54,32 @@ func normalize(v reflect.Value) any {
 	}
 
 	return vv
+}
+
+// numericKey returns a key that is equal for numerically equal values
+// regardless of their Go type, without losing precision.
+func numericKey(v reflect.Value) any {
+	switch k := v.Kind(); {
+	case hreflect.IsInt(k):
+		return v.Int()
+	case hreflect.IsUint(k):
+		u := v.Uint()
+		if u > math.MaxInt64 {
+			return u
+		}
+		return int64(u)
+	default:
+		f := v.Float()
+		if f == math.Trunc(f) {
+			if f >= -(1<<63) && f < 1<<63 {
+				return int64(f)
+			}
+			if f >= 1<<63 && f < 1<<64 {
+				return uint64(f)
+			}
+		}
+		return f
+	}
 }
 
 // collects identities from the slices in seqs into a set. Numeric values are normalized,
@@ -94,8 +124,15 @@ func convertValue(v reflect.Value, to reflect.Type) (reflect.Value, error) {
 }
 
 func convertNumber(v reflect.Value, typ reflect.Type) (reflect.Value, error) {
-	if v, ok := hreflect.ConvertIfPossible(v, typ); ok {
-		return v, nil
+	if cv, ok := hreflect.ConvertIfPossible(v, typ); ok {
+		return cv, nil
+	}
+	if v.Kind() == reflect.Interface {
+		v = v.Elem()
+	}
+	if hreflect.IsFloat(v.Kind()) && hreflect.IsFloat(typ.Kind()) {
+		// Narrowing float64 to float32 loses precision, but that is expected.
+		return v.Convert(typ), nil
 	}
 	return reflect.Value{}, fmt.Errorf("unable to convert value of type %q to %q", v.Type().String(), typ.String())
 }

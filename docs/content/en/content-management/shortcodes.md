@@ -218,7 +218,7 @@ Shortcodes (excluding [inline](#inline) shortcodes) can be nested, creating pare
 {{</* /gallery */>}}
 ```
 
-The [shortcode templates][nesting] section provides a detailed explanation and examples.
+The shortcode templates section provides detailed explanations and examples of [nesting][] and [rendering order][].
 
 [`TableOfContents`]: /methods/page/tableofcontents/
 [`details`]: /shortcodes/details/
@@ -228,5 +228,6 @@ The [shortcode templates][nesting] section provides a detailed explanation and e
 [configure security]: /configuration/security/
 [layout string]: /functions/time/format/#layout-string
 [nesting]: /templates/shortcode/#nesting
+[rendering order]: /templates/shortcode/#rendering-order
 [shortcode method]: /templates/shortcode/#methods
 [shortcode templates]: /templates/shortcode/

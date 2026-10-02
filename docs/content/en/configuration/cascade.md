@@ -6,7 +6,7 @@ categories: []
 keywords: []
 ---
 
-You can configure your site to cascade front matter values to the home page and any of its descendants. However, this cascading will be prevented if the descendant already defines the field, or if a closer ancestor [branch](g) has already cascaded a value for the same field through its front matter's `cascade` key.
+{{% glossary-term "cascade" %}}
 
 > [!NOTE]
 > You can also configure cascading behavior within a page's front matter. See [details][].

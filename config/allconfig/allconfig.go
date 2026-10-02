@@ -74,6 +74,13 @@ type InternalConfig struct {
 	LiveReloadPort int
 }
 
+// InternalExternalConfig is read from the internalExternal config section in the project config file.
+// It's meant for internal use and is not documented. These settings can be changed at any time and may be removed without notice.
+type InternalExternalConfig struct {
+	// Used by the Hugo theme site's check command to allow us to build TailwindCSS sites with default security config without errors.
+	IgnoreTailwindCSSSecurityError bool
+}
+
 // All non-params config keys for language.
 var configLanguageKeys map[string]bool
 
@@ -102,6 +109,8 @@ func init() {
 type Config struct {
 	// For internal use only.
 	Internal InternalConfig `mapstructure:"-" json:"-"`
+	// For internal use only.
+	InternalExternal InternalExternalConfig `mapstructure:"-" json:"-"`
 	// For internal use only.
 	C               *ConfigCompiled `mapstructure:"-" json:"-"`
 	isLanguageClone bool
@@ -326,9 +335,10 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 	if c.DefaultOutputFormat != "" {
 		f, found := outputFormats.GetByName(c.DefaultOutputFormat)
 		if !found {
-			return fmt.Errorf("unknown default output format %q", c.DefaultOutputFormat)
+			transientErr = fmt.Errorf("unknown default output format %q", c.DefaultOutputFormat)
+		} else {
+			defaultOutputFormat = f
 		}
-		defaultOutputFormat = f
 	} else {
 		c.DefaultOutputFormat = defaultOutputFormat.Name
 	}
@@ -345,6 +355,10 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 	ignoredLogIDs := make(map[string]bool)
 	for _, err := range c.IgnoreLogs {
 		ignoredLogIDs[err] = true
+	}
+
+	if c.BaseURL == "" {
+		c.BaseURL = "https://example.org/"
 	}
 
 	baseURL, err := urls.NewBaseURLFromString(c.BaseURL)
@@ -584,7 +598,7 @@ func (c *ConfigCompiled) SetServerInfo(baseURL, baseURLLiveReload urls.BaseURL, 
 // RootConfig holds all the top-level configuration options in Hugo
 type RootConfig struct {
 	// The base URL of the site.
-	// Note that the default value is empty, but Hugo requires a valid URL (e.g. "https://example.com/") to work properly.
+	// It defaults to https://example.org/
 	// <docsmeta>{"identifiers": ["URL"] }</docsmeta>
 	BaseURL string
 
@@ -774,10 +788,6 @@ type RootConfig struct {
 
 	// Don't sync modification time of files for the static mounts.
 	NoChmod bool
-
-	// Clean the destination folder before a new build.
-	// This currently only handles static files.
-	CleanDestinationDir bool
 
 	// A Glob pattern of module paths to ignore in the _vendor folder.
 	IgnoreVendorPaths string

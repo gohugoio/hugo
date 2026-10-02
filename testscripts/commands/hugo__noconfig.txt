@@ -1,8 +1,8 @@
+# See issue 15393.
+hugo
 
-mkdir mysite
-cd mysite
-! hugo
+grep 'Hello home' public/index.html
+exists public/index.xml
 
-stderr 'Unable to locate config file or config directory'
-ls .
-stdout 'Empty dir'
+-- layouts/all.html --
+Hello {{ .Kind }}.

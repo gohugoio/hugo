@@ -189,6 +189,8 @@ func TestToBuildOptionsTarget(t *testing.T) {
 		{"es2021", api.ES2021},
 		{"es2022", api.ES2022},
 		{"es2023", api.ES2023},
+		{"es2024", api.ES2024},
+		{"es2025", api.ES2025},
 		{"", api.ESNext},
 		{"esnext", api.ESNext},
 	} {

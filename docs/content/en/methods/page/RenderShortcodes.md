@@ -1,6 +1,6 @@
 ---
 title: RenderShortcodes
-description: Renders all shortcodes in the content of the given page, preserving the surrounding markup.
+description: Returns the content of the given page with all shortcodes rendered, preserving the surrounding markup.
 categories: []
 keywords: []
 params:

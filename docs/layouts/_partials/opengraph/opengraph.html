@@ -40,12 +40,12 @@
 	{{ with .PublishDate }}
 		<meta
 			property="article:published_time"
-		{{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }}>
+			{{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }}>
 	{{ end }}
 	{{ with .Lastmod }}
 		<meta
 			property="article:modified_time"
-		{{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }}>
+			{{ .Format $iso8601 | printf "content=%q" | safeHTMLAttr }}>
 	{{ end }}
 {{- end -}}
 

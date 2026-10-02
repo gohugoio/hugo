@@ -25,8 +25,8 @@ Page kind|Page title when the page is not backed by a file
 :--|:--
 home|site title
 section|section name (capitalized and pluralized)
-taxonomy|taxonomy name (capitalized and pluralized)
-term|term name (capitalized and pluralized)
+taxonomy|taxonomy name (capitalized)
+term|term name (capitalized)
 
 You can disable automatic capitalization and pluralization in your project configuration:
 

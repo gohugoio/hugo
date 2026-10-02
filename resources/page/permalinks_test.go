@@ -216,6 +216,52 @@ func TestPermalinkExpansionMultiSection(t *testing.T) {
 	c.Assert(expanded, qt.Equals, "/special:the-slug")
 }
 
+// https://github.com/gohugoio/hugo/issues/3577
+func TestPermalinkExpansionTitleSlash(t *testing.T) {
+	t.Parallel()
+
+	c := qt.New(t)
+
+	configs := PermalinksConfig{
+		{Target: PageMatcher{Kind: "page"}, Pattern: "/:slug/"},
+		{Target: PageMatcher{Kind: "term"}, Pattern: "/:slug/"},
+	}
+	expander, err := NewPermalinkExpander(urlize, configs)
+	c.Assert(err, qt.IsNil)
+
+	// A page with no explicit slug and a title containing a "/" must not
+	// silently introduce an extra, unintended path segment.
+	page := newTestPage()
+	page.kind = "page"
+	page.title = "Watch/listen to this"
+	page.slug = ""
+
+	expanded, err := expander.Expand(page)
+	c.Assert(err, qt.IsNil)
+	c.Assert(expanded, qt.Equals, "/watch-listen-to-this/")
+
+	// An explicit slug is left as-is; the user is in control of it.
+	pageWithSlug := newTestPage()
+	pageWithSlug.kind = "page"
+	pageWithSlug.slug = "explicit/slug"
+
+	expanded, err = expander.Expand(pageWithSlug)
+	c.Assert(err, qt.IsNil)
+	c.Assert(expanded, qt.Equals, "/explicit/slug/")
+
+	// Taxonomy term pages are allowed to preserve "/" in their title
+	// (the term itself) to build multi-level taxonomy hierarchies.
+	// See https://github.com/gohugoio/hugo/issues/5571.
+	term := newTestPage()
+	term.kind = "term"
+	term.title = "country/region/city"
+	term.slug = ""
+
+	expanded, err = expander.Expand(term)
+	c.Assert(err, qt.IsNil)
+	c.Assert(expanded, qt.Equals, "/country/region/city/")
+}
+
 func TestPermalinkExpansionConcurrent(t *testing.T) {
 	t.Parallel()
 

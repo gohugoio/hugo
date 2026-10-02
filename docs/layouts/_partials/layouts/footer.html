@@ -55,11 +55,7 @@
 			{{/* Sponsors */}}
 			<div
 				class="mt-16 xl:mt-0 col-span-2 text-gray-200 max-w-3xl flex items-center content-center justify-center mx-auto">
-				{{ partial "layouts/home/sponsors.html" (dict
-					"ctx" .
-					"gtag" "footer"
-					)
-				}}
+				{{ partialCached "layouts/home/sponsors.html" (dict "gtag" "footer") "footer" }}
 			</div>
 		</div>
 		<div class="mt-16 border-t border-white/10 pt-8 sm:mt-20 lg:mt-24">

@@ -39,11 +39,9 @@ Now we can selectively load the required JavaScript on pages that call the "plot
 
 ```go-html-template {file="layouts/baseof.html"}
 <head>
-  ...
   {{ if .HasShortcode "plotly" }}
     <script src="https://cdn.plot.ly/plotly-2.28.0.min.js"></script>
   {{ end }}
-  ...
 </head>
 ```
 

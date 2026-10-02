@@ -97,35 +97,23 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 	}
 
 	var ivp, imvp *int64
-	var fvp, fmvp *float64
 	var svp, smvp *string
 	var slv, slmv any
+	var nv, nmv any
 	var ima []int64
-	var fma []float64
 	var sma []string
 
-	if mv.Kind() == v.Kind() {
+	if c, ok := hreflect.CompareNumbers(v, mv); ok {
+		// Feed the result through the int64 comparisons below.
+		iv, imv := int64(c), int64(0)
+		ivp, imvp = &iv, &imv
+	} else if mv.Kind() == v.Kind() {
 		switch v.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			iv := v.Int()
-			ivp = &iv
-			imv := mv.Int()
-			imvp = &imv
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			iv := int64(v.Uint())
-			ivp = &iv
-			imv := int64(mv.Uint())
-			imvp = &imv
 		case reflect.String:
 			sv := v.String()
 			svp = &sv
 			smv := mv.String()
 			smvp = &smv
-		case reflect.Float64:
-			fv := v.Float()
-			fvp = &fv
-			fmv := mv.Float()
-			fmvp = &fmv
 		case reflect.Struct:
 			if hreflect.IsTime(v.Type()) {
 				iv := ns.toTimeUnix(v)
@@ -137,17 +125,6 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			slv = v.Interface()
 			slmv = mv.Interface()
 		}
-	} else if hreflect.IsNumber(v.Kind()) && hreflect.IsNumber(mv.Kind()) {
-		fv, err := hreflect.ToFloat64E(v)
-		if err != nil {
-			return false, err
-		}
-		fvp = &fv
-		fmv, err := hreflect.ToFloat64E(mv)
-		if err != nil {
-			return false, err
-		}
-		fmvp = &fmv
 	} else {
 		if mv.Kind() != reflect.Array && mv.Kind() != reflect.Slice {
 			return false, nil
@@ -160,19 +137,11 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			return false, nil
 		}
 
-		if v.Kind() != reflect.Interface && mv.Type().Elem().Kind() != reflect.Interface && mv.Type().Elem() != v.Type() && v.Kind() != reflect.Array && v.Kind() != reflect.Slice {
-			return false, nil
-		}
-		switch v.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			iv := v.Int()
-			ivp = &iv
-			for i := range mv.Len() {
-				if anInt, err := hreflect.ToInt64E(mv.Index(i)); err == nil {
-					ima = append(ima, anInt)
-				}
-			}
-		case reflect.String:
+		switch {
+		case hreflect.IsNumber(v.Kind()):
+			nv = v.Interface()
+			nmv = mv.Interface()
+		case v.Kind() == reflect.String:
 			sv := v.String()
 			svp = &sv
 			for i := range mv.Len() {
@@ -180,23 +149,15 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 					sma = append(sma, aString)
 				}
 			}
-		case reflect.Float64:
-			fv := v.Float()
-			fvp = &fv
+		case hreflect.IsTime(v.Type()):
+			iv := ns.toTimeUnix(v)
+			ivp = &iv
 			for i := range mv.Len() {
-				if aFloat, err := hreflect.ToFloat64E(mv.Index(i)); err == nil {
-					fma = append(fma, aFloat)
+				if t, ok := hreflect.AsTime(mv.Index(i), ns.loc); ok {
+					ima = append(ima, t.Unix())
 				}
 			}
-		case reflect.Struct:
-			if hreflect.IsTime(v.Type()) {
-				iv := ns.toTimeUnix(v)
-				ivp = &iv
-				for i := range mv.Len() {
-					ima = append(ima, ns.toTimeUnix(mv.Index(i)))
-				}
-			}
-		case reflect.Array, reflect.Slice:
+		case v.Kind() == reflect.Array, v.Kind() == reflect.Slice:
 			slv = v.Interface()
 			slmv = mv.Interface()
 		}
@@ -209,8 +170,6 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			return *ivp == *imvp, nil
 		case svp != nil && smvp != nil:
 			return *svp == *smvp, nil
-		case fvp != nil && fmvp != nil:
-			return *fvp == *fmvp, nil
 		}
 	case "!=", "<>", "ne":
 		switch {
@@ -218,8 +177,6 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			return *ivp != *imvp, nil
 		case svp != nil && smvp != nil:
 			return *svp != *smvp, nil
-		case fvp != nil && fmvp != nil:
-			return *fvp != *fmvp, nil
 		}
 	case ">=", "ge":
 		switch {
@@ -227,8 +184,6 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			return *ivp >= *imvp, nil
 		case svp != nil && smvp != nil:
 			return *svp >= *smvp, nil
-		case fvp != nil && fmvp != nil:
-			return *fvp >= *fmvp, nil
 		}
 	case ">", "gt":
 		switch {
@@ -236,8 +191,6 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			return *ivp > *imvp, nil
 		case svp != nil && smvp != nil:
 			return *svp > *smvp, nil
-		case fvp != nil && fmvp != nil:
-			return *fvp > *fmvp, nil
 		}
 	case "<=", "le":
 		switch {
@@ -245,8 +198,6 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			return *ivp <= *imvp, nil
 		case svp != nil && smvp != nil:
 			return *svp <= *smvp, nil
-		case fvp != nil && fmvp != nil:
-			return *fvp <= *fmvp, nil
 		}
 	case "<", "lt":
 		switch {
@@ -254,16 +205,14 @@ func (ns *Namespace) checkCondition(v, mv reflect.Value, op string) (bool, error
 			return *ivp < *imvp, nil
 		case svp != nil && smvp != nil:
 			return *svp < *smvp, nil
-		case fvp != nil && fmvp != nil:
-			return *fvp < *fmvp, nil
 		}
 	case "in", "not in":
 		var r bool
 		switch {
+		case nv != nil:
+			r, _ = ns.In(nmv, nv)
 		case ivp != nil && len(ima) > 0:
 			r, _ = ns.In(ima, *ivp)
-		case fvp != nil && len(fma) > 0:
-			r, _ = ns.In(fma, *fvp)
 		case svp != nil:
 			if len(sma) > 0 {
 				r, _ = ns.In(sma, *svp)

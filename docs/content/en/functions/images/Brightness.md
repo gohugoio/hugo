@@ -10,7 +10,7 @@ params:
     signatures: [images.Brightness PERCENTAGE]
 ---
 
-The percentage must be in the range [-100, 100] where 0 has no effect. A value of `-100` produces a solid black image, and a value of `100` produces a solid white image.
+The percentage must be in the range `[-100, 100]` where `0` has no effect. A value of `-100` produces a solid black image, and a value of `100` produces a solid white image.
 
 ## Usage
 

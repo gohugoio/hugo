@@ -63,7 +63,7 @@ The most common front matter fields are `date`, `draft`, `title`, and `weight`, 
 : (`bool`) Applicable to [leaf bundles][], whether to set the `render` and `list` [build options][] to `never`, creating a headless bundle of [page resources][].
 
 `isCJKLanguage`
-: (`bool`) Whether the content language is in the [CJK](g) family. This value determines how Hugo calculates word count, and affects the values returned by the [`WordCount`][], [`FuzzyWordCount`][], [`ReadingTime`][], and [`Summary`][] methods on a `Page` object.
+: (`bool`) Whether the content is in a [CJK](g) language. This value determines how Hugo calculates word count, and affects the values returned by the [`FuzzyWordCount`][], [`ReadingTime`][], [`Summary`][], and [`WordCount`][] methods on a `Page` object. When set, this value takes precedence over the automatic detection enabled by the [`hasCJKLanguage`][] setting in your project configuration.
 
 `keywords`
 : (`[]string`) An array of keywords, typically rendered within a `meta` element within the `head` element of the published HTML file, or used as a [taxonomy](g) to classify content. Access these values from a template using the [`Keywords`][] method on a `Page` object.
@@ -213,7 +213,7 @@ Access taxonomy terms from a template using the [`Params`][] or [`GetTerms`][] m
 > [!NOTE]
   > For multilingual projects, defining cascade values in your project configuration is often more efficient. This avoids repeating the same cascade values for each language. See [details][].
 
-A [branch](g) can cascade front matter values to its descendants. However, this cascading will be prevented if the descendant already defines the field, or if a closer ancestor branch has already cascaded a value for that same field.
+{{% glossary-term "cascade" %}}
 
 For example, to cascade the `color` page parameter from the home page to all its descendants:
 
@@ -307,10 +307,10 @@ To override the default time zone, set the [`timeZone`][] in your project config
 [`Description`]: /methods/page/description/
 [`Draft`]: /methods/page/draft/
 [`ExpiryDate`]: /methods/page/expirydate/
-[`FuzzyWordCount`]: /methods/page/wordcount/
+[`FuzzyWordCount`]: /methods/page/fuzzywordcount/
 [`GetTerms`]: /methods/page/getterms/
 [`Keywords`]: /methods/page/keywords/
-[`Lastmod`]: /methods/page/date/
+[`Lastmod`]: /methods/page/lastmod/
 [`Layout`]: /methods/page/layout/
 [`LinkTitle`]: /methods/page/linktitle/
 [`Param`]: /methods/page/param/
@@ -325,6 +325,7 @@ To override the default time zone, set the [`timeZone`][] in your project config
 [`Type`]: /methods/page/type/
 [`Weight`]: /methods/page/weight/
 [`WordCount`]: /methods/page/wordcount/
+[`hasCJKLanguage`]: /configuration/all/#hascjklanguage
 [`timeZone`]: /configuration/all/#timezone
 [aliases]: /content-management/urls/#aliases
 [build options]: /content-management/build-options/

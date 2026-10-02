@@ -9,6 +9,8 @@ params:
     signatures: [PAGE.Path]
 ---
 
+## Usage
+
 The `Path` method on a `Page` object returns the logical path of the given page, regardless of whether the page is backed by a file.
 
 {{% glossary-term "logical path" %}}
@@ -19,7 +21,56 @@ The `Path` method on a `Page` object returns the logical path of the given page,
 
 The value returned by the `Path` method on a `Page` object is independent of content format, language, and URL modifiers such as the `slug` and `url` front matter fields.
 
+### Finding pages
+
+These methods, functions, and shortcodes use the logical path to find the given page:
+
+Methods|Functions|Shortcodes
+:--|:--|:--
+[`Site.GetPage`][]|[`urls.Ref`][]|[`ref`][]
+[`Page.GetPage`][]|[`urls.RelRef`][]|[`relref`][]
+[`Page.Ref`][]|&nbsp;|&nbsp;
+[`Page.RelRef`][]|&nbsp;|&nbsp;
+[`Shortcode.Ref`][]|&nbsp;|&nbsp;
+[`Shortcode.RelRef`][]|&nbsp;|&nbsp;
+
+> [!NOTE]
+> Specify the logical path when using any of these methods, functions, or shortcodes. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
+
+### Logical tree
+
+Just as file paths form a file tree, logical paths form a logical tree.
+
+A file tree:
+
+```tree
+content/
+└── s1/
+    ├── p1/
+    │   └── index.md
+    └── p2.md
+```
+
+The same content represented as a logical tree:
+
+```tree
+content/
+└── s1/
+    ├── p1
+    └── p2
+```
+
+A key difference between these trees is the relative path from p1 to p2:
+
+- In the file tree, the relative path from p1 to p2 is `../p2.md`
+- In the logical tree, the relative path is `p2`
+
+> [!NOTE]
+> Remember to use the logical path when using any of the methods, functions, or shortcodes listed in the previous section. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
+
 ## Examples
+
+The following examples demonstrate the behavior of the `Path` method under different conditions.
 
 ### Monolingual project
 
@@ -71,53 +122,6 @@ public/
 │   └── index.html        .Page.Path = /tags
 └── index.html            .Page.Path = /
 ```
-
-## Finding pages
-
-These methods, functions, and shortcodes use the logical path to find the given page:
-
-Methods|Functions|Shortcodes
-:--|:--|:--
-[`Site.GetPage`][]|[`urls.Ref`][]|[`ref`][]
-[`Page.GetPage`][]|[`urls.RelRef`][]|[`relref`][]
-[`Page.Ref`][]|&nbsp;|&nbsp;
-[`Page.RelRef`][]|&nbsp;|&nbsp;
-[`Shortcode.Ref`][]|&nbsp;|&nbsp;
-[`Shortcode.RelRef`][]|&nbsp;|&nbsp;
-
-> [!NOTE]
-> Specify the logical path when using any of these methods, functions, or shortcodes. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
-
-## Logical tree
-
-Just as file paths form a file tree, logical paths form a logical tree.
-
-A file tree:
-
-```tree
-content/
-└── s1/
-    ├── p1/
-    │   └── index.md
-    └── p2.md
-```
-
-The same content represented as a logical tree:
-
-```tree
-content/
-└── s1/
-    ├── p1
-    └── p2
-```
-
-A key difference between these trees is the relative path from p1 to p2:
-
-- In the file tree, the relative path from p1 to p2 is `../p2.md`
-- In the logical tree, the relative path is `p2`
-
-> [!NOTE]
-> Remember to use the logical path when using any of the methods, functions, or shortcodes listed in the previous section. If you include a file extension or language identifier, Hugo will strip these values before finding the page in the logical tree.
 
 [`Page.GetPage`]: /methods/page/getpage/
 [`Page.Ref`]: /methods/page/ref/

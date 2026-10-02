@@ -1,6 +1,6 @@
 ---
 title: js.Babel
-description: Transpile JavaScript resources using Babel.
+description: Returns a resource created by transpiling the given JavaScript resource using Babel.
 categories: []
 keywords: []
 params:
@@ -47,15 +47,15 @@ Step 4
 : Place your JS file within the `assets/js` directory.
 
 Step 5
-: Add the Babel executable to Hugo's `security.exec.allow` list in your project configuration:
+: Add the `babel` executable to Hugo's `security.exec.allow` list in your project configuration:
 
   {{< code-toggle file=hugo >}}
   [security.exec]
-    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^git$', '^node$', '^postcss$', '^tailwindcss$', '^babel$']
+    allow = ['^(dart-)?sass$', '^go$', '^git$', '^node$', '^postcss$', '^babel$']
   {{< /code-toggle >}}
 
 Step 6
-: Create a partial template to process the JavaScript:
+: Create a _partial_ template to process the JavaScript:
 
   ```go-html-template {file="layouts/_partials/js.html" copy=true}
   {{ with resources.Get "js/main.js" }}
@@ -77,7 +77,7 @@ Step 6
   ```
 
 Step 7
-: Call the partial template from your base template:
+: Call the _partial_ template from your _base_ template:
 
   ```go-html-template {file="layouts/baseof.html" copy=true}
   <head>

@@ -18,7 +18,9 @@ You can change the structure and appearance of URLs with front matter values and
 
 ## Front matter
 
-### `slug`
+Override the default URL for a page using these front matter fields.
+
+### Slug
 
 Set the `slug` in front matter to override the last segment of the path. This front matter field is not applicable to `home`, `section`, `taxonomy`, or `term` pages.
 
@@ -33,7 +35,7 @@ The resulting URL will be:
 https://example.org/posts/my-first-post/
 ```
 
-### `url`
+### URL
 
 Set the `url` in front matter to override the entire path. Use this with either regular pages or section pages.
 
@@ -46,8 +48,6 @@ Set the `url` in front matter to override the entire path. Use this with either 
 If you set both `slug` and `url` in front matter, the `url` value takes precedence.
 
 #### Include a colon
-
-{{< new-in 0.136.0 />}}
 
 If you need to include a colon in the  `url` front matter field, escape it with backslash characters. Use one backslash if you wrap the string within single quotes, or use two backslashes if you wrap the string within double quotes. With YAML front matter, use a single backslash if you omit quotation marks.
 
@@ -120,6 +120,8 @@ Use any of these tokens:
 {{% include "/_common/permalink-tokens.md" %}}
 
 ## Project configuration
+
+Configure permalinks, URL appearance, and post-processing in your project configuration.
 
 ### Permalinks
 
@@ -238,7 +240,7 @@ To override this, create a file named `alias.html` in your `layouts` directory. 
 
 Alternatively, you can implement server-side redirection by using the [`Aliases`][aliases_method] method on a `Page` object to generate a single configuration file that the web server processes. This method is more efficient because the redirect happens at the HTTP header level before any page content is processed, whereas a meta refresh requires the browser to download and parse the HTML body before acting. Additionally, server-side redirection improves build and deployment times because Hugo doesn't need to write a physical directory and HTML file for every alias.
 
-To implement this, you typically create a single template to generate the necessary rules for your specific host or server. Common examples include:
+To implement this, you typically create one template to generate the necessary rules for your specific host or server. Common examples include:
 
 - A `_redirects` file for hosting services such as Cloudflare, GitLab Pages, and Netlify.
 - An `.htaccess` file for web servers such as Apache and LiteSpeed.

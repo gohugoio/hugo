@@ -11,6 +11,8 @@ params:
 aliases: [/functions/after]
 ---
 
+## Basic usage
+
 The following shows `after` being used in conjunction with the [`slice`][] function:
 
 ```go-html-template
@@ -31,7 +33,7 @@ The template above is rendered to:
 </ul>
 ```
 
-## Example of `after` with `first`: 2nd&ndash;4th most recent articles
+## Combine with first
 
 You can use `after` in combination with the [`first`][] function and Hugo's [powerful sorting methods][]. Let's assume you have a `section` page at `example.com/articles`. You have 10 articles, but you want your template to show only two rows:
 

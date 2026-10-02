@@ -14,6 +14,7 @@
 package imagetesting
 
 import (
+	"flag"
 	"image"
 	"io/fs"
 	"os"
@@ -59,9 +60,6 @@ type GoldenImageTestOpts struct {
 	// The test site's files in txttar format.
 	Files string
 
-	// Set to true to write golden files to disk.
-	WriteFiles bool
-
 	// If not set, a temporary directory will be created.
 	WorkingDir string
 
@@ -79,13 +77,12 @@ type GoldenImageTestOpts struct {
 	Rebuild bool
 }
 
-// To rebuild all Golden image tests, toggle WriteFiles=true and run:
-// GOARCH=amd64 go test -count 1 -timeout 30s -run "^TestImagesGolden" ./...
-// TODO(bep) see if we can do this via flags.
-var DefaultGoldenOpts = GoldenImageTestOpts{
-	WriteFiles: false,
-	DevMode:    false,
-}
+// To rebuild all Golden image tests, run:
+// GOARCH=amd64 go test -count 1 -run "^TestImagesGolden" ./resources/images/ ./tpl/images/ -writegoldenfiles
+// Note that the golden files are created on amd64, so on other architectures you need to set GOARCH=amd64 as above.
+var writeGoldenFiles = flag.Bool("writegoldenfiles", false, "Write golden image files to disk")
+
+var DefaultGoldenOpts = GoldenImageTestOpts{}
 
 func RunGolden(opts GoldenImageTestOpts) *hugolib.IntegrationTestBuilder {
 	opts.T.Helper()
@@ -103,7 +100,7 @@ func RunGolden(opts GoldenImageTestOpts) *hugolib.IntegrationTestBuilder {
 	outputDir := filepath.Join(c.H.Conf.WorkingDir(), "public", "images")
 	goldenBaseDir := filepath.Join("testdata", "images_golden")
 	goldenDir := filepath.Join(goldenBaseDir, filepath.FromSlash(opts.Name))
-	if opts.WriteFiles {
+	if *writeGoldenFiles {
 		c.Assert(htesting.IsRealCI(), qt.IsFalse)
 		if !opts.Rebuild {
 			c.Assert(os.MkdirAll(goldenBaseDir, 0o777), qt.IsNil)

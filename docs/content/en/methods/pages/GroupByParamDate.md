@@ -9,6 +9,8 @@ params:
     signatures: ['PAGES.GroupByParamDate PARAM LAYOUT [SORT]']
 ---
 
+## Usage
+
 The [layout string](#layout-string) has the same format as the layout string for the [`time.Format`][] function. The resulting group key is [localized](g) for language and region.
 
 {{% include "/_common/methods/pages/group-sort-order.md" %}}

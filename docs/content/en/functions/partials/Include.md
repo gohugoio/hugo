@@ -23,20 +23,20 @@ layouts/
     └── footer.html
 ```
 
-The "average" partial returns the average of one or more numbers. We pass the numbers in context:
+The "average" _partial_ template returns the average of one or more numbers. We pass the numbers in context:
 
 ```go-html-template
 {{ $numbers := slice 1 6 7 42 }}
 {{ $average := partial "average.html" $numbers }}
 ```
 
-The "breadcrumbs" partial renders [breadcrumb navigation][], and needs to receive the current page in context:
+The "breadcrumbs" _partial_ template renders [breadcrumb navigation][], and needs to receive the current page in context:
 
 ```go-html-template
 {{ partial "breadcrumbs.html" . }}
 ```
 
-The "footer" partial renders the site footer. In this contrived example, the footer does not need access to the current page, so we can omit context:
+The "footer" _partial_ template renders the site footer. In this contrived example, the footer does not need access to the current page, so we can omit context:
 
 ```go-html-template
 {{ partial "footer.html" }}
@@ -62,17 +62,38 @@ Then, within the _partial_ template:
 <p>See <a href="{{ .page.RelPermalink }}">details.</a></p>
 ```
 
-To return a value from a _partial_ template, it must contain only one `return` statement, placed at the end of the template:
+To return a value from a _partial_ template, use the `return` statement:
 
 ```go-html-template
-{{ $result := "" }}
 {{ if math.ModBool . 2 }}
-  {{ $result = "even" }}
-{{ else }}
-  {{ $result = "odd" }}
+  {{ return "even" }}
 {{ end }}
-{{ return $result }}
+{{ return "odd" }}
 ```
+
+## Relative paths
+
+{{< new-in 0.167.0 />}}
+
+Within a _partial_ template, a path that begins with `./` or `../` is resolved relative to the directory of the calling _partial_ template. For example, given this structure:
+
+```tree
+layouts/
+└── _partials/
+    ├── cards/
+    │   ├── card.html
+    │   └── image.html
+    └── footer.html
+```
+
+The "card" _partial_ template can call its sibling and the "footer" _partial_ template like this:
+
+```go-html-template
+{{ partial "./image.html" . }}
+{{ partial "../footer.html" . }}
+```
+
+Relative paths are only supported from within _partial_ templates. Calling `partial "./foo.html"` from any other template, or with a path that resolves outside the `_partials` directory, is an error.
 
 [`return`]: /functions/go-template/return/
 [breadcrumb navigation]: /content-management/sections/#ancestors-and-descendants

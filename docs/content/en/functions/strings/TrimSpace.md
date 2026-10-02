@@ -9,8 +9,6 @@ params:
     signatures: [strings.TrimSpace STRING]
 ---
 
-{{< new-in 0.136.3 />}}
-
 Whitespace characters include `\t`, `\n`, `\v`, `\f`, `\r`, and characters in the [Unicode Space Separator][] category.
 
 ```go-html-template

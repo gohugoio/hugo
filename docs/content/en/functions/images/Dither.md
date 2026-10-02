@@ -24,7 +24,7 @@ The `images.Dither` filter accepts an options map.
 : (`bool`) Applicable to error diffusion dithering methods, whether to apply the error diffusion matrix in a serpentine manner, meaning that it goes right-to-left every other line. This greatly reduces line-type artifacts. Default is `true`.
 
 `strength`
-: (`float`) The strength at which to apply the dithering matrix, typically a value in the range [0, 1]. A value of `1.0` applies the dithering matrix at 100% strength (no modification of the dither matrix). The `strength` is inversely proportional to contrast; reducing the strength increases the contrast. Setting `strength` to a value such as `0.8` can be useful to reduce noise in the dithered image. Default is `1.0`.
+: (`float`) The strength at which to apply the dithering matrix, typically a value in the range `[0, 1]`. A value of `1.0` applies the dithering matrix at 100% strength (no modification of the dither matrix). The `strength` is inversely proportional to contrast; reducing the strength increases the contrast. Setting `strength` to a value such as `0.8` can be useful to reduce noise in the dithered image. Default is `1.0`.
 
 ## Usage
 

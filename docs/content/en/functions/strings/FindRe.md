@@ -7,7 +7,7 @@ params:
   functions_and_methods:
     aliases: [findRE]
     returnType: '[]string'
-    signatures: ['strings.FindRE PATTERN INPUT [LIMIT]']
+    signatures: ['strings.FindRE PATTERN STRING [LIMIT]']
 aliases: [/functions/findre]
 ---
 By default, `findRE` finds all matches. You can limit the number of matches with an optional LIMIT argument.

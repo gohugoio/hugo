@@ -353,7 +353,7 @@ func call(name string, fn reflect.Value, args ...reflect.Value) (reflect.Value, 
 
 // safeCall runs fun.Call(args), and returns the resulting value and error, if
 // any. If the call panics, the panic value is returned as an error.
-func safeCall(fun reflect.Value, args []reflect.Value) (val reflect.Value, err error) {
+func safeCallOld(fun reflect.Value, args []reflect.Value) (val reflect.Value, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			if e, ok := r.(error); ok {

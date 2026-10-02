@@ -1,6 +1,6 @@
 ---
 title: fmt.Print
-description: Prints the default representation of the given arguments using the standard `fmt.Print` function.
+description: Returns the default string representation of the given arguments.
 categories: []
 keywords: []
 params:

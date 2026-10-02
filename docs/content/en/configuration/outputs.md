@@ -26,9 +26,9 @@ home = ['html','rss','json']
 Notice in this example that we only specified the `home` page kind. You don't need to include entries for other page kinds unless you intend to modify their default output formats.
 
 > [!NOTE]
-> The order of the output formats in the arrays above is important. The first element will be the _primary output format_ for that page kind, and in most cases that should be `html` as shown in the default configuration.
+> The order of the output formats in the arrays above is important. The first element will be the [primary output format](g) for that page kind, and in most cases that should be `html` as shown in the default configuration.
 >
-> The primary output format for a given page kind determines the value returned by the [`Permalink`][] and [`RelPermalink`][] methods on a `Page` object.
+> The primary output format determines the value returned by the [`Permalink`][] and [`RelPermalink`][] methods on a `Page` object. For output formats with [`permalinkable`][] set to `true`, such as `html` and `amp`, those methods return that format's own URL regardless of its position in the list.
 >
 > See the [link to output formats][] section for details.
 
@@ -45,5 +45,6 @@ In its default configuration, Hugo will render both the `html` and `json` output
 
 [`Permalink`]: /methods/page/permalink/
 [`RelPermalink`]: /methods/page/relpermalink/
+[`permalinkable`]: /configuration/output-formats/#permalinkable
 [configure output formats]: /configuration/output-formats/
 [link to output formats]: configuration/output-formats/#link-to-output-formats

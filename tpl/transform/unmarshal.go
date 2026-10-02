@@ -16,13 +16,13 @@ package transform
 import (
 	"errors"
 	"fmt"
-	"io"
 	"strings"
 
 	"github.com/gohugoio/hugo/resources"
 	"github.com/gohugoio/hugo/resources/resource"
 
 	"github.com/gohugoio/hugo/common/hashing"
+	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/types"
 
 	"github.com/mitchellh/mapstructure"
@@ -91,7 +91,7 @@ func (ns *Namespace) Unmarshal(args ...any) (any, error) {
 			}
 			defer reader.Close()
 
-			b, err := io.ReadAll(reader)
+			b, err := hugio.ReadAll(reader)
 			if err != nil {
 				return nil, err
 			}

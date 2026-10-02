@@ -1,6 +1,6 @@
 ---
 title: css.Build
-description: Bundle, transform, and minify CSS resources.
+description: Returns a resource created by bundling, transforming, and minifying the given CSS resource.
 categories: []
 keywords: []
 params:
@@ -103,6 +103,10 @@ The `css.Build` function accepts an options map to fine-tune bundling, minificat
   {{ $r := resources.Get "css/main.css" | css.Build $opts }}
   ```
 
+`importContext`
+: {{< new-in 0.165.0 />}}
+: (`resource.ResourceGetter`) A [resource getter](g) to use when resolving `@import` statements. Hugo searches this context first, matching by the path as written in the `@import` statement, before falling back to the file system.
+
 `loaders`
 : (`map`) A map of file extensions to loader types. This determines how files with a given extension are processed during bundling. By default, Hugo uses the `css` loader for `.css` files and the `file` loader for all others. Common loaders include:
 
@@ -165,7 +169,7 @@ The `css.Build` function accepts an options map to fine-tune bundling, minificat
   In the example above, the target environment is roughly equivalent to the [browserlist][] "baseline widely available" profile as of March 2026.
 
 `targetPath`
-: (`string`) The path to the generated CSS file, relative to the project's [`publishDir`][]. If unset, this defaults to the asset's original path with a `.css` extension.
+: (`string`) The target path of the resource, relative to the [`publishDir`][]. If unset, the target path defaults to the asset's original path with a `.css` extension.
 
   ```go-html-template
   {{ $opts := dict "targetPath" "css/styles.css" }}
@@ -326,6 +330,32 @@ Using the options above, Hugo does the following:
 - Adds vendor prefixes for compatibility with the targeted browser versions
 - Publishes the generated CSS code to `css/styles.css`
 - In production, adds an SRI hash and inserts a file hash into the filename
+
+## Artifacts
+
+{{< new-in 0.165.0 />}}
+
+In addition to the main output, Hugo may publish other files as part of the build:
+
+- Files copied to the output directory by the `file` loader, such as fonts and images
+- A source map, when the [`sourceMap`](#sourcemap) option is `external` or `linked`
+
+The `Data` method on the returned resource exposes these files as a slice of artifacts, where each artifact provides `MediaType`, `Permalink`, and `RelPermalink` methods.
+
+For example, to render preload links for font files published by the build:
+
+```go-html-template {file="layouts/_partials/css.html"}
+{{ with resources.Get "css/main.css" }}
+  {{ with . | css.Build }}
+    {{ range .Data.Artifacts }}
+      {{ if eq .MediaType.MainType "font" }}
+        <link rel="preload" href="{{ .RelPermalink }}" as="font" type="{{ .MediaType.Type }}" crossorigin>
+      {{ end }}
+    {{ end }}
+    <link rel="stylesheet" href="{{ .RelPermalink }}">
+  {{ end }}
+{{ end }}
+```
 
 ## Common patterns
 

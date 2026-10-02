@@ -234,9 +234,11 @@ func ExtractSummaryFromHTML(mt media.Type, input string, numWords int, isCJK boo
 		}
 
 		if count >= numWords {
+			summaryHigh := j + closingIndex + len(ptag.tagName) + 3
+			summaryHigh = expandSummaryHighToBalancedHTML(input, result.WrapperStart.High, summaryHigh, high)
 			result.SummaryLowHigh = types.LowHigh[string]{
 				Low:  result.WrapperStart.High,
-				High: j + closingIndex + len(ptag.tagName) + 3,
+				High: summaryHigh,
 			}
 			return
 		}
@@ -251,6 +253,167 @@ func ExtractSummaryFromHTML(mt media.Type, input string, numWords int, isCJK boo
 	}
 
 	return
+}
+
+// expandSummaryHighToBalancedHTML moves high forward until every element
+// opened in input[low:high] is closed, so the summary does not end inside
+// e.g. a blockquote or list item.
+func expandSummaryHighToBalancedHTML(input string, low, high, maxHigh int) int {
+	if low >= high || high >= maxHigh {
+		return high
+	}
+
+	var buf [16]string
+	stack := buf[:0]
+	sc := htmlTagScanner{s: input, pos: low}
+
+	for {
+		name, end, ok := sc.next(high)
+		if !ok {
+			break
+		}
+		stack = pushOrPopHTMLStack(stack, name, end)
+	}
+
+	if len(stack) == 0 {
+		return high
+	}
+
+	for {
+		name, end, ok := sc.next(maxHigh)
+		if !ok {
+			return high
+		}
+		stack = pushOrPopHTMLStack(stack, name, end)
+		if len(stack) == 0 {
+			return sc.pos
+		}
+	}
+}
+
+func pushOrPopHTMLStack(stack []string, name string, end bool) []string {
+	if end {
+		for i := len(stack) - 1; i >= 0; i-- {
+			if stack[i] == name {
+				return stack[:i]
+			}
+		}
+		return stack
+	}
+	if isVoidHTMLElement(name) {
+		return stack
+	}
+	return append(stack, name)
+}
+
+// htmlTagScanner is a minimal, allocation-free scanner for start and end tags.
+// It skips comments, quoted attribute values and raw text elements.
+type htmlTagScanner struct {
+	s   string
+	pos int
+}
+
+// next returns the lowercased name of the next tag before limit and
+// whether it is an end tag. ok is false when no more tags are found.
+func (sc *htmlTagScanner) next(limit int) (name string, end, ok bool) {
+	for {
+		i := strings.IndexByte(sc.s[sc.pos:limit], '<')
+		if i == -1 {
+			sc.pos = limit
+			return "", false, false
+		}
+		sc.pos += i + 1
+		if sc.pos >= limit {
+			return "", false, false
+		}
+
+		end = false
+		switch c := sc.s[sc.pos]; c {
+		case '!', '?':
+			if strings.HasPrefix(sc.s[sc.pos:limit], "!--") {
+				sc.skipPast(limit, "-->")
+			} else {
+				sc.skipPast(limit, ">")
+			}
+			continue
+		case '/':
+			end = true
+			sc.pos++
+		}
+
+		start := sc.pos
+		for sc.pos < limit && isHTMLTagNameByte(sc.s[sc.pos]) {
+			sc.pos++
+		}
+		if sc.pos == start {
+			continue
+		}
+		name = strings.ToLower(sc.s[start:sc.pos])
+
+		selfClosing := false
+		for sc.pos < limit {
+			c := sc.s[sc.pos]
+			sc.pos++
+			switch c {
+			case '"', '\'':
+				sc.skipPast(limit, string(c))
+			case '/':
+				selfClosing = true
+			case '>':
+				if selfClosing {
+					continue
+				}
+				if !end && isRawTextHTMLElement(name) {
+					sc.skipPastEndTag(limit, name)
+				}
+				return name, end, true
+			default:
+				selfClosing = false
+			}
+		}
+		return name, end, true
+	}
+}
+
+func (sc *htmlTagScanner) skipPast(limit int, sep string) {
+	if i := strings.Index(sc.s[sc.pos:limit], sep); i == -1 {
+		sc.pos = limit
+	} else {
+		sc.pos += i + len(sep)
+	}
+}
+
+func (sc *htmlTagScanner) skipPastEndTag(limit int, name string) {
+	for {
+		sc.skipPast(limit, "</")
+		if sc.pos >= limit {
+			return
+		}
+		if rest := sc.s[sc.pos:limit]; len(rest) > len(name) && strings.EqualFold(rest[:len(name)], name) && !isHTMLTagNameByte(rest[len(name)]) {
+			sc.pos -= 2
+			return
+		}
+	}
+}
+
+func isHTMLTagNameByte(c byte) bool {
+	return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '-'
+}
+
+func isRawTextHTMLElement(name string) bool {
+	switch name {
+	case "script", "style", "textarea", "title", "iframe", "xmp", "noembed", "noframes":
+		return true
+	}
+	return false
+}
+
+func isVoidHTMLElement(name string) bool {
+	switch name {
+	case "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr":
+		return true
+	}
+	return false
 }
 
 // ExtractSummaryFromHTMLWithDivider extracts a summary from the given HTML content with
