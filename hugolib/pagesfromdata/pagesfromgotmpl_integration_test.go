@@ -994,3 +994,31 @@ Title: {{ .Title }}|Content: {{ .Content }}
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/test/my-page/index.html", "The answer is 1831.")
 }
+
+func TestContentAdapterInlinePartialScope(t *testing.T) {
+	t.Parallel()
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "sitemap", "robotsTXT"]
+-- content/a/_content.gotmpl --
+{{ define "_partials/inline/shared.html" }}{{ return "Adapter A" }}{{ end }}
+{{ define "_partials/inline/wrapper.html" }}{{ partial "inline/shared" . }}{{ end }}
+{{ .AddPage (dict "kind" "page" "path" "page" "title" "A" "content" (dict "mediaType" "text/markdown" "value" (printf "%s|%s|%s" (partialCached "inline/shared.html" .) (partial "inline/wrapper.html" .) (partialCached "global-wrapper.html" .)))) }}
+-- content/b/_content.gotmpl --
+{{ define "_partials/inline/shared.html" }}{{ return "Adapter B" }}{{ end }}
+{{ define "_partials/inline/wrapper.html" }}{{ partial "inline/shared" . }}{{ end }}
+{{ .AddPage (dict "kind" "page" "path" "page" "title" "B" "content" (dict "mediaType" "text/markdown" "value" (printf "%s|%s|%s" (partialCached "inline/shared.html" .) (partial "inline/wrapper.html" .) (partialCached "global-wrapper.html" .)))) }}
+-- layouts/_partials/global-wrapper.html --
+{{ partial "inline/shared.html" . }}
+-- layouts/_partials/inline/shared.html --
+Global partial
+-- layouts/page.html --
+Content: {{ .Content }}|Layout: {{ partial "inline/shared.html" . }}
+`
+	b := hugolib.TestRunning(t, files)
+	b.AssertFileContent("public/a/page/index.html", "Adapter A|Adapter A|Adapter A", "Layout: Global partial")
+	b.AssertFileContent("public/b/page/index.html", "Adapter B|Adapter B|Adapter B", "Layout: Global partial")
+	b.EditFileReplaceAll("content/a/_content.gotmpl", "Adapter A", "Adapter A updated").Build()
+	b.AssertFileContent("public/a/page/index.html", "Adapter A updated|Adapter A updated|Adapter A updated", "Layout: Global partial")
+	b.AssertFileContent("public/b/page/index.html", "Adapter B|Adapter B|Adapter B", "Layout: Global partial")
+}

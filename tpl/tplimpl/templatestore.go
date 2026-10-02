@@ -218,6 +218,8 @@ type StoreOptions struct {
 type SubCategory int
 
 type TemplInfo struct {
+	inlinePartials map[string]*TemplInfo
+
 	// The category of this template.
 	category Category
 
@@ -788,12 +790,60 @@ func (t *TemplateStore) TextParse(name, tpl string) (*TemplInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := t.extractInlinePartials(false); err != nil {
+	return &TemplInfo{Template: templ}, nil
+}
+
+func (t *TemplateStore) TextParseContentAdapter(name, content string) (*TemplInfo, error) {
+	templ, err := texttemplate.New(name).Funcs(t.siteOpts.TemplateFuncs).Parse(content)
+	if err != nil {
 		return nil, err
 	}
-	return &TemplInfo{
-		Template: templ,
-	}, nil
+	ti := &TemplInfo{Template: templ, inlinePartials: make(map[string]*TemplInfo)}
+	for _, partial := range templ.Templates() {
+		partialName := partial.Name()
+		if !strings.HasPrefix(partialName, "partials/") && !strings.HasPrefix(partialName, "_partials/") {
+			continue
+		}
+		key := strings.TrimPrefix(strings.TrimPrefix(partialName, "_"), "partials/")
+		if !paths.HasExt(key) {
+			key += t.htmlFormat.MediaType.FirstSuffix.FullSuffix
+		}
+		scoped, err := templ.New(name+"::"+partialName).AddParseTree(name+"::"+partialName, partial.Tree.Copy())
+		if err != nil {
+			return nil, err
+		}
+		ti.inlinePartials[key] = &TemplInfo{Template: scoped, D: TemplateDescriptor{IsPlainText: true}}
+	}
+	return ti, nil
+}
+
+func contentAdapterTemplate(ctx context.Context) *TemplInfo {
+	for current := tpl.Context.CurrentTemplate.Get(ctx); current != nil; current = current.Parent {
+		if ti, ok := current.CurrentTemplateInfoOps.(*TemplInfo); ok && ti.inlinePartials != nil {
+			return ti
+		}
+	}
+	return nil
+}
+
+func (t *TemplateStore) LookupPartialWithContext(ctx context.Context, name string) *TemplInfo {
+	if ti := contentAdapterTemplate(ctx); ti != nil {
+		key := name
+		if !paths.HasExt(key) {
+			key += t.htmlFormat.MediaType.FirstSuffix.FullSuffix
+		}
+		if partial := ti.inlinePartials[key]; partial != nil {
+			return partial
+		}
+	}
+	return t.LookupPartial(name)
+}
+
+func (t *TemplateStore) PartialCacheName(ctx context.Context, name string) string {
+	if ti := contentAdapterTemplate(ctx); ti != nil {
+		return ti.Name() + "::" + name
+	}
+	return name
 }
 
 func (t *TemplateStore) UnusedTemplates() []*TemplInfo {

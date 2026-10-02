@@ -345,7 +345,7 @@ func (p *PagesFromTemplate) Execute(ctx context.Context) (BuildInfo, error) {
 	}
 	defer f.Close()
 
-	tmpl, err := p.TemplateStore.TextParse(p.GoTmplFi.Meta().PathInfo.Path(), helpers.ReaderToString(f))
+	tmpl, err := p.TemplateStore.TextParseContentAdapter(p.GoTmplFi.Meta().PathInfo.Path(), helpers.ReaderToString(f))
 	if err != nil {
 		return BuildInfo{}, err
 	}

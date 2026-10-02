@@ -110,20 +110,20 @@ func (ns *Namespace) Include(ctx context.Context, name string, contextList ...an
 }
 
 func (ns *Namespace) include(ctx context.Context, name string, dataList ...any) includeResult {
-	v, err := ns.lookup(name)
+	v, err := ns.lookup(ctx, name)
 	if err != nil {
 		return includeResult{err: err}
 	}
 	return ns.doInclude(ctx, "", v, dataList...)
 }
 
-func (ns *Namespace) lookup(name string) (*tplimpl.TemplInfo, error) {
+func (ns *Namespace) lookup(ctx context.Context, name string) (*tplimpl.TemplInfo, error) {
 	if strings.HasPrefix(name, "partials/") {
 		// This is most likely not what the user intended.
 		// This worked before Hugo 0.146.0.
 		ns.deps.Log.Warnidf(constants.WarnPartialSuperfluousPrefix, "Doubtful use of partial function in {{ partial \"%s\"}}), this is most likely not what you want. Consider removing superfluous prefix \"partials/\" from template name given as first function argument.", name)
 	}
-	v := ns.deps.TemplateStore.LookupPartial(name)
+	v := ns.deps.TemplateStore.LookupPartialWithContext(ctx, name)
 	if v == nil {
 		return nil, fmt.Errorf("partial %q not found", name)
 	}
@@ -180,17 +180,17 @@ func (ns *Namespace) doInclude(ctx context.Context, key string, templ *tplimpl.T
 // Note that ctx is provided by Hugo, not the end user.
 func (ns *Namespace) IncludeCached(ctx context.Context, name string, context any, variants ...any) (any, error) {
 	start := time.Now()
+	ti, err := ns.lookup(ctx, name)
+	if err != nil {
+		return nil, err
+	}
 	key := partialCacheKey{
-		Name:     name,
+		Name:     ns.deps.TemplateStore.PartialCacheName(ctx, name),
 		Variants: variants,
 	}
 	keyString := key.Key()
 
 	depsManagerIn := tpl.Context.GetDependencyManagerInCurrentScope(ctx)
-	ti, err := ns.lookup(name)
-	if err != nil {
-		return nil, err
-	}
 
 	if parent := tpl.Context.CurrentTemplate.Get(ctx); parent != nil {
 		for parent != nil {
