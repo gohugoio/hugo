@@ -586,7 +586,7 @@ func (s *Site) executeDeferredTemplates(de *deps.DeferredExecutions) error {
 		}
 
 		if changed {
-			return afero.WriteFile(s.BaseFs.PublishFs, filename, content, 0o666)
+			return s.publisher.PublishDeferred(filename, content)
 		}
 
 		return nil

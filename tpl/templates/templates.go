@@ -149,6 +149,10 @@ func (ns *Namespace) DoDefer(ctx context.Context, id string, optsv any) string {
 
 	id = fmt.Sprintf("%s_%s%s", id, key, tpl.HugoDeferredTemplateSuffix)
 
+	if hasDeferred := tpl.Context.HasDeferred.Get(ctx); hasDeferred != nil {
+		*hasDeferred = true
+	}
+
 	_, _ = ns.deps.BuildState.DeferredExecutions.Executions.GetOrCreate(id,
 		func() (*tpl.DeferredExecution, error) {
 			return &tpl.DeferredExecution{
