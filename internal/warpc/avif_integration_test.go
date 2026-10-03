@@ -5,10 +5,13 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
 func TestAvifBasic(t *testing.T) {
+	htesting.SkipSlowWasmTestOn32Bit(t)
+
 	files := `
 -- hugo.toml --
 -- assets/sunset.avif --
@@ -32,6 +35,8 @@ Encode avif from avif: {{ $avif := $image.Process "avif" }}|{{ $avif.RelPermalin
 // GIF, and the libavif "repetitionCount" → Go "LoopCount" inversion (libavif
 // -1 = infinite, image/gif 0 = infinite) is handled at the AVIF decoder boundary.
 func TestAvifAnimatedToGif(t *testing.T) {
+	htesting.SkipSlowWasmTestOn32Bit(t)
+
 	files := `
 -- hugo.toml --
 disableKinds = ["page", "section", "taxonomy", "term", "sitemap", "robotsTXT", "404"]
@@ -69,6 +74,8 @@ gif:{{ $gif.RelPermalink }}
 
 // See issue 14987.
 func TestAvifEncodeHintSubsampling(t *testing.T) {
+	htesting.SkipSlowWasmTestOn32Bit(t)
+
 	files := `
 -- hugo.toml --
 -- assets/logo.png --

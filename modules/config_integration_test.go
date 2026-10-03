@@ -35,7 +35,8 @@ weight = 2
 [[module.mounts]]
 source = 'content'
 target = 'content'
-lang = 'en'
+[module.mounts.sites.matrix]
+languages = 'en'
 -- content/p1.md --
 
 `
@@ -49,21 +50,4 @@ lang = 'en'
 	contentMount := mounts[0]
 	b.Assert(contentMount.Source, qt.Equals, "content")
 	b.Assert(contentMount.Sites.Matrix.Languages, qt.DeepEquals, []string{"en"})
-}
-
-func TestMountsLangIsDeprecated(t *testing.T) {
-	t.Parallel()
-	files := `
--- hugo.toml --
-[module]
-[[module.mounts]]
-source = 'content'
-target = 'content'
-lang = 'en'
--- layouts/all.html --
-All.
-`
-
-	b := hugolib.Test(t, files, hugolib.TestOptInfo())
-	b.AssertLogContains("deprecated")
 }

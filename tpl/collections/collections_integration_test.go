@@ -19,6 +19,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl/collections"
@@ -676,6 +677,10 @@ All.
 // and must all match the []int produced by slice.
 func TestWhereInNumericParams(t *testing.T) {
 	t.Parallel()
+
+	if htesting.Is32Bit() {
+		t.Skip("big int literals overflow int on 32-bit")
+	}
 
 	files := `
 -- hugo.toml --

@@ -132,6 +132,10 @@ jobs:
         env:
           HUGO_BUILD_TAGS: extended,withdeploy
       - if: matrix.os == 'ubuntu-latest'
+        name: Test 386
+        run: |
+          mage -v test386
+      - if: matrix.os == 'ubuntu-latest'
         name: Build for dragonfly
         run: |
           go install
