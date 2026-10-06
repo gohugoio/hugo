@@ -38,14 +38,14 @@ func HugoGenerator(ft transform.FromTo) error {
 		return nil
 	}
 
-	head := "<head>"
-	replace := fmt.Appendf(nil, "%s\n\t%s", head, hugoGeneratorTag)
-	newcontent := bytes.Replace(b, []byte(head), replace, 1)
+	headClosing := "</head>"
+	replace := fmt.Appendf(nil, "\t%s\n%s", hugoGeneratorTag, headClosing)
+	newcontent := bytes.Replace(b, []byte(headClosing), replace, 1)
 
 	if len(newcontent) == len(b) {
-		head := "<HEAD>"
-		replace := fmt.Appendf(nil, "%s\n\t%s", head, hugoGeneratorTag)
-		newcontent = bytes.Replace(b, []byte(head), replace, 1)
+		headClosing := "</HEAD>"
+		replace := fmt.Appendf(nil, "\t%s\n%s", hugoGeneratorTag, headClosing)
+		newcontent = bytes.Replace(b, []byte(headClosing), replace, 1)
 	}
 
 	if _, err := ft.To().Write(newcontent); err != nil {
