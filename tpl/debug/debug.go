@@ -16,6 +16,7 @@ package debug
 
 import (
 	"encoding/json"
+	"fmt"
 	"sort"
 	"sync"
 	"time"
@@ -109,7 +110,7 @@ type Namespace struct {
 func (ns *Namespace) Dump(val any) string {
 	b, err := json.MarshalIndent(val, "", "  ")
 	if err != nil {
-		return ""
+		return fmt.Sprintf("Failed to Dump %T: %s", val, err)
 	}
 	return string(b)
 }

@@ -221,11 +221,6 @@ type PageMetaProvider interface {
 	// The title used for links.
 	LinkTitle() string
 
-	// IsNode returns whether this is a branch node (e.g. a section).
-	//
-	// Deprecated: Use IsBranch or "not IsPage" instead.
-	IsNode() bool
-
 	// IsBranch returns whether this is a branch node, i.e. a node that
 	// can have descendants (home, section, taxonomy or term).
 	IsBranch() bool
@@ -257,6 +252,15 @@ type PageMetaProvider interface {
 	// The configured weight, used as the first sort value in the default
 	// page sort if non-zero.
 	Weight() int
+
+	DeprecatedPageMetaProvider
+}
+
+type DeprecatedPageMetaProvider interface {
+	// IsNode returns whether this is a branch node (e.g. a section).
+	//
+	// Deprecated: Use IsBranch or "not IsPage" instead.
+	IsNode() bool
 }
 
 // NamedPageMetaValue returns a named metadata value from a PageMetaResource.
