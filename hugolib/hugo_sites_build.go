@@ -898,8 +898,9 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 		seen := make(map[string]bool)
 		var filtered []*paths.Path
 		for _, p := range ps {
-			if !seen[p.Path()] {
-				seen[p.Path()] = true
+			key := p.Component() + p.Path()
+			if !seen[key] {
+				seen[key] = true
 				filtered = append(filtered, p)
 			}
 		}
