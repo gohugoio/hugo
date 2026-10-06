@@ -23,6 +23,7 @@ import (
 
 	"github.com/gohugoio/hugo/codegen"
 	"github.com/gohugoio/hugo/resources/page"
+	"github.com/gohugoio/hugo/resources/resource"
 )
 
 const header = `// Copyright 2019 The Hugo Authors. All rights reserved.
@@ -42,7 +43,9 @@ const header = `// Copyright 2019 The Hugo Authors. All rights reserved.
 `
 
 var (
-	pageInterface = reflect.TypeFor[page.PageMetaProvider]()
+	pageInterface                 = reflect.TypeFor[page.PageMetaResource]()
+	pageDeprecatedInterface       = reflect.TypeFor[page.DeprecatedPageMetaProvider]()
+	resourceDataProviderInterface = reflect.TypeFor[resource.ResourceDataProvider]()
 
 	packageDir = filepath.FromSlash("resources/page")
 )
@@ -65,11 +68,12 @@ func generateMarshalJSON(c *codegen.Inspector) error {
 
 	includes := []reflect.Type{pageInterface}
 
-	excludes := []reflect.Type{}
+	excludes := []reflect.Type{pageDeprecatedInterface, resourceDataProviderInterface}
 
 	methods := c.MethodsFromTypes(
 		includes,
-		excludes)
+		excludes,
+	)
 
 	if len(methods) == 0 {
 		return errors.New("no methods found")
