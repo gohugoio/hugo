@@ -22,62 +22,39 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bep/golocales"
 	"github.com/gohugoio/hugo/common/hreflect"
-	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/spf13/cast"
 )
 
+var _ langs.LanguageTranslateOps = (*Namespace)(nil)
+
 // New returns a new instance of the lang-namespaced template functions.
-func New(deps *deps.Deps, translator golocales.Translator) *Namespace {
+func New(language *langs.Language) *Namespace {
 	return &Namespace{
-		translator: translator,
-		deps:       deps,
+		language: language,
 	}
 }
 
 // Namespace provides template functions for the "lang" namespace.
 type Namespace struct {
-	translator golocales.Translator
-	deps       *deps.Deps
+	language *langs.Language
 }
 
 // Translate returns a translated string for id.
 func (ns *Namespace) Translate(ctx context.Context, id any, args ...any) (string, error) {
-	var templateData any
-
-	if len(args) > 0 {
-		if len(args) > 1 {
-			return "", fmt.Errorf("wrong number of arguments, expecting at most 2, got %d", len(args)+1)
-		}
-		templateData = args[0]
-	}
-
-	sid, err := cast.ToStringE(id)
-	if err != nil {
-		return "", err
-	}
-
-	return ns.deps.Translate(ctx, sid, templateData), nil
+	return ns.language.Translate(ctx, id, args...)
 }
 
 // FormatNumber formats number with the given precision for the current language.
 func (ns *Namespace) FormatNumber(precision, number any) (string, error) {
-	p, n, err := ns.castPrecisionNumber(precision, number)
-	if err != nil {
-		return "", err
-	}
-	return ns.translator.FormatNumber(n, p), nil
+	return ns.language.FormatNumber(precision, number)
 }
 
 // FormatPercent formats number with the given precision for the current language.
 // Note that the number is assumed to be a percentage.
 func (ns *Namespace) FormatPercent(precision, number any) (string, error) {
-	p, n, err := ns.castPrecisionNumber(precision, number)
-	if err != nil {
-		return "", err
-	}
-	return ns.translator.FormatPercent(n, p), nil
+	return ns.language.FormatPercent(precision, number)
 }
 
 // FormatCurrency returns the currency representation of number for the given currency and precision
@@ -85,11 +62,7 @@ func (ns *Namespace) FormatPercent(precision, number any) (string, error) {
 //
 // The return value is formatted with at least two decimal places.
 func (ns *Namespace) FormatCurrency(precision, currency, number any) (string, error) {
-	p, n, err := ns.castPrecisionNumber(precision, number)
-	if err != nil {
-		return "", err
-	}
-	return ns.translator.FormatCurrency(n, p, cast.ToString(currency)), nil
+	return ns.language.FormatCurrency(precision, currency, number)
 }
 
 // FormatAccounting returns the currency representation of number for the given currency and precision
@@ -97,29 +70,7 @@ func (ns *Namespace) FormatCurrency(precision, currency, number any) (string, er
 //
 // The return value is formatted with at least two decimal places.
 func (ns *Namespace) FormatAccounting(precision, currency, number any) (string, error) {
-	p, n, err := ns.castPrecisionNumber(precision, number)
-	if err != nil {
-		return "", err
-	}
-	return ns.translator.FormatAccounting(n, p, cast.ToString(currency)), nil
-}
-
-func (ns *Namespace) castPrecisionNumber(precision, number any) (int, float64, error) {
-	p, err := cast.ToIntE(precision)
-	if err != nil {
-		return 0, 0, err
-	}
-
-	// Sanity check.
-	if p > 20 {
-		return 0, 0, fmt.Errorf("invalid precision: %d", precision)
-	}
-
-	n, err := cast.ToFloat64E(number)
-	if err != nil {
-		return 0, 0, err
-	}
-	return p, n, nil
+	return ns.language.FormatAccounting(precision, currency, number)
 }
 
 // FormatNumberCustom formats a number with the given precision. The first

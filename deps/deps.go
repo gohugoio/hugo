@@ -14,7 +14,6 @@
 package deps
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -80,9 +79,6 @@ type Deps struct {
 
 	// The memory cache to use.
 	MemCache *dynacache.Cache
-
-	// The translation func to use
-	Translate func(ctx context.Context, translationID string, templateData any) string `json:"-"`
 
 	// The site building.
 	Site page.Site
