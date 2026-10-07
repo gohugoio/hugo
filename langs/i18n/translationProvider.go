@@ -97,7 +97,10 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 
 	tp.t = NewTranslator(bundle, dst.Conf, dst.Log)
 
-	dst.Translate = tp.getTranslateFunc(dst)
+	defaultLang := defaultLanguage(dst.Conf)
+	for _, l := range dst.Conf.Languages().(langs.Languages) {
+		langs.SetTranslateFunc(l, tp.getTranslateFunc(l, defaultLang))
+	}
 
 	return nil
 }
@@ -142,9 +145,8 @@ func addTranslationFile(bundle *i18n.Bundle, r *source.File) error {
 	return nil
 }
 
-// CloneResource sets the language func for the new language.
+// CloneResource is a no-op, the translate funcs are shared between sites.
 func (tp *TranslationProvider) CloneResource(dst, src *deps.Deps) error {
-	dst.Translate = tp.getTranslateFunc(dst)
 	return nil
 }
 
@@ -158,11 +160,9 @@ func defaultLanguage(conf config.AllProvider) *langs.Language {
 	return conf.Language().(*langs.Language)
 }
 
-// getTranslateFunc returns the translation function for the language in Deps.
+// getTranslateFunc returns the translation function for the given language.
 // The lookup order is: current locale, current key, default locale, default key.
-func (tp *TranslationProvider) getTranslateFunc(dst *deps.Deps) func(ctx context.Context, translationID string, templateData any) string {
-	current := dst.Conf.Language().(*langs.Language)
-	defaultLang := defaultLanguage(dst.Conf)
+func (tp *TranslationProvider) getTranslateFunc(current, defaultLang *langs.Language) langs.TranslateFunc {
 	for _, l := range []*langs.Language{current, defaultLang} {
 		for _, key := range []string{strings.ToLower(l.Locale()), l.Lang} {
 			if fn, ok := tp.t.Lookup(key); ok {

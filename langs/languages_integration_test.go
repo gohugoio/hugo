@@ -378,3 +378,43 @@ foo = 'foo pt'
 	b = hugolib.Test(t, files)
 	b.AssertFileContent("public/pt/index.html", "|")
 }
+
+// See issue 7844.
+func TestLanguageTranslateAndFormat(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term", "page", "section", "rss", "sitemap"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[languages]
+[languages.en]
+weight = 1
+[languages.de]
+weight = 2
+[languages.nn]
+weight = 3
+-- i18n/en.toml --
+hello = "Hello"
+onlyen = "Only English"
+-- i18n/de.toml --
+hello = "Hallo"
+-- layouts/home.html --
+{{ range site.Languages -}}
+{{ .Lang }}: {{ .Translate "hello" }}|{{ .Translate "onlyen" }}|{{ .FormatNumber 2 1234.5 }}|{{ .FormatPercent 1 12.3 }}|{{ .FormatCurrency 2 "EUR" 12.3 }}|{{ .FormatAccounting 2 "EUR" -12.3 }}|
+{{ end -}}
+site: {{ site.Language.Translate "hello" }}|
+`
+	b := hugolib.Test(t, files)
+
+	expect := []string{
+		"en: Hello|Only English|1,234.50|12.3%|€12.30|€-12.30|",
+		"de: Hallo|Only English|1.234,50|12,3\u00a0%|12,30\u00a0€|-12,30\u00a0€|",
+		"nn: Hello|Only English|1 234,50|12,3 %|12,30 €|−12,30 €|",
+	}
+
+	b.AssertFileContent("public/en/index.html", append(expect, "site: Hello|")...)
+	b.AssertFileContent("public/de/index.html", append(expect, "site: Hallo|")...)
+}

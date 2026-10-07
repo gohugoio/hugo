@@ -15,6 +15,7 @@
 package langs
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
@@ -29,9 +30,22 @@ import (
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
+	"github.com/spf13/cast"
 )
 
-var _ sitesmatrix.DimensionInfo = (*Language)(nil)
+var (
+	_ sitesmatrix.DimensionInfo = (*Language)(nil)
+	_ LanguageTranslateOps      = (*Language)(nil)
+)
+
+// LanguageTranslateOps is implemented by Language and the lang template namespace.
+type LanguageTranslateOps interface {
+	Translate(ctx context.Context, id any, args ...any) (string, error)
+	FormatNumber(precision, number any) (string, error)
+	FormatPercent(precision, number any) (string, error)
+	FormatCurrency(precision, currency, number any) (string, error)
+	FormatAccounting(precision, currency, number any) (string, error)
+}
 
 type Language struct {
 	// The language code, e.g. "en" or "no".
@@ -45,6 +59,7 @@ type Language struct {
 	// Used for date formatting etc. We don't want these exported to the
 	// templates.
 	translator    golocales.Translator
+	translate     TranslateFunc
 	timeFormatter htime.TimeFormatter
 	tag           language.Tag
 
@@ -120,6 +135,89 @@ func NewLanguage(lang, defaultContentLanguage, timeZone string, languageConfig L
 	}
 
 	return l, l.loadLocation(timeZone)
+}
+
+// TranslateFunc translates the given translationID using the i18n bundles.
+type TranslateFunc func(ctx context.Context, translationID string, templateData any) string
+
+// Translate returns a translated string for id.
+func (l *Language) Translate(ctx context.Context, id any, args ...any) (string, error) {
+	var templateData any
+
+	if len(args) > 0 {
+		if len(args) > 1 {
+			return "", fmt.Errorf("wrong number of arguments, expecting at most 2, got %d", len(args)+1)
+		}
+		templateData = args[0]
+	}
+
+	sid, err := cast.ToStringE(id)
+	if err != nil {
+		return "", err
+	}
+
+	return l.translate(ctx, sid, templateData), nil
+}
+
+// FormatNumber formats number with the given precision for this language.
+func (l *Language) FormatNumber(precision, number any) (string, error) {
+	p, n, err := castPrecisionNumber(precision, number)
+	if err != nil {
+		return "", err
+	}
+	return l.translator.FormatNumber(n, p), nil
+}
+
+// FormatPercent formats number with the given precision for this language.
+// Note that the number is assumed to be a percentage.
+func (l *Language) FormatPercent(precision, number any) (string, error) {
+	p, n, err := castPrecisionNumber(precision, number)
+	if err != nil {
+		return "", err
+	}
+	return l.translator.FormatPercent(n, p), nil
+}
+
+// FormatCurrency returns the currency representation of number for the given currency and precision
+// for this language.
+//
+// The return value is formatted with at least two decimal places.
+func (l *Language) FormatCurrency(precision, currency, number any) (string, error) {
+	p, n, err := castPrecisionNumber(precision, number)
+	if err != nil {
+		return "", err
+	}
+	return l.translator.FormatCurrency(n, p, cast.ToString(currency)), nil
+}
+
+// FormatAccounting returns the currency representation of number for the given currency and precision
+// for this language in accounting notation.
+//
+// The return value is formatted with at least two decimal places.
+func (l *Language) FormatAccounting(precision, currency, number any) (string, error) {
+	p, n, err := castPrecisionNumber(precision, number)
+	if err != nil {
+		return "", err
+	}
+	return l.translator.FormatAccounting(n, p, cast.ToString(currency)), nil
+}
+
+func castPrecisionNumber(precision, number any) (int, float64, error) {
+	p, err := cast.ToIntE(precision)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	// Sanity check.
+	if p > 20 {
+		return 0, 0, fmt.Errorf("invalid precision: %d", precision)
+	}
+
+	n, err := cast.ToFloat64E(number)
+	if err != nil {
+		return 0, 0, err
+	}
+	return p, n, nil
 }
 
 // This is injected from hugolib to avoid circular dependencies.
@@ -218,6 +316,10 @@ func (l Languages) AsIndexSet() map[string]int {
 
 func SetParams(l *Language, params hmaps.Params) {
 	l.params = params
+}
+
+func SetTranslateFunc(l *Language, fn TranslateFunc) {
+	l.translate = fn
 }
 
 func GetTimeFormatter(l *Language) htime.TimeFormatter {

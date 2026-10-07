@@ -3,16 +3,15 @@ package lang
 import (
 	"testing"
 
-	"github.com/bep/golocales"
 	qt "github.com/frankban/quicktest"
-	"github.com/gohugoio/hugo/deps"
+	"github.com/gohugoio/hugo/langs"
 )
 
 func TestNumFmt(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
 
-	ns := New(&deps.Deps{}, nil)
+	ns := New(nil)
 
 	cases := []struct {
 		prec  int
@@ -67,8 +66,8 @@ func TestNumFmt(t *testing.T) {
 func TestFormatNumbers(t *testing.T) {
 	c := qt.New(t)
 
-	nsNn := New(&deps.Deps{}, golocales.New("nn"))
-	nsEn := New(&deps.Deps{}, golocales.New("en"))
+	nsNn := New(newTestLanguage(c, "nn"))
+	nsEn := New(newTestLanguage(c, "en"))
 	pi := 3.14159265359
 
 	c.Run("FormatNumber", func(c *qt.C) {
@@ -108,10 +107,10 @@ func TestFormatNumbers(t *testing.T) {
 func TestLanguageKeyFormat(t *testing.T) {
 	c := qt.New(t)
 
-	nsUnderscoreUpper := New(&deps.Deps{}, golocales.New("es_ES"))
-	nsUnderscoreLower := New(&deps.Deps{}, golocales.New("es_es"))
-	nsHyphenUpper := New(&deps.Deps{}, golocales.New("es-ES"))
-	nsHyphenLower := New(&deps.Deps{}, golocales.New("es-es"))
+	nsUnderscoreUpper := New(newTestLanguage(c, "es_ES"))
+	nsUnderscoreLower := New(newTestLanguage(c, "es_es"))
+	nsHyphenUpper := New(newTestLanguage(c, "es-ES"))
+	nsHyphenLower := New(newTestLanguage(c, "es-es"))
 	pi := 3.14159265359
 
 	c.Run("FormatNumber", func(c *qt.C) {
@@ -132,4 +131,10 @@ func TestLanguageKeyFormat(t *testing.T) {
 		c.Assert(err, qt.IsNil)
 		c.Assert(got, qt.Equals, "3,142")
 	})
+}
+
+func newTestLanguage(c *qt.C, locale string) *langs.Language {
+	l, err := langs.NewLanguage("en", "en", "", langs.LanguageConfig{Locale: locale}, nil)
+	c.Assert(err, qt.IsNil)
+	return l
 }
