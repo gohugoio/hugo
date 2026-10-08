@@ -1569,3 +1569,48 @@ layouts/p1/page.html
 
 	b.AssertFileContent("public/p1/index.html", "layouts/p1/page.html")
 }
+
+// See issue 14561.
+func TestDuplicateInlinePartialAcrossFiles(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','taxonomy','term','rss','sitemap']
+-- layouts/home.html --
+{{ partial "a.html" . }}
+-- layouts/_partials/a.html --
+A:{{ partial "inline/shared.html" . }}
+{{ define "_partials/inline/shared.html" }}from-a{{ end }}
+-- layouts/_partials/b.html --
+B:{{ partial "inline/shared.html" . }}
+{{ define "_partials/inline/shared.html" }}from-b{{ end }}
+`
+
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, "multiple definition of template")
+	b.Assert(err.Error(), qt.Contains, "/_partials/inline/shared.html")
+	b.Assert(err.Error(), qt.Contains, "/_partials/a.html")
+	b.Assert(err.Error(), qt.Contains, "/_partials/b.html")
+
+	// The same inline partial under the historical "partials/" prefix and
+	// without an extension must also be treated as a duplicate.
+	files = `
+-- hugo.toml --
+disableKinds = ['page','section','taxonomy','term','rss','sitemap']
+-- layouts/home.html --
+{{ partial "a.html" . }}
+-- layouts/_partials/a.html --
+A:{{ partial "inline/shared.html" . }}
+{{ define "partials/inline/shared" }}from-a{{ end }}
+-- layouts/_partials/b.html --
+B:{{ partial "inline/shared.html" . }}
+{{ define "_partials/inline/shared.html" }}from-b{{ end }}
+`
+
+	b, err = hugolib.TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, "multiple definition of template")
+	b.Assert(err.Error(), qt.Contains, "/_partials/inline/shared.html")
+}
