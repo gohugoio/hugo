@@ -24,36 +24,35 @@ import (
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/resources/page"
 
 	"github.com/gohugoio/go-i18n/v2/i18n"
 )
 
-type translateFunc func(ctx context.Context, translationID string, templateData any) string
-
 // Translator handles i18n translations.
 type Translator struct {
-	translateFuncs map[string]translateFunc
+	translateFuncs map[string]langs.TranslateFunc
 	cfg            config.AllProvider
 	logger         loggers.Logger
 }
 
 // NewTranslator creates a new Translator for the given language bundle and configuration.
 func NewTranslator(b *i18n.Bundle, cfg config.AllProvider, logger loggers.Logger) Translator {
-	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]translateFunc)}
+	t := Translator{cfg: cfg, logger: logger, translateFuncs: make(map[string]langs.TranslateFunc)}
 	t.initFuncs(b)
 	return t
 }
 
 // Lookup looks up the translate func for the given language.
-func (t Translator) Lookup(lang string) (translateFunc, bool) {
+func (t Translator) Lookup(lang string) (langs.TranslateFunc, bool) {
 	f, ok := t.translateFuncs[lang]
 	return f, ok
 }
 
 // Func gets the translate func for the given language, or for the default
 // configured language if not found.
-func (t Translator) Func(lang string) translateFunc {
+func (t Translator) Func(lang string) langs.TranslateFunc {
 	if f, ok := t.translateFuncs[lang]; ok {
 		return f
 	}
