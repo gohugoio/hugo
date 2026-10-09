@@ -18,11 +18,11 @@ package loggers
 import (
 	"fmt"
 	"io"
-	"regexp"
 	"strings"
 	"sync"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/common/terminal"
 )
 
 // newNoAnsiEscapeHandler creates a new noAnsiEscapeHandler
@@ -72,7 +72,7 @@ func (h *noAnsiEscapeHandler) HandleLog(e *logg.Entry) error {
 		prefix = prefix + ": "
 	}
 
-	msg := stripANSI(e.Message)
+	msg := terminal.StripANSI(e.Message)
 
 	if h.noLevelPrefix {
 		fmt.Fprintf(w, "%s%s", prefix, msg)
@@ -90,11 +90,4 @@ func (h *noAnsiEscapeHandler) HandleLog(e *logg.Entry) error {
 	fmt.Fprintln(w)
 
 	return nil
-}
-
-var ansiRe = regexp.MustCompile(`\x1b\[[0-9;]*m`)
-
-// stripANSI removes ANSI escape codes from s.
-func stripANSI(s string) string {
-	return ansiRe.ReplaceAllString(s, "")
 }

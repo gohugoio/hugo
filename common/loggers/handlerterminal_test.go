@@ -28,7 +28,7 @@ func TestNoAnsiEscapeHandler(t *testing.T) {
 	c := qt.New(t)
 
 	test := func(s string) {
-		c.Assert(stripANSI(terminal.Notice(s)), qt.Equals, s)
+		c.Assert(terminal.StripANSI(terminal.Notice(s)), qt.Equals, s)
 	}
 	test(`error in "file.md:1:2"`)
 

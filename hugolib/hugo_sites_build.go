@@ -61,7 +61,7 @@ import (
 
 // Build builds all sites. If filesystem events are provided,
 // this is considered to be a potential partial rebuild.
-func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
+func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) (err error) {
 	if h.isRebuild() && !h.Conf.Watching() && !h.Conf.Running() {
 		return errors.New("Build called multiple times when not in watch or server mode (typically with hugolib.Test(t, files).Build(); Build() is already called once by Test)")
 	}
@@ -81,9 +81,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 	infol := h.Log.InfoCommand("build")
 	defer loggers.TimeTrackf(infol, time.Now(), nil, "")
 	defer func() {
-		h.reportProgress(func() (state terminal.ProgressState, progress float64) {
-			return terminal.ProgressHidden, 1.0
-		})
+		h.reportBuildEnd(err)
 		h.BuildState.BuildCounter.Add(1)
 	}()
 
@@ -233,7 +231,7 @@ func (h *HugoSites) Build(config BuildCfg, events ...fsnotify.Event) error {
 
 	h.StopErrorCollector()
 
-	err := <-errs
+	err = <-errs
 	if err != nil {
 		return err
 	}
