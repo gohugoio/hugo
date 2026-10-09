@@ -1075,16 +1075,9 @@ func (s *staticSyncer) syncsStaticEvents(staticEvents []fsnotify.Event) error {
 			publishDir = filepath.Join(publishDir, sourceFs.PublishFolder)
 		}
 
-		syncer := fsync.NewSyncer()
+		var syncer *fsync.Syncer
 		c.withConf(func(conf *commonConfig) {
-			syncer.NoTimes = conf.configs.Base.NoTimes
-			syncer.NoChmod = conf.configs.Base.NoChmod
-			syncer.ChmodFilter = chmodFilter
-			syncer.SrcFs = sourceFs.Fs
-			syncer.DestFs = conf.fs.PublishDir
-			if c.s != nil && c.s.renderStaticToDisk {
-				syncer.DestFs = conf.fs.PublishDirStatic
-			}
+			syncer = newStaticSyncer(conf, sourceFs.Fs)
 		})
 
 		logger := s.c.r.logger

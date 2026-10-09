@@ -121,6 +121,9 @@ type BuildConfig struct {
 
 	// Removes files from the publish directory that are not found in the static source.
 	CleanDestinationDir CleanDestinationDir
+
+	// Hard link unmodified files into the publish dir when possible instead of copying them.
+	Hardlinks bool
 }
 
 // CleanDestinationDir configures the removal of stale files from the publish directory.

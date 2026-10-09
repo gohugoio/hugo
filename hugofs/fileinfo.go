@@ -263,6 +263,11 @@ func (fi *dirEntryMeta) Sys() any {
 	return fi.fileInfo().Sys()
 }
 
+// UnwrapFileInfo returns the wrapped FileInfo, e.g. for use with os.SameFile.
+func (fi *dirEntryMeta) UnwrapFileInfo() fs.FileInfo {
+	return fi.fileInfo()
+}
+
 // Name returns the file's name.
 func (fi *dirEntryMeta) Name() string {
 	if name := fi.m.Name; name != "" {
