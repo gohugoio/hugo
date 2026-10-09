@@ -107,7 +107,12 @@ jobs:
           echo  "$env:GITHUB_WORKSPACE/dart-sass/" | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf-8 -Append
       - if: matrix.os == 'ubuntu-latest'
         name: Install staticcheck
-        run: go install honnef.co/go/tools/cmd/staticcheck@latest
+        #run: go install honnef.co/go/tools/cmd/staticcheck@latest
+        # Temporary workaround for https://github.com/dominikh/go-tools/issues/1832
+        run: |
+          cd $(mktemp -d) && go mod init tmp
+          go get honnef.co/go/tools/cmd/staticcheck@latest golang.org/x/tools@latest                     
+          go build -o $(go env GOPATH)/bin/staticcheck honnef.co/go/tools/cmd/staticcheck
       - if: matrix.os == 'ubuntu-latest'
         name: Check embedded go template formatting
         run: "diff <(gotmplfmt -d tpl/tplimpl/embedded/templates) <(printf '')"
