@@ -441,6 +441,7 @@ func (r *rootCommand) Run(ctx context.Context, cd *simplecobra.Commandeer, args 
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
 	<-sigs
+	b.progressInterrupted()
 
 	return nil
 }

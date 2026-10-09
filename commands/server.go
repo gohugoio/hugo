@@ -1026,6 +1026,7 @@ func (c *serverCommand) serve() error {
 			case <-c.quit:
 				return nil
 			case <-sigs:
+				c.progressInterrupted()
 				return nil
 			case <-ctx.Done():
 				return ctx.Err()
