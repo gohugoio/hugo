@@ -304,16 +304,34 @@ func buildSitesMatrixFromSitesConfig(
 	return matrix
 }
 
+// FrontMatterParams returns a func that looks up a lower-cased key in the params section,
+// falling back to the front matter root for regular pages.
+func (p *PageConfigEarly) FrontMatterParams() func(k string) (any, bool) {
+	params, _ := p.Frontmatter["params"].(hmaps.Params)
+	return func(k string) (any, bool) {
+		if v, found := params[k]; found {
+			return v, true
+		}
+		if p.IsFromContentAdapter {
+			return nil, false
+		}
+		v, found := p.Frontmatter[k]
+		return v, found
+	}
+}
+
 func (p *PageConfigEarly) CompileEarly(pi *paths.Path, cascades *page.PageMatcherParamsConfigs,
 	conf config.AllProvider, fim *hugofs.FileMeta, sitesMatrixBase sitesmatrix.VectorIterator, sitesMatrixBaseOnly bool,
 ) error {
+	params := p.FrontMatterParams()
+
 	// First apply the cascades with no site filtering.
 	for cascade := range cascades.All() {
 		if cascade.Target.SitesMatrixCompiled != nil {
 			continue
 		}
 
-		if !cascade.Target.Match(p.Kind, pi.Base(), conf.Environment(), p.SitesMatrix) {
+		if !cascade.Target.Match(p.Kind, pi.Base(), conf.Environment(), params, p.SitesMatrix) {
 			continue
 		}
 
@@ -346,7 +364,7 @@ func (p *PageConfigEarly) CompileEarly(pi *paths.Path, cascades *page.PageMatche
 			continue
 		}
 
-		if !cascade.Target.Match(p.Kind, pi.Base(), conf.Environment(), p.SitesMatrix) {
+		if !cascade.Target.Match(p.Kind, pi.Base(), conf.Environment(), params, p.SitesMatrix) {
 			continue
 		}
 

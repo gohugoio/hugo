@@ -598,3 +598,105 @@ title: p1
 
 	b.AssertFileContent("public/p1/index.html", "p1|lang: en|")
 }
+
+// See issue 10936.
+func TestCascadeParamsFilter(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+disableKinds = ['rss','sitemap','taxonomy','term']
+-- content/_index.md --
++++
+title = "Home"
+
+[cascade.params]
+color = "red"
+
+[cascade.target.params]
+magIc = 42
+shape = "round"
++++
+-- content/p1.md --
+---
+title: p1
+---
+-- content/p2.md --
+---
+title: p2
+Magic: 42.0
+params:
+  shape: round
+---
+-- content/p3.md --
+---
+title: p3
+params:
+  magic: 7
+  shape: round
+---
+-- content/p4.md --
+---
+title: p4
+params:
+  magic: 42
+---
+-- content/a/_content.gotmpl --
+{{ .AddPage (dict "path" "a1" "title" "a1" "params" (dict "Magic" 42 "shape" "round")) }}
+{{ .AddPage (dict "path" "a2" "title" "a2" "magic" 42 "params" (dict "shape" "round")) }}
+-- layouts/all.html --
+{{ .Title }}|color: {{ .Params.color }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "p1|color: |")
+	b.AssertFileContent("public/p2/index.html", "p2|color: red|")
+	b.AssertFileContent("public/p3/index.html", "p3|color: |")
+	b.AssertFileContent("public/p4/index.html", "p4|color: |")
+	b.AssertFileContent("public/a/a1/index.html", "a1|color: red|")
+	b.AssertFileContent("public/a/a2/index.html", "a2|color: |")
+}
+
+// See issue 10936.
+func TestCascadeParamsFilterSites(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org"
+disableKinds = ['rss','sitemap','taxonomy','term']
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+-- content/_index.md --
++++
+title = "Home"
+[cascade.sites.matrix]
+languages = ["nn"]
+[cascade.target.params]
+magic = 42
++++
+-- content/p1.md --
+---
+title: p1
+---
+-- content/p2.md --
+---
+title: p2
+params:
+  magic: 42
+---
+-- layouts/all.html --
+{{ .Title }}|{{ .Language.Name }}|
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "p1|en|")
+	b.AssertFileExists("public/nn/p1/index.html", false)
+	b.AssertFileContent("public/nn/p2/index.html", "p2|nn|")
+	b.AssertFileExists("public/p2/index.html", false)
+}

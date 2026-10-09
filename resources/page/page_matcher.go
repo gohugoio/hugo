@@ -25,6 +25,7 @@ import (
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
+	"github.com/gohugoio/hugo/compare"
 	"github.com/gohugoio/hugo/config"
 	"github.com/gohugoio/hugo/hugofs/hglob"
 	"github.com/gohugoio/hugo/hugolib/sitesmatrix"
@@ -48,6 +49,10 @@ type PageMatcher struct {
 	// Deprecated: use Sites.Matrix instead.
 	Lang string
 
+	// A map of parameters to match against the Page's Params.
+	// The keys in this map gets lower-cased before matching.
+	Params hmaps.Params
+
 	// The sites to apply this to.
 	// Note that we currently only use the Matrix field for cascade matching.
 	Sites sitesmatrix.Sites
@@ -61,6 +66,7 @@ type PageMatcher struct {
 	kindGlob            hstrings.Matcher
 	pathGlob            hstrings.Matcher
 	environmentGlob     hstrings.Matcher
+	paramsMatcher       func(lookup func(k string) (any, bool)) bool
 }
 
 // Equal compares the configured fields; compiled state is ignored.
@@ -69,14 +75,27 @@ func (m PageMatcher) Equal(other PageMatcher) bool {
 		m.Kind == other.Kind &&
 		m.Lang == other.Lang &&
 		m.Environment == other.Environment &&
-		m.Sites.Equal(other.Sites)
+		m.Sites.Equal(other.Sites) &&
+		m.Params.Equal(other.Params)
 }
 
 func (m PageMatcher) Matches(p Page) bool {
-	return m.Match(p.Kind(), p.Path(), p.Site().Hugo().Environment(), nil)
+	var params func(k string) (any, bool)
+	if m.Params != nil {
+		params = paramsLookup(p)
+	}
+	return m.Match(p.Kind(), p.Path(), p.Site().Hugo().Environment(), params, nil)
 }
 
-func (m PageMatcher) Match(kind, path, environment string, sitesMatrix sitesmatrix.VectorProvider) bool {
+func paramsLookup(p Page) func(k string) (any, bool) {
+	params := p.Params()
+	return func(k string) (any, bool) {
+		v, found := params[k]
+		return v, found
+	}
+}
+
+func (m PageMatcher) Match(kind, path, environment string, params func(k string) (any, bool), sitesMatrix sitesmatrix.VectorProvider) bool {
 	if sitesMatrix != nil {
 		if m.SitesMatrixCompiled != nil && !m.SitesMatrixCompiled.HasAnyVector(sitesMatrix) {
 			return false
@@ -98,6 +117,10 @@ func (m PageMatcher) Match(kind, path, environment string, sitesMatrix sitesmatr
 	}
 
 	if m.environmentGlob != nil && !m.environmentGlob.Match(environment) {
+		return false
+	}
+
+	if m.paramsMatcher != nil && !m.paramsMatcher(params) {
 		return false
 	}
 
@@ -272,6 +295,21 @@ func (v *PageMatcher) compileGlobs() error {
 		v.environmentGlob, err = hglob.GetGlob(v.Environment)
 		if err != nil {
 			return err
+		}
+	}
+	if v.Params != nil {
+		hmaps.PrepareParams(v.Params)
+		v.paramsMatcher = func(lookup func(k string) (any, bool)) bool {
+			if lookup == nil {
+				return false
+			}
+			for k, vv := range v.Params {
+				pv, found := lookup(k)
+				if !found || !compare.Eq(pv, vv) {
+					return false
+				}
+			}
+			return true
 		}
 	}
 	return nil
