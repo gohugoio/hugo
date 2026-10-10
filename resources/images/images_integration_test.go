@@ -182,3 +182,56 @@ Page.
 		builder.Build()
 	}
 }
+
+// See issue 15430.
+func TestImageFrameCount(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- assets/giphy.gif --
+sourcefilename: ../testdata/giphy.gif
+-- assets/pix.gif --
+sourcefilename: ../testdata/pix.gif
+-- assets/giphy.avif --
+sourcefilename: ../testdata/giphy.avif
+-- assets/anim.webp --
+sourcefilename: ../testdata/webp/anim.webp
+-- assets/sunset.webp --
+sourcefilename: ../testdata/sunset.webp
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+-- assets/gohugoio.png --
+sourcefilename: ../testdata/gohugoio.png
+-- layouts/home.html --
+{{ $giphy := resources.Get "giphy.gif" }}
+{{ $avif := resources.Get "giphy.avif" }}
+giphy.gif: {{ $giphy.FrameCount }}|
+giphy.gif resized: {{ ($giphy.Resize "10x").FrameCount }}|
+giphy.gif to webp: {{ ($giphy.Resize "10x webp").FrameCount }}|
+giphy.gif to jpg: {{ ($giphy.Resize "10x jpg").FrameCount }}|
+giphy.avif: {{ $avif.FrameCount }}|
+giphy.avif resized: {{ ($avif.Resize "10x").FrameCount }}|
+anim.webp: {{ (resources.Get "anim.webp").FrameCount }}|
+pix.gif: {{ (resources.Get "pix.gif").FrameCount }}|
+sunset.webp: {{ (resources.Get "sunset.webp").FrameCount }}|
+sunset.jpg: {{ (resources.Get "sunset.jpg").FrameCount }}|
+gohugoio.png: {{ (resources.Get "gohugoio.png").FrameCount }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"giphy.gif: 14|",
+		"giphy.gif resized: 14|",
+		"giphy.gif to webp: 14|",
+		"giphy.gif to jpg: 1|",
+		"giphy.avif: 14|",
+		"giphy.avif resized: 1|",
+		"anim.webp: 17|",
+		"pix.gif: 1|",
+		"sunset.webp: 1|",
+		"sunset.jpg: 1|",
+		"gohugoio.png: 1|",
+	)
+}

@@ -15,7 +15,7 @@ require (
 	github.com/bep/golocales v0.2.0
 	github.com/bep/goportabletext v0.2.0
 	github.com/bep/helpers v0.12.0
-	github.com/bep/imagemeta v1.0.1
+	github.com/bep/imagemeta v1.1.0
 	github.com/bep/lazycache v0.9.0
 	github.com/bep/logg v0.4.0
 	github.com/bep/mclib v1.20401.20400
@@ -76,9 +76,9 @@ require (
 	golang.org/x/image v0.46.0
 	golang.org/x/mod v0.41.0
 	golang.org/x/net v0.59.0
-	golang.org/x/sync v0.23.0
-	golang.org/x/text v0.42.0
-	golang.org/x/tools v0.50.0
+	golang.org/x/sync v0.24.0
+	golang.org/x/text v0.43.0
+	golang.org/x/tools v0.51.0
 	google.golang.org/api v0.276.0
 	rsc.io/qr v0.2.0
 )

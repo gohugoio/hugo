@@ -39,13 +39,10 @@ import (
 func NewImage(f Format, proc *ImageProcessor, img image.Image, s Spec) *Image {
 	if img != nil {
 		return &Image{
-			Format: f,
-			Proc:   proc,
-			Spec:   s,
-			imageConfig: &imageConfig{
-				config:       imageConfigFromImage(img),
-				configLoaded: true,
-			},
+			Format:      f,
+			Proc:        proc,
+			Spec:        s,
+			imageConfig: imageConfigFromImage(img),
 		}
 	}
 	return &Image{Format: f, Proc: proc, Spec: s, imageConfig: &imageConfig{}}
@@ -74,12 +71,15 @@ func (i *Image) Width() int {
 	return i.config.Width
 }
 
+// FrameCount returns the number of frames in i, 1 for still images.
+func (i *Image) FrameCount() int {
+	i.initConfig()
+	return i.frameCount
+}
+
 func (i Image) WithImage(img image.Image) *Image {
 	i.Spec = nil
-	i.imageConfig = &imageConfig{
-		config:       imageConfigFromImage(img),
-		configLoaded: true,
-	}
+	i.imageConfig = imageConfigFromImage(img)
 
 	return &i
 }
@@ -94,7 +94,7 @@ func (i Image) WithSpec(s Spec) *Image {
 func (i *Image) InitConfig(r io.Reader) error {
 	var err error
 	i.configInit.Do(func() {
-		i.config, _, err = i.Proc.Codec.DecodeConfig(i.Format, r)
+		i.config, i.frameCount, _, err = i.Proc.Codec.decodeConfig(i.Format, r, true)
 	})
 	return err
 }
@@ -114,7 +114,7 @@ func (i *Image) initConfig() {
 		}
 		defer f.Close()
 
-		i.config, _, err = i.Proc.Codec.DecodeConfig(i.Format, f)
+		i.config, i.frameCount, _, err = i.Proc.Codec.decodeConfig(i.Format, f, true)
 	})
 
 	if err != nil {
@@ -378,9 +378,22 @@ const (
 	HEIC
 )
 
-// Whether to use imagemeta to decode image config (width/height	).
-func (f Format) UseImageMetaConfigDecoder() bool {
-	return f == WEBP || f == AVIF || f == HEIF || f == HEIC
+// toImageMetaConfigFormat returns the imagemeta format to use to decode
+// the image config (width, height and frame count), or -1 if none.
+func (f Format) toImageMetaConfigFormat(withFrameCount bool) imagemeta.ImageFormat {
+	switch f {
+	case GIF:
+		if withFrameCount {
+			return imagemeta.GIF
+		}
+	case PNG:
+		if withFrameCount {
+			return imagemeta.PNG
+		}
+	case WEBP, AVIF, HEIF, HEIC:
+		return f.ToImageMetaImageFormatFormat()
+	}
+	return -1
 }
 
 func (f Format) ToImageMetaImageFormatFormat() imagemeta.ImageFormat {
@@ -476,16 +489,23 @@ func (f Format) String() string {
 
 type imageConfig struct {
 	config       image.Config
+	frameCount   int
 	configInit   sync.Once
 	configLoaded bool
 }
 
-func imageConfigFromImage(img image.Image) image.Config {
-	if cp, ok := img.(himage.ImageConfigProvider); ok {
-		return cp.GetImageConfig()
+func imageConfigFromImage(img image.Image) *imageConfig {
+	c := &imageConfig{frameCount: 1, configLoaded: true}
+	if anim, ok := img.(himage.AnimatedImage); ok {
+		c.frameCount = max(1, len(anim.GetFrames()))
 	}
-	b := img.Bounds()
-	return image.Config{Width: b.Max.X, Height: b.Max.Y}
+	if cp, ok := img.(himage.ImageConfigProvider); ok {
+		c.config = cp.GetImageConfig()
+	} else {
+		b := img.Bounds()
+		c.config = image.Config{Width: b.Max.X, Height: b.Max.Y}
+	}
+	return c
 }
 
 // UnwrapFilter unwraps the given filter if it is a filter wrapper.
