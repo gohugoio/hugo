@@ -187,3 +187,5 @@ require (
 )
 
 go 1.27.0
+
+replace github.com/bep/imagemeta => /Users/bep/dev/mymonorepo/bep/gocode/libs/imagemeta

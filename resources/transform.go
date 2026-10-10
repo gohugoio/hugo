@@ -393,6 +393,10 @@ func (r resourceAdapter) TransformWithContext(ctx context.Context, t ...Resource
 	return &r, nil
 }
 
+func (r *resourceAdapter) FrameCount() int {
+	return r.getImageOps().FrameCount()
+}
+
 func (r *resourceAdapter) Width() int {
 	return r.getImageOps().Width()
 }
