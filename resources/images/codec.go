@@ -246,25 +246,45 @@ func (d *Codec) Decode(r io.Reader) (image.Image, error) {
 }
 
 func (d *Codec) DecodeConfig(f Format, r io.Reader) (image.Config, string, error) {
+	conf, _, name, err := d.decodeConfig(f, r, false)
+	return conf, name, err
+}
+
+// decodeConfig also returns the frame count, which is 1 for still images.
+// The frame count is only read for GIF and PNG if withFrameCount is set.
+func (d *Codec) decodeConfig(f Format, r io.Reader, withFrameCount bool) (image.Config, int, string, error) {
+	var start int64
+	rs, isSeeker := r.(io.ReadSeeker)
+	if isSeeker {
+		var err error
+		if start, err = rs.Seek(0, io.SeekCurrent); err != nil {
+			return image.Config{}, 0, "", err
+		}
+	}
+
 	rr := toPeekReader(r)
 	format, err := formatFromImage(rr)
 	if err != nil {
-		return image.Config{}, "", err
+		return image.Config{}, 0, "", err
 	}
 	if format == 0 {
 		format = f
 	}
 	r = rr
-	if format.UseImageMetaConfigDecoder() {
-		rs, err := hugio.NewReadSeekerNoOpCloserFromReader(r)
-		if err != nil {
-			return image.Config{}, "", err
+	if mf := format.toImageMetaConfigFormat(withFrameCount); mf != -1 {
+		if !isSeeker {
+			// Note that this reads the entire image into memory.
+			rs, err = hugio.NewReadSeekerNoOpCloserFromReader(r)
+			if err != nil {
+				return image.Config{}, 0, "", err
+			}
+			start = 0
 		}
-		rs.Seek(0, 0)
+		rs.Seek(start, io.SeekStart)
 		res, err := imagemeta.Decode(
 			imagemeta.Options{
 				R:           rs,
-				ImageFormat: format.ToImageMetaImageFormatFormat(),
+				ImageFormat: mf,
 				Sources:     imagemeta.CONFIG,
 			},
 		)
@@ -273,17 +293,17 @@ func (d *Codec) DecodeConfig(f Format, r io.Reader) (image.Config, string, error
 				Width:      res.ImageConfig.Width,
 				Height:     res.ImageConfig.Height,
 				ColorModel: color.RGBAModel,
-			}, strings.ToLower(format.String()), nil
+			}, res.ImageConfig.FrameCount, strings.ToLower(format.String()), nil
 		}
 
 		// Fallback to the standard image.DecodeConfig.
-		rs.Seek(0, 0)
+		rs.Seek(start, io.SeekStart)
 		r = rs
 	}
 
 	conf, name, err := image.DecodeConfig(r)
 
-	return conf, name, err
+	return conf, 1, name, err
 }
 
 // toPeekReader converts an io.Reader to a peekReader.
