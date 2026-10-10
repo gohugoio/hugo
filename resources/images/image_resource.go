@@ -33,6 +33,9 @@ type ImageResourceOps interface {
 	// Width returns the width of the Image.
 	Width() int
 
+	// FrameCount returns the number of frames in the Image, 1 for still images.
+	FrameCount() int
+
 	// Process applies the given image processing options to the image.
 	Process(spec string) (ImageResource, error)
 
