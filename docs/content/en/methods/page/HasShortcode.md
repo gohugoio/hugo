@@ -35,7 +35,7 @@ The shortcode is simple:
 </script>
 ```
 
-Now we can selectively load the required JavaScript on pages that call the "plotly" shortcode:
+Now we can selectively load the required JavaScript on pages that call the `plotly` shortcode:
 
 ```go-html-template {file="layouts/baseof.html"}
 <head>

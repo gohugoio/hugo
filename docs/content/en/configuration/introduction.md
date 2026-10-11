@@ -10,31 +10,38 @@ weight: 10
 
 Each top-level key in the project configuration is either a general setting or a configuration category.
 
-A general setting is a single value, such as [`baseURL`][] or [`title`][]. A configuration category groups related, nested settings, such as [`markup`][], [`menus`][], or [`params`][].
-
-{{< code-toggle file=hugo >}}
-baseURL = 'https://example.org/'
-title = 'My New Hugo Site'
-[params]
-subtitle = 'The Best Widgets on Earth'
-{{< /code-toggle >}}
-
-In this example, `baseURL` and `title` are general settings, and `params` is a configuration category.
-
-## Sensible defaults
-
-Hugo offers many configuration settings, but its defaults are often sufficient. A new project requires only these settings:
+A general setting is a single value. A configuration category groups related, nested settings.
 
 {{< code-toggle file=hugo >}}
 baseURL = 'https://example.org/'
 locale = 'en-us'
-title = 'My New Hugo Site'
+title = 'ABC Widgets, Inc.'
+[params]
+subtitle = 'The Best Widgets on Earth'
+[imaging]
+resampleFilter = 'lanczos'
+{{< /code-toggle >}}
+
+In this example, [`baseURL`][], [`locale`][], and [`title`][] are general settings, while [`imaging`][] and [`params`][] are configuration categories.
+
+## Sensible defaults
+
+Hugo offers many configuration settings, but its defaults are often sufficient. A typical new project defines only these settings:
+
+{{< code-toggle file=hugo >}}
+baseURL = 'https://example.org/'
+locale = 'en-us'
+title = 'ABC Widgets, Inc.'
 {{< /code-toggle >}}
 
 Only define settings that deviate from the defaults. A smaller configuration file is easier to read, understand, and debug. Keep your configuration concise.
 
 > [!NOTE]
 > The best configuration file is a short configuration file.
+
+{{< new-in 0.167.0 />}}
+
+Project configuration is optional. Without a [configuration file](#configuration-file) or [configuration directory](#configuration-directory), Hugo uses the default value for every setting. For example, you can build a project that contains only a `layouts/all.html` template.
 
 ## Configuration file
 
@@ -359,8 +366,8 @@ hugo config mounts
 [YAML]: https://yaml.org/spec/
 [`baseURL`]: /configuration/all#baseurl
 [`enableGitInfo`]: /configuration/all#enablegitinfo
-[`markup`]: /configuration/all#markup
-[`menus`]: /configuration/all#menus
+[`imaging`]: /configuration/all#imaging
+[`locale`]: /configuration/all#locale
 [`params`]: /configuration/all#params
 [`title`]: /configuration/all#title
 [permitted delimiter]: https://pubs.opengroup.org/onlinepubs/000095399/basedefs/xbd_chap08.html

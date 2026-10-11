@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: bool
     signatures: [templates.Exists PATH]
-aliases: [/functions/templates.exists]
 ---
 
 A template file is any file within the `layouts` directory of either the project or any of its theme components.

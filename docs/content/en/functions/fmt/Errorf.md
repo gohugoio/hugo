@@ -8,7 +8,6 @@ params:
     aliases: [errorf]
     returnType: string
     signatures: ['fmt.Errorf FORMAT [INPUT]']
-aliases: [/functions/errorf]
 ---
 
 {{% include "/_common/functions/fmt/format-string.md" %}}

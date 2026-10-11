@@ -8,7 +8,6 @@ params:
     aliases: [isset]
     returnType: bool
     signatures: [collections.IsSet MAP|SLICE KEY|INDEX]
-aliases: [/functions/isset]
 ---
 
 For example, consider this project configuration:

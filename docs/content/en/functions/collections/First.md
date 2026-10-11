@@ -8,7 +8,6 @@ params:
     aliases: [first]
     returnType: 'any'
     signatures: [collections.First N SLICE|STRING]
-aliases: [/functions/first]
 ---
 
 ```go-html-template

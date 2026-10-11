@@ -1,6 +1,6 @@
 ---
-title: Host on Vercel
-description: Host your project on Vercel.
+title: Deploy to Render
+description: Deploy your project to Render.
 categories: []
 keywords: []
 ---
@@ -13,8 +13,8 @@ Use these instructions to enable continuous deployment from a GitHub repository.
 
 Please complete the following tasks before continuing:
 
-1. [Create](https://vercel.com/signup) a Vercel account.
-1. [Log in](https://vercel.com/login) to your Vercel account.
+1. [Create](https://dashboard.render.com/register) a Render account.
+1. [Log in](https://dashboard.render.com/login) to your Render account.
 1. [Create](https://github.com/signup) a GitHub account.
 1. [Log in](https://github.com/login) to your GitHub account.
 1. [Create](https://github.com/new) a GitHub repository for your project.
@@ -25,42 +25,47 @@ Please complete the following tasks before continuing:
 ## Procedure
 
 Step 1
-: Create a `vercel.json` file in the root of your project.
+: Create a `render.yaml` file in the root of your project, adjusting the tool versions and time zone as needed.
 
-  ```json {file="vercel.json" copy=true}
-  {
-    "$schema": "https://openapi.vercel.sh/vercel.json",
-    "installCommand": "",
-    "buildCommand": "chmod a+x build.sh && ./build.sh",
-    "outputDirectory": "public"
-  }
+  ```yaml {file="render.yaml" copy=true}
+  services:
+    - type: web
+      name: hosting-render
+      repo: https://github.com/jmooring/hosting-render
+      runtime: static
+      buildCommand: chmod a+x build.sh && ./build.sh
+      staticPublishPath: public
+      envVars:
+        - key: DART_SASS_VERSION
+          value: 1.105.0
+        - key: GO_VERSION
+          value: 1.27.1
+        - key: HUGO_VERSION
+          value: 0.167.0
+        - key: NODE_VERSION
+          value: 24.21.0
+        - key: TZ
+          value: Europe/Oslo
   ```
 
 Step 2
-: Create a `build.sh` file in the root of your project, adjusting the tool versions and time zone as needed.
+: Create a `build.sh` file in the root of your project.
 
   ```sh {file="build.sh" copy=true}
   #!/usr/bin/env bash
 
   #------------------------------------------------------------------------------
   # @file
-  # Builds a Hugo project hosted on Vercel.
+  # Builds a Hugo project hosted on Render.
+  #
+  # Render automatically installs Node.js and any Node.js dependencies.
   #------------------------------------------------------------------------------
 
   # Exit on error, undefined variables, or pipe failures
   set -euo pipefail
 
-  # Define tool versions
-  DART_SASS_VERSION=1.104.0
-  GO_VERSION=1.27.0
-  HUGO_VERSION=0.166.0
-  NODE_VERSION=24.20.0
-
-  # Set the build time zone
-  TZ=Europe/Oslo
-
   # Set the build cache directory
-  HUGO_CACHEDIR="${PWD}/.vercel/cache/hugo"
+  HUGO_CACHEDIR="${PWD}/.cache/hugo"
 
   # Perform cleanup
   cleanup() {
@@ -73,9 +78,6 @@ Step 2
   trap cleanup EXIT SIGINT SIGTERM
 
   main() {
-    # Export the build time zone
-    export TZ
-
     # Export the build cache directory
     export HUGO_CACHEDIR
 
@@ -106,14 +108,6 @@ Step 2
     tar -C "${HOME}/.local/hugo" -xf "${build_temp_dir}/hugo_${HUGO_VERSION}_linux-amd64.tar.gz"
     export PATH="${HOME}/.local/hugo:${PATH}"
 
-    # Install Node.js
-    if [[ -f "package-lock.json" ]]; then
-      echo "Installing Node.js ${NODE_VERSION}..."
-      curl -sfL --output-dir "${build_temp_dir}" -O "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz"
-      tar -C "${HOME}/.local" -xf "${build_temp_dir}/node-v${NODE_VERSION}-linux-x64.tar.gz"
-      export PATH="${HOME}/.local/node-v${NODE_VERSION}-linux-x64/bin:${PATH}"
-    fi
-
     # Log tool versions
     echo "Logging tool versions..."
     command -v sass &> /dev/null && echo "Dart Sass: $(sass --version)" || echo "Dart Sass: not installed"
@@ -135,12 +129,6 @@ Step 2
     if [[ -f .gitmodules ]]; then
       echo "Initializing Git submodules..."
       git submodule update --init --recursive
-    fi
-
-    # Install Node.js dependencies
-    if [[ -f package-lock.json ]]; then
-      echo "Installing Node.js dependencies..."
-      npm ci
     fi
 
     # Build the project
@@ -165,68 +153,67 @@ Step 4
 : Commit the changes to your local Git repository and push to your GitHub repository.
 
 Step 5
-: In the upper right corner of the Vercel dashboard, press the **Add New** button and select "Project" from the drop down menu.
+: On the Render [dashboard][], press the **Add new** button and select "Blueprint" from the drop-down menu.
 
-  ![screen capture](vercel-01.png)
+  ![screen capture](render-01.png)
 
 Step 6
-: Press the "Continue with GitHub" button.
+: Press the **GitHub** button to connect to your GitHub account.
 
-  ![screen capture](vercel-02.png)
+  ![screen capture](render-02.png)
 
 Step 7
-: Press the **Authorize Vercel** button to allow the Vercel application to access your GitHub account.
+: Press the **Authorize Render** button to allow the Render application to access your GitHub account.
 
-  ![screen capture](vercel-03.png)
+  ![screen capture](render-03.png)
 
 Step 8
-: Press the **Install** button to install the Vercel application.
+: Select the GitHub account where you want to install the Render application.
 
-  ![screen capture](vercel-04.png)
+  ![screen capture](render-04.png)
 
 Step 9
-: Select the GitHub account where you want to install the Vercel application.
+: Authorize the Render application to access all repositories or only select repositories, then press the **Install** button.
 
-  ![screen capture](vercel-05.png)
+  ![screen capture](render-05.png)
 
 Step 10
-: Authorize the Vercel application to access all repositories or only select repositories, then press the **Install** button.
+: On the "Create a new Blueprint Instance in My Workspace" page, press the **Connect** button to the right of the name of your GitHub repository.
 
-  ![screen capture](vercel-06.png)
-
-  Your browser will be redirected to the Cloudflare dashboard.
+  ![screen capture](render-06.png)
 
 Step 11
-: Press the **Import** button to the right of the name of your GitHub repository.
+: Enter a unique name for your Blueprint, then press the **Deploy Blueprint** button at the bottom of the page.
 
-  ![screen capture](vercel-07.png)
+  ![screen capture](render-07.png)
 
 Step 12
-: On the "New Project" page, leave the settings at their default values and press the **Deploy** button.
+: Wait for the site to build and deploy, then click on the "Resources" link on the left side of the page.
 
-  ![screen capture](vercel-08.png)
+  ![screen capture](render-08.png)
 
 Step 13
-: When the deployment completes, press the **Continue to Dashboard" button at the bottom of the page.
+: Click on the link to the static site resource.
 
-  ![screen capture](vercel-09.png)
+  ![screen capture](render-09.png)
 
 Step 14
-: On the "Production Deployment" page, click on the link to your published site.
+: Click on the link to your published site.
 
-  ![screen capture](vercel-10.png)
+  ![screen capture](render-10.png)
 
-In the future, whenever you push a change from your local Git repository, Vercel will rebuild and deploy your site.
+In the future, whenever you push a change from your local Git repository, Render will rebuild and deploy your site.
 
 ## Related resources
 
-For more information on hosting and managing your site with Vercel, consult the official documentation:
+For more information on hosting and managing your site with Render, consult the official documentation:
 
 - [General documentation][]
 - [Custom domain setup][]
 
-[Custom domain setup]: https://vercel.com/docs/domains/overview
-[General documentation]: https://vercel.com/docs
+[Custom domain setup]: https://render.com/docs/custom-domains
+[General documentation]: https://render.com/docs/static-sites
 [`cacheDir`]: /configuration/all/#cachedir
 [configure file caches]: /configuration/caches/
+[dashboard]: https://dashboard.render.com/
 [remote]: https://git-scm.com/docs/git-remote

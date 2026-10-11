@@ -7,7 +7,6 @@ params:
   functions_and_methods:
     returnType: string
     signatures: [TIME.Format LAYOUT]
-aliases: [/methods/time/format]
 ---
 
 ```go-template

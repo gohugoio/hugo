@@ -8,7 +8,6 @@ params:
     aliases: [upper]
     returnType: string
     signatures: [strings.ToUpper STRING]
-aliases: [/functions/upper]
 ---
 
 ```go-html-template

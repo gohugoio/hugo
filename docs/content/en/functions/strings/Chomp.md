@@ -8,7 +8,6 @@ params:
     aliases: [chomp]
     returnType: any
     signatures: [strings.Chomp STRING]
-aliases: [/functions/chomp]
 ---
 
 If the argument is of type `template.HTML`, returns `template.HTML`, else returns a `string`.

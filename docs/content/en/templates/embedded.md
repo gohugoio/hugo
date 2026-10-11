@@ -4,7 +4,6 @@ description: Hugo provides embedded partial templates for common use cases.
 categories: []
 keywords: []
 weight: 180
-aliases: [/templates/internal]
 ---
 
 ## Disqus

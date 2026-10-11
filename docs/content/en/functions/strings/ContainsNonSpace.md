@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: bool
     signatures: [strings.ContainsNonSpace STRING]
-aliases: [/functions/strings.containsnonspace]
 ---
 
 Whitespace characters include `\t`, `\n`, `\v`, `\f`, `\r`, and characters in the [Unicode Space Separator][] category.

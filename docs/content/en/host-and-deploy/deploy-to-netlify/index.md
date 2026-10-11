@@ -1,9 +1,8 @@
 ---
-title: Host on Netlify
-description: Host your project on Netlify.
+title: Deploy to Netlify
+description: Deploy your project to Netlify.
 categories: []
 keywords: []
-aliases: [/hosting-and-deployment/hosting-on-netlify/]
 ---
 
 Use these instructions to enable continuous deployment from a GitHub repository. The same general steps apply for other Git providers such as GitLab or Bitbucket.
@@ -30,9 +29,9 @@ Step 1
 
   ```toml {file="netlify.toml" copy=true}
   [build.environment]
-  GO_VERSION = "1.27.0"
-  HUGO_VERSION = "0.166.0"
-  NODE_VERSION = "24.20.0"
+  GO_VERSION = "1.27.1"
+  HUGO_VERSION = "0.167.0"
+  NODE_VERSION = "24.21.0"
   TZ = "Europe/Oslo"
 
   [build]
@@ -47,10 +46,10 @@ Step 1
 
   ```toml {file="netlify.toml" copy=true}
   [build.environment]
-  DART_SASS_VERSION = "1.104.0"
-  GO_VERSION = "1.27.0"
-  HUGO_VERSION = "0.166.0"
-  NODE_VERSION = "24.20.0"
+  DART_SASS_VERSION = "1.105.0"
+  GO_VERSION = "1.27.1"
+  HUGO_VERSION = "0.167.0"
+  NODE_VERSION = "24.21.0"
   TZ = "Europe/Oslo"
 
   [build]

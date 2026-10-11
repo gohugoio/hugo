@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: string
     signatures: [strings.Repeat COUNT STRING]
-aliases: [/functions/strings.repeat]
 ---
 
 ```go-html-template

@@ -8,7 +8,6 @@ params:
     aliases: [cond]
     returnType: any
     signatures: [compare.Conditional CONTROL ARG1 ARG2]
-aliases: [/functions/cond]
 ---
 
 ## Usage

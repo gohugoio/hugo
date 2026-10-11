@@ -8,7 +8,6 @@ params:
     aliases: [unmarshal]
     returnType: any
     signatures: ['transform.Unmarshal [OPTIONS] INPUT']
-aliases: [/functions/transform.unmarshal]
 ---
 
 The input can be a string or a [resource](g).

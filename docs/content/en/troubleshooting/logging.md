@@ -7,7 +7,7 @@ keywords: []
 
 ## Command line
 
-Enable console logging with the `--logLevel` command line flag.
+Enable console logging with the `--logLevel` command-line flag.
 
 Hugo has four logging levels:
 

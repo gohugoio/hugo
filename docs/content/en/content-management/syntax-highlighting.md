@@ -3,7 +3,6 @@ title: Syntax highlighting
 description: Add syntax highlighting to code examples.
 categories: []
 keywords: [highlight]
-aliases: [/extras/highlighting/,/extras/highlight/,/tools/syntax-highlighting/]
 ---
 
 Hugo provides several methods to add syntax highlighting to code examples:

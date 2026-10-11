@@ -7,7 +7,6 @@ params:
   functions_and_methods:
     returnType: bool
     signatures: [PAGE.HasMenuCurrent MENU MENUENTRY]
-aliases: [/functions/hasmenucurrent]
 ---
 
 If the `Page` object associated with the menu entry is a section, this method also returns `true` for any descendant of that section.

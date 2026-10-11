@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType:
     signatures: [range COLLECTION]
-aliases: [/functions/range]
 ---
 
 ## Usage

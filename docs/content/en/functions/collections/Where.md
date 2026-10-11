@@ -8,7 +8,6 @@ params:
     aliases: [where]
     returnType: '[]any'
     signatures: ['collections.Where SLICE KEY [OPERATOR] VALUE']
-aliases: [/functions/where]
 ---
 
 ## Usage

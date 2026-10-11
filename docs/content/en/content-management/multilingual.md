@@ -4,7 +4,6 @@ linkTitle: Multilingual
 description: Localize your project for each language and region, including translations, images, dates, currencies, numbers, percentages, and collation sequence. Hugo's multilingual framework supports single-host and multihost configurations.
 categories: []
 keywords: []
-aliases: [/content/multilingual/,/tutorials/create-a-multilingual-site/]
 ---
 
 ## Configuration
@@ -85,10 +84,7 @@ By setting the `translationKey` front matter parameter to `about` in all three p
 
 Because paths and file names are used to handle linking, all translated pages will share the same URL (apart from the language subdirectory).
 
-To localize URLs:
-
-- For a regular page, set either [`slug`][] or [`url`][] in front matter
-- For a section page, set [`url`][] in front matter
+To localize URLs, set either [`slug`][] or [`url`][] in front matter.
 
 For example, a French translation can have its own localized slug.
 
@@ -97,7 +93,31 @@ title: A Propos
 slug: "a-propos"
 {{< /code-toggle >}}
 
-At render, Hugo will build both `/about/` and `/fr/a-propos/` without affecting the translation link.
+The resulting URLs will be:
+
+```text
+content/about.md    → https://example.org/about/
+content/about.fr.md → https://example.org/fr/a-propos/
+```
+
+The two pages remain linked as translations of each other.
+
+{{< new-in 0.167.0 />}}
+
+When you set the `slug` on a `section`, `taxonomy`, or `term` page, Hugo applies it to the URLs of the pages beneath it. For example, to localize the URL of a `products` section and its descendants:
+
+{{< code-toggle file=content/products/_index.fr.md fm=true >}}
+title: Produits
+slug: "produits"
+{{< /code-toggle >}}
+
+The resulting URLs will be:
+
+```text
+content/products/_index.fr.md             → https://example.org/fr/produits/
+content/products/electronics/_index.fr.md → https://example.org/fr/produits/electronics/
+content/products/electronics/tv.fr.md     → https://example.org/fr/produits/electronics/tv/
+```
 
 ### Page bundles
 

@@ -101,6 +101,10 @@ Step 5
   </head>
   ```
 
+## File system access
+
+{{% include "/_common/functions/node-permissions/node-tools.md" %}}
+
 ## Options
 
 The `css.TailwindCSS` function accepts an options map.

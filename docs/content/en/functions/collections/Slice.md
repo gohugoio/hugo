@@ -8,7 +8,6 @@ params:
     aliases: [slice]
     returnType: '[]any'
     signatures: ['collections.Slice [VALUE...]']
-aliases: [/functions/slice]
 ---
 
 ```go-html-template

@@ -53,7 +53,7 @@ The `css.ChromaStyles` function requires an options map. The [`targetPath`](#tar
 : (`string`) The syntax highlighting style. Defaults to the [`style`][] value in your project configuration. See [syntax highlighting styles][] for a list of available styles.
 
 `targetPath`
-: (`string`) The target path of the resource, relative to the [`publishDir`][]. Required.
+: (`string`) The target path of the resource, relative to the `public` directory. Required.
 
 ## Examples
 
@@ -291,7 +291,6 @@ Step 7
 [`highlight`]: /shortcodes/highlight/
 [`importContext`]: /functions/css/build/#importcontext
 [`partials.IncludeCached`]: /functions/partials/includecached/
-[`publishDir`]: /configuration/all/#publishdir
 [`style`]: /configuration/markup/#style
 [`transform.HighlightCodeBlock`]: /functions/transform/highlightcodeblock/
 [`transform.Highlight`]: /functions/transform/highlight/

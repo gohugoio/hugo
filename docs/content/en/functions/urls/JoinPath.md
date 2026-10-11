@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: string
     signatures: [urls.JoinPath ELEMENT...]
-aliases: [/functions/urls.joinpath]
 ---
 
 ```go-html-template

@@ -8,7 +8,6 @@ params:
     aliases: [safeURL]
     returnType: template.URL
     signatures: [safe.URL INPUT]
-aliases: [/functions/safeurl]
 ---
 
 ## Introduction

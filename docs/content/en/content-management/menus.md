@@ -3,7 +3,6 @@ title: Menus
 description: Create menus by defining entries, localizing each entry, and rendering the resulting data structure.
 categories: []
 keywords: []
-aliases: [/extras/menus/]
 ---
 
 ## Overview

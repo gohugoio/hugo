@@ -4,5 +4,4 @@ description: Create render hook templates to override the rendering of Markdown 
 categories: []
 keywords: []
 weight: 10
-aliases: [/templates/render-hooks/]
 ---

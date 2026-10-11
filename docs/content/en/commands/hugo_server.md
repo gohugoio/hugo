@@ -35,7 +35,7 @@ hugo server [command] [flags]
   -E, --buildExpired             include expired content
   -F, --buildFuture              include content with publishdate in the future
       --cacheDir string          filesystem path to cache directory
-      --cleanDestinationDir      remove files from destination not found in static directories
+      --cleanDestinationDir      remove stale files from destination
   -c, --contentDir string        filesystem path to content directory
       --disableBrowserError      do not show build errors in the browser
       --disableFastRender        enables full re-renders on changes

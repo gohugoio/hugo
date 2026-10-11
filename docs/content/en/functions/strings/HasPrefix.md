@@ -8,7 +8,6 @@ params:
     aliases: [hasPrefix]
     returnType: bool
     signatures: [strings.HasPrefix STRING PREFIX]
-aliases: [/functions/hasprefix,/functions/strings.hasprefix]
 ---
 
 ```go-html-template

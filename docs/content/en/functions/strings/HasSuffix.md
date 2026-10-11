@@ -8,7 +8,6 @@ params:
     aliases: [hasSuffix]
     returnType: bool
     signatures: [strings.HasSuffix STRING SUFFIX]
-aliases: [/functions/hassuffix,/functions/strings/hassuffix]
 ---
 
 ```go-html-template

@@ -4,7 +4,6 @@ linkTitle: Markup
 description: Configure markup.
 categories: []
 keywords: []
-aliases: [/getting-started/configuration-markup/]
 ---
 
 ## Default handler
@@ -245,7 +244,7 @@ backend = 'html5s'
 extensions = ['asciidoctor-html5s','asciidoctor-diagram']
 workingFolderCurrent = true
 [markup.asciidocExt.attributes]
-my-base-url = 'https://example.com/'
+my-base-url = 'https://example.org/'
 my-attribute-name = 'my value'
 {{< /code-toggle >}}
 

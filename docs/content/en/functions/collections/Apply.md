@@ -8,7 +8,6 @@ params:
     aliases: [apply]
     returnType: '[]any'
     signatures: [collections.Apply SLICE FUNCTION PARAM...]
-aliases: [/functions/apply]
 ---
 
 The `apply` function takes three or more arguments, depending on the function being applied to the slice elements.

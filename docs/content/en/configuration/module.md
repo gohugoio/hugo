@@ -4,7 +4,6 @@ linkTitle: Modules
 description: Configure modules.
 categories: []
 keywords: []
-aliases: [/hugo-modules/configuration/]
 ---
 
 {{% include "/_common/gomodules-info.md" %}}

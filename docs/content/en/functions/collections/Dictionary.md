@@ -8,7 +8,6 @@ params:
     aliases: [dict]
     returnType: map[string]any
     signatures: ['collections.Dictionary [VALUE...]']
-aliases: [/functions/dict]
 ---
 
 Specify the key-value pairs as individual arguments:

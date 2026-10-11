@@ -3,7 +3,6 @@ title: Documentation
 description: Help us to improve the documentation by identifying issues and suggesting changes.
 categories: []
 keywords: []
-aliases: [/contribute/docs/]
 ---
 
 ## Introduction
@@ -97,6 +96,10 @@ Do not use formatting, such as backticks, bold, or italic, in section headings, 
 
 Wrap directory names, file names, and file paths in backticks.
 
+### Directory names
+
+Refer to [component](g) directories by their names within the unified file system: the `archetypes`, `assets`, `content`, `data`, `i18n`, `layouts`, and `static` directories. Refer to the publish directory as the `public` directory. Mention the corresponding configuration setting, such as `contentDir` or `publishDir`, only when describing the setting itself.
+
 ### Shortcode names
 
 Wrap shortcode names in backticks. Link to the shortcode page using the name as the link text, not the word "shortcode":
@@ -135,6 +138,7 @@ Use the [`glossary-term`](#glossary-term) shortcode to insert a term definition:
 Link to the [glossary][] as needed and use terms consistently. Pay particular attention to:
 
 - "client side" (noun), "client-side" (adjective)
+- "command line" (noun), "command-line" (adjective)
 - "file name" (two words)
 - "flag" (instead of "option" for command-line flags)
 - "front matter" (two words, except when referring to the configuration key)
@@ -252,6 +256,48 @@ Use of the alternate title is limited to the "See also" sidebar.
 > [!NOTE]
 > Think carefully before setting the `alt_title`. Use it only when necessary.
 
+## Redirects
+
+When you move or rename a page, create a redirect from the old URL to the new URL so that existing links and bookmarks continue to work. When you delete a page, do not create a redirect unless another page covers the same topic. When you build the site, Hugo generates a `_redirects` file that Netlify uses to redirect visitors.
+
+Create each redirect using either the `aliases` front matter field or the redirects data file, as described below. Both methods produce the same result.
+
+> [!IMPORTANT]
+> Define each redirect in either the `aliases` front matter field or the redirects data file, but not both. The build fails if you define the same old URL more than once, or if an old URL is the URL of an existing page.
+
+### Aliases
+
+Add the old URL to the [`aliases`][] front matter field of the page that visitors should be redirected to. Begin each alias with a slash (`/`). For example:
+
+{{< code-toggle file=content/en/section/new-name.md fm=true >}}
+title: New name
+aliases: [/section/old-name]
+{{< /code-toggle >}}
+
+Hugo redirects each alias to the page's URL. If you later move or rename the page, its aliases move with it.
+
+### Data file
+
+Add a record to the `assets/data/redirects.csv` file. For example:
+
+```csv {file="assets/data/redirects.csv"}
+"source","destination","date_added"
+"/section/old-name","/section/new-name/","2026-10-10"
+```
+
+Each record has these fields:
+
+`source`
+: (`string`) The old URL. Begin the value with a slash (`/`) and omit the trailing slash. Otherwise, the build fails.
+
+`destination`
+: (`string`) The URL of the page that visitors should be redirected to. Begin and end the value with a slash (`/`). The build fails if the value does not begin and end with a slash, or if it is not the URL of an existing page.
+
+`date_added`
+: (`string`) The date you added the record, in `YYYY-MM-DD` format. Maintainers use this field to identify and remove aged redirects.
+
+Keep the records sorted by `source`.
+
 ## Function and method reference pages
 
 For function and method pages, start the front matter `description` with "Returns" to describe the value returned, or with "Reports whether" if the returned value is a boolean. If a function or method is used primarily for its side effects, describe the action it performs instead, using third-person present tense. For example:
@@ -350,7 +396,7 @@ This is **bold** text.
 ```
 ````
 
-Set the language to `sh` when including command line examples:
+Set the language to `sh` when including command-line examples:
 
 ````md {file="content/example.md"}
 ```sh
@@ -643,6 +689,7 @@ Step 9
 
 [ATX]: https://spec.commonmark.org/current/#atx-headings
 [Glossary]: /quick-reference/glossary/
+[`aliases`]: /content-management/front-matter/#aliases
 [basic english]: https://simple.wikipedia.org/wiki/Basic_English
 [collapsed link references]: https://discourse.gohugo.io/t/55714
 [details]: https://github.com/gohugoio/hugoDocs/blob/master/layouts/_partials/layouts/blocks/feature-state.html

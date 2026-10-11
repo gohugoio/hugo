@@ -8,7 +8,6 @@ params:
     aliases: [absLangURL]
     returnType: string
     signatures: [urls.AbsLangURL INPUT]
-aliases: [/functions/abslangurl]
 ---
 
 Use this function with both monolingual and multilingual configurations. The URL returned by this function depends on:

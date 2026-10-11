@@ -5,7 +5,6 @@ description: Hugo can generate a customized robots.txt in the same way as any ot
 categories: []
 keywords: []
 weight: 190
-aliases: [/extras/robots-txt/]
 ---
 
 To generate a robots.txt file from a template, change your project configuration:
@@ -46,6 +45,6 @@ This template creates a robots.txt file with a `Disallow` directive for each pag
 > 1. Set `enableRobotsTXT` to `false` in your project configuration.
 > 1. Create a robots.txt file in the `static` directory.
 >
-> Remember that Hugo copies everything in the static director to the root of `publishDir` (typically `public`) when you build your project.
+> Remember that Hugo copies everything in the `static` directory to the root of the `public` directory when you build your project.
 
 [embedded template]: <{{% eturl robots %}}>

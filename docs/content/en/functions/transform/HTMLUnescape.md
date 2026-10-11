@@ -8,7 +8,6 @@ params:
     aliases: [htmlUnescape]
     returnType: string
     signatures: [transform.HTMLUnescape INPUT]
-aliases: [/functions/htmlunescape]
 ---
 
 The `transform.HTMLUnescape` function replaces [HTML entities][] with their corresponding characters.

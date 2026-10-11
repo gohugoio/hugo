@@ -4,5 +4,4 @@ description: Use Hugo modules to manage the content, presentation, and behavior 
 categories: []
 keywords: []
 weight: 10
-aliases: [/themes/overview/,/themes/]
 ---

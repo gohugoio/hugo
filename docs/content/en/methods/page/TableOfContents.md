@@ -7,7 +7,6 @@ params:
   functions_and_methods:
     returnType: template.HTML
     signatures: [PAGE.TableOfContents]
-aliases: [/content-management/toc/]
 ---
 
 The `TableOfContents` method on a `Page` object returns an ordered or unordered list of the Markdown [ATX][] and [setext][] headings within the page content.

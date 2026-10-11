@@ -8,7 +8,6 @@ params:
     aliases: [jsonify]
     returnType: template.HTML
     signatures: ['encoding.Jsonify [OPTIONS] INPUT']
-aliases: [/functions/jsonify]
 ---
 
 ## Usage

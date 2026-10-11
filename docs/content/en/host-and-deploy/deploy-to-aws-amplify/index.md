@@ -1,9 +1,8 @@
 ---
-title: Host on AWS Amplify
-description: Host your project on AWS Amplify.
+title: Deploy to AWS Amplify
+description: Deploy your project to AWS Amplify.
 categories: []
 keywords: []
-aliases: [/hosting-and-deployment/hosting-on-aws-amplify/]
 ---
 
 Use these instructions to enable continuous deployment from a GitHub repository. The same general steps apply for other Git providers such as GitLab or Bitbucket.
@@ -33,10 +32,10 @@ Step 1
   env:
     variables:
       # Define tool versions
-      DART_SASS_VERSION: 1.104.0
-      GO_VERSION: 1.27.0
-      HUGO_VERSION: 0.166.0
-      NODE_VERSION: 24.20.0
+      DART_SASS_VERSION: 1.105.0
+      GO_VERSION: 1.27.1
+      HUGO_VERSION: 0.167.0
+      NODE_VERSION: 24.21.0
 
       # Set the build time zone
       TZ: Europe/Oslo

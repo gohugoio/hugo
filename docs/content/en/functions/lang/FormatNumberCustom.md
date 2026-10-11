@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: string
     signatures: ['lang.FormatNumberCustom PRECISION NUMBER [OPTIONS...]']
-aliases: ['/functions/numfmt/']
 ---
 
 This function formats a number with the given precision. The first options parameter is a space-delimited string of characters to represent negativity, the decimal point, and grouping. The default value is `- . ,`. The second options parameter defines an alternative delimiting character.

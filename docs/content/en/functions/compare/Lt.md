@@ -8,7 +8,6 @@ params:
     aliases: [lt]
     returnType: bool
     signatures: ['compare.Lt ARG1 ARG2 [ARG...]']
-aliases: [/functions/lt]
 ---
 
 ## Usage

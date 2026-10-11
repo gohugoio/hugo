@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType:
     signatures: [with EXPR]
-aliases: [/functions/with]
 ---
 
 {{% include "/_common/functions/truthy-falsy.md" %}}

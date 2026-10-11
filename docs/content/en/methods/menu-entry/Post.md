@@ -1,6 +1,6 @@
 ---
 title: Post
-description: Returns the `post` property of the given menu entry.
+description: Returns the post property of the given menu entry.
 categories: []
 keywords: []
 params:

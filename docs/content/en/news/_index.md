@@ -5,5 +5,4 @@ outputs:
   - html
   - rss
 weight: 10
-aliases: [/release-notes/]
 ---

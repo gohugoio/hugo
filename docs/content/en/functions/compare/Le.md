@@ -8,7 +8,6 @@ params:
     aliases: [le]
     returnType: bool
     signatures: ['compare.Le ARG1 ARG2 [ARG...]']
-aliases: [/functions/le]
 ---
 
 ## Usage

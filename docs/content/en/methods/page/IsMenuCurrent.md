@@ -7,7 +7,6 @@ params:
   functions_and_methods:
     returnType: bool
     signatures: [PAGE.IsMenuCurrent MENU MENUENTRY]
-aliases: [/functions/ismenucurrent]
 ---
 
 ```go-html-template

@@ -8,7 +8,6 @@ params:
     aliases: [index]
     returnType: any
     signatures: [collections.Index SLICE|MAP KEY...]
-aliases: [/functions/index,/functions/index-function]
 ---
 
 Each indexed item must be a map or a slice:

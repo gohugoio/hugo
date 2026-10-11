@@ -1,6 +1,5 @@
 ---
 title: float
-alias: true
 ---
 
-See [floating point](g).
+See [_floating point_](g).

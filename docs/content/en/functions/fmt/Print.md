@@ -8,7 +8,6 @@ params:
     aliases: [print]
     returnType: string
     signatures: [fmt.Print INPUT]
-aliases: [/functions/print]
 ---
 
 ```go-html-template

@@ -1,6 +1,6 @@
 ---
 title: path.Clean
-description: Returns the shortest path name equivalent to the given path, after replacing path separators with slashes (`/`).
+description: Returns the shortest path name equivalent to the given path, after replacing path separators with slashes (/).
 categories: []
 keywords: []
 params:
@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: string
     signatures: [path.Clean PATH]
-aliases: [/functions/path.clean]
 ---
 
 See Go's [`path.Clean`][] documentation for details.

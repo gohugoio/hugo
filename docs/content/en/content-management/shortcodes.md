@@ -3,7 +3,6 @@ title: Shortcodes
 description: Use embedded, custom, or inline shortcodes to insert elements such as videos, images, and social media embeds into your content.
 categories: []
 keywords: []
-aliases: [/extras/shortcodes/]
 ---
 
 ## Introduction

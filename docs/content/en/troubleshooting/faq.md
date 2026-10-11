@@ -27,7 +27,7 @@ Why do I see "Page Not Found" when visiting the home page?
   - Is the `publishDate` in the future?
   - Is the `expiryDate` in the past?
 
-  If the answer to any of these questions is yes, either change the field values, or use one of these command line flags: `--buildDrafts`, `--buildFuture`, or `--buildExpired`.
+  If the answer to any of these questions is yes, either change the field values, or use one of these command-line flags: `--buildDrafts`, `--buildFuture`, or `--buildExpired`.
 
 Why is a given page not published?
 : In the `content/section/page.md` file, or in the `content/section/page/index.md` file:
@@ -37,7 +37,7 @@ Why is a given page not published?
   - Is the `publishDate` in the future?
   - Is the `expiryDate` in the past?
 
-  If the answer to any of these questions is yes, either change the field values, or use one of these command line flags: `--buildDrafts`, `--buildFuture`, or `--buildExpired`.
+  If the answer to any of these questions is yes, either change the field values, or use one of these command-line flags: `--buildDrafts`, `--buildFuture`, or `--buildExpired`.
 
 Why can't I see any of a page's descendants?
 : You may have an&nbsp;`index.md`&nbsp;file instead of an&nbsp;`_index.md`&nbsp;file. See [details][page bundles].
@@ -70,7 +70,7 @@ Can I use environment variables to control configuration?
 : Yes. See [details][environment-variables].
 
 Why am I seeing inconsistent output from one build to the next?
-: The most common causes are page collisions (publishing two pages to the same path) and the effects of concurrency. Use the `--printPathWarnings` command line flag to check for page collisions, and create a topic on the [forum][] if you suspect concurrency problems.
+: The most common causes are page collisions (publishing two pages to the same path) and the effects of concurrency. Use the `--printPathWarnings` command-line flag to check for page collisions, and create a topic on the [forum][] if you suspect concurrency problems.
 
 Why isn't Hugo's development server detecting file changes?
 : In its default configuration, Hugo's file watcher may not be able detect file changes when:
@@ -79,7 +79,7 @@ Why isn't Hugo's development server detecting file changes?
   - Running Hugo locally with project files on a removable drive
   - Running Hugo locally with project files on a storage server accessed via the NFS, SMB, or CIFS protocols
 
-  In these cases, instead of monitoring native file system events, use the `--poll` command line flag. For example, to poll the project files every 700 milliseconds, use `--poll 700ms`.
+  In these cases, instead of monitoring native file system events, use the `--poll` command-line flag. For example, to poll the project files every 700 milliseconds, use `--poll 700ms`.
 
 Why is my page Store missing a value?
 : The [`Store`][] method on a `Page` object creates a persistent data structure for storing and manipulating keyed values on the given page. Values are often set within a _shortcode_ template, a _partial_ template called by a _shortcode_ template, or by a _render hook_ template. In all three cases, the stored values are not determinate until Hugo renders the page content.

@@ -4,5 +4,4 @@ description: Hugo makes managing large static sites easy with support for archet
 categories: []
 keywords: []
 weight: 10
-aliases: [/content/,/content/organization]
 ---

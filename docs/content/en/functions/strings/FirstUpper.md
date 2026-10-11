@@ -8,9 +8,8 @@ params:
     aliases: []
     returnType: string
     signatures: [strings.FirstUpper STRING]
-aliases: [/functions/strings.firstupper]
 ---
 
 ```go-html-template
-{{ strings.FirstUpper "foo" }} → Foo
+{{ strings.FirstUpper "hugo" }} → Hugo
 ```

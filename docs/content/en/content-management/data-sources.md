@@ -3,7 +3,6 @@ title: Data sources
 description: Use local and remote data sources to augment or create content.
 categories: []
 keywords: []
-aliases: [/extras/datafiles/,/extras/datadrivencontent/,/doc/datafiles/,/templates/data-templates/]
 ---
 
 Hugo can access and [unmarshal](g) local and remote data sources including CSV, JSON, TOML, YAML, and XML. Use this data to augment existing content or to create new content.
@@ -14,7 +13,7 @@ A data source might be a file in the `data` directory, a [global resource](g), a
 
 The `data` directory in the root of your project may contain one or more data files, in either a flat or nested tree. Hugo merges the data files to create a single data structure, accessible with the `Data` method on a `Site` object.
 
-Hugo also merges data directories from themes and modules into this single data structure, where the `data` directory in the root of your project takes precedence.
+Hugo also merges the `data` directories of themes and modules into this single data structure, where the `data` directory in the root of your project takes precedence.
 
 > [!NOTE]
 > Hugo reads the combined data structure into memory and keeps it there for the entire build. For data that is infrequently accessed, use global or page resources instead.

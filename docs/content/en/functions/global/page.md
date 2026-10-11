@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: page.Page
     signatures: [page]
-aliases: [/functions/page]
 ---
 
 ## Usage

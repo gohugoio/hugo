@@ -8,7 +8,6 @@ params:
     aliases: [symdiff]
     returnType: '[]any'
     signatures: [SLICE1 | collections.SymDiff SLICE2]
-aliases: [/functions/symdiff]
 ---
 
 Example:

@@ -8,7 +8,6 @@ params:
     aliases: [replace]
     returnType: string
     signatures: ['strings.Replace STRING OLD NEW [LIMIT]']
-aliases: [/functions/replace]
 ---
 
 ```go-html-template

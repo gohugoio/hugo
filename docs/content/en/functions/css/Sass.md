@@ -8,7 +8,6 @@ params:
     aliases: [toCSS]
     returnType: resource.Resource
     signatures: ['css.Sass [OPTIONS] RESOURCE']
-aliases: [/functions/resources/tocss/]
 ---
 
 Transpile Sass to CSS using the LibSass transpiler included in Hugo's extended and extended/deploy editions, or [install Dart Sass](#dart-sass) to use the latest features of the Sass language.
@@ -111,7 +110,7 @@ The `css.Sass` function accepts an options map.
   ```
 
 `targetPath`
-: (`string`) The target path of the resource, relative to the [`publishDir`][]. If unset, the target path defaults to the asset's original path with a `.css` extension.
+: (`string`) The target path of the resource, relative to the `public` directory. If unset, the target path defaults to the asset's original path with a `.css` extension.
 
   ```go-html-template
   {{ $opts := dict
@@ -271,6 +270,10 @@ The `css.Sass` function accepts an options map.
 {{ end }}
 ```
 
+## File system access
+
+{{% include "/_common/functions/node-permissions/imports.md" %}}
+
 ## Dart Sass
 
 <!-- TODO
@@ -320,35 +323,20 @@ There's one key exception where you can skip this step: you have committed your 
 
 By committing the `resources` directory, you're providing the pre-built CSS files directly to your CI/CD platform, so it doesn't need to run the Sass compilation itself.
 
-For examples of how to install Dart Sass in a production environment, see these hosting guides:
-
-- [Cloudflare][]
-- [GitHub Pages][]
-- [GitLab Pages][]
-- [Netlify][]
-- [Render][]
-- [SourceHut][]
-- [Vercel][]
+For examples of how to install Dart Sass in a production environment, see the [hosting guides][] for CI/CD platforms.
 
 [^1]: In 2023, the Sass team deprecated Embedded Dart Sass in favor of Dart Sass.
 
-[Cloudflare]: /host-and-deploy/host-on-cloudflare/
 [Dart Sass]: https://sass-lang.com/dart-sass/
-[GitHub Pages]: /host-and-deploy/host-on-github-pages/
-[GitLab Pages]: /host-and-deploy/host-on-gitlab-pages/
 [LibSass]: https://sass-lang.com/libsass
-[Netlify]: /host-and-deploy/host-on-netlify/
-[Render]: /host-and-deploy/host-on-render/
 [SCSS]: https://sass-lang.com/documentation/syntax#scss
 [Snap package]: https://snapcraft.io/hugo
-[SourceHut]: /host-and-deploy/host-on-sourcehut-pages/
-[Vercel]: /host-and-deploy/host-on-vercel/
 [`css.Quoted`]: /functions/css/quoted/
 [`css.Unquoted`]: /functions/css/unquoted/
-[`publishDir`]: /configuration/all/#publishdir
 [`useResourceCacheWhen`]: /configuration/build/#useresourcecachewhen
 [brew.sh]: https://brew.sh/
 [chocolatey.org]: https://community.chocolatey.org/packages/sass
+[hosting guides]: /host-and-deploy/deployment-methods/#push-to-a-git-repository
 [indented]: https://sass-lang.com/documentation/syntax#the-indented-syntax
 [prebuilt binaries]: https://github.com/sass/dart-sass/releases/latest
 [scoop.sh]: https://scoop.sh/#/apps?q=sass

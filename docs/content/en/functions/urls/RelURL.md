@@ -8,7 +8,6 @@ params:
     aliases: [relURL]
     returnType: string
     signatures: [urls.RelURL INPUT]
-aliases: [/functions/relurl]
 ---
 
 With multilingual configurations, use the [`urls.RelLangURL`][] function instead. The URL returned by this function depends on:

@@ -1,6 +1,6 @@
 ---
 title: path.BaseName
-description: Returns the last element of the given path with its extension removed, if present, after replacing path separators with slashes (`/`).
+description: Returns the last element of the given path with its extension removed, if present, after replacing path separators with slashes (/).
 categories: []
 keywords: []
 params:
@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: string
     signatures: [path.BaseName PATH]
-aliases: [/functions/path.basename]
 ---
 
 ```go-html-template

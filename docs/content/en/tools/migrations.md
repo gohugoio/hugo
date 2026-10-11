@@ -5,7 +5,6 @@ description: A list of community-developed tools for migrating from your existin
 categories: []
 keywords: []
 weight: 40
-aliases: [/developer-tools/migrations/, /developer-tools/migrated/]
 ---
 
 This section highlights some independently developed projects related to Hugo. These tools extend functionality or help you to get started.

@@ -8,7 +8,6 @@ params:
     aliases: [readDir]
     returnType: os.FileInfo
     signatures: [os.ReadDir PATH]
-aliases: [/functions/readdir]
 ---
 
 The `os.ReadDir` function resolves the path relative to the root of your project directory. A leading path separator (`/`) is optional.
