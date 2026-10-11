@@ -136,7 +136,7 @@ Consider these factors when processing a large number of images.
 
 Hugo processes images on demand and returns a new resource object. To ensure subsequent builds remain fast, Hugo caches the results in the directory specified in the [file cache][] section of your project configuration.
 
-If you host your site with Netlify, include the following in your project configuration to persist the image cache between builds:
+If you deploy your site to a [CI/CD](g) platform, follow the platform-specific instructions in the [hosting guides][] to persist the image cache between builds. These instructions include setting the location of the image cache in your project configuration:
 
 ```toml
 [caches]
@@ -170,3 +170,4 @@ See [configure imaging][].
 [`reflect.IsImageResourceProcessable`]: /functions/reflect/isimageresourceprocessable/
 [configure imaging]: /configuration/imaging/
 [file cache]: /configuration/caches/
+[hosting guides]: /host-and-deploy/deployment-methods/#push-to-a-git-repository

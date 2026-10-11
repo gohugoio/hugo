@@ -8,7 +8,6 @@ params:
     aliases: [printf]
     returnType: string
     signatures: ['fmt.Printf FORMAT [INPUT]']
-aliases: [/functions/printf]
 ---
 
 {{% include "/_common/functions/fmt/format-string.md" %}}

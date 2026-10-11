@@ -8,7 +8,6 @@ params:
     aliases: [safeJS]
     returnType: template.JS
     signatures: [safe.JS INPUT]
-aliases: [/functions/safejs]
 ---
 
 ## Introduction

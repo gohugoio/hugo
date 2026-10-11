@@ -8,7 +8,6 @@ params:
     aliases: [querify]
     returnType: string
     signatures: [collections.Querify MAP|SLICE|KEY VALUE...]
-aliases: [/functions/querify]
 ---
 
 Specify the key-value pairs as a map, a slice, or a sequence of scalar values. For example, the following are equivalent:

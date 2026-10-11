@@ -8,7 +8,6 @@ params:
     aliases: [markdownify]
     returnType: template.HTML
     signatures: [transform.Markdownify INPUT]
-aliases: [/functions/markdownify]
 ---
 
 ```go-html-template

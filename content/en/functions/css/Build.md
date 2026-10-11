@@ -124,7 +124,7 @@ The `css.Build` function accepts an options map to fine-tune bundling, minificat
   ```
 
 `mainFields`
-: (`[]string`) A prioritized slice of field names in a `package.json` file that determine the CSS entry point of a Node package. The default is `["style", "main"]`. See [details][esb mainfields].
+: (`[]string`) A prioritized slice of field names in a `package.json` file that determine the CSS entry point of a Node.js package. The default is `["style", "main"]`. See [details][esb mainfields].
 
   When an `@import` statement references a Node package, Hugo consults the metadata in the `package.json` file to find the stylesheet. Use this option to support packages that define a CSS entry point using non-standard fields.
 
@@ -169,7 +169,7 @@ The `css.Build` function accepts an options map to fine-tune bundling, minificat
   In the example above, the target environment is roughly equivalent to the [browserlist][] "baseline widely available" profile as of March 2026.
 
 `targetPath`
-: (`string`) The target path of the resource, relative to the [`publishDir`][]. If unset, the target path defaults to the asset's original path with a `.css` extension.
+: (`string`) The target path of the resource, relative to the `public` directory. If unset, the target path defaults to the asset's original path with a `.css` extension.
 
   ```go-html-template
   {{ $opts := dict "targetPath" "css/styles.css" }}
@@ -361,7 +361,7 @@ For example, to render preload links for font files published by the build:
 
 The examples below cover the most frequent use cases for referencing resources within your project or within Node packages. These patterns apply to both `@import` statements and the `url()` functional notation used for images and fonts.
 
-All resources referenced by a path, including images, fonts, and stylesheets, must reside in the `assets` directory of the [unified file system](g), or within a Node package.
+All resources referenced by a path, including images, fonts, and stylesheets, must reside in the `assets` directory of the [unified file system](g), or within a Node package in an allowed location. See [file system access](#file-system-access).
 
 ### Files in the assets directory
 
@@ -398,9 +398,12 @@ To reference a specific file within a Node package, provide the path starting wi
 @import "bootstrap/dist/css/bootstrap-grid.css";
 ```
 
+## File system access
+
+{{% include "/_common/functions/node-permissions/imports.md" %}}
+
 [`css.Quoted`]: /functions/css/quoted/
 [`evanw/esbuild`]: https://github.com/evanw/esbuild
-[`publishDir`]: /configuration/all/#publishdir
 [browserlist]: https://browsersl.ist
 [esb external]: https://esbuild.github.io/api/#external
 [esb loader]: https://esbuild.github.io/api/#loader

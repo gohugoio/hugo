@@ -3,7 +3,6 @@ title: Build options
 description: Build options help define how Hugo must treat a given page when building the site.
 categories: []
 keywords: []
-aliases: [/content/build-options/]
 ---
 
 Build options are stored in a reserved front matter object named `build` with these defaults:

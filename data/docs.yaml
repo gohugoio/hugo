@@ -1326,7 +1326,7 @@ config:
   archeTypeDir: archetypes
   assetDir: assets
   author: {}
-  baseURL: ''
+  baseURL: https://example.org/
   build:
     buildStats:
       disableClasses: false
@@ -1336,6 +1336,12 @@ config:
     cacheBusters:
     - source: '(postcss|tailwind)\.config\.(js|mjs|cjs)'
       target: (css|styles|scss|sass)
+    cleanDestinationDir:
+      enable: false
+      keepDirs:
+      - '{**/,}.*'
+      keepFiles:
+      - '{**/,}.{git,gitignore,gitattributes}'
     noJSConfigInAssets: false
     useResourceCacheWhen: fallback
   buildDrafts: false
@@ -1367,7 +1373,6 @@ config:
   canonifyURLs: false
   capitalizeListTitles: true
   cascade: null
-  cleanDestinationDir: false
   contentDir: content
   contentTypes:
     text/asciidoc: {}
@@ -2772,7 +2777,9 @@ tpl:
         Args:
         - first
         - others
-        Description: Eq returns the boolean truth of arg1 == arg2 || arg1 == arg3 || arg1 == arg4.
+        Description: |-
+          Eq returns the boolean truth of arg1 == arg2 || arg1 == arg3 || arg1 == arg4.
+          Numbers are compared by value regardless of type, so e.g. 1 and 1.0 are considered equal.
         Examples:
         - - '{{ if eq .Section "blog" }}current-section{{ end }}'
           - current-section
@@ -4446,11 +4453,19 @@ tpl:
         Examples:
         - - '{{ findRESubmatch `<a\s*href="(.+?)">(.+?)</a>` `<li><a href="#foo">Foo</a></li> <li><a href="#bar">Bar</a></li>` | print | safeHTML }}'
           - '[[<a href="#foo">Foo</a> #foo Foo] [<a href="#bar">Bar</a> #bar Bar]]'
+      FirstLower:
+        Aliases: null
+        Args:
+        - s
+        Description: FirstLower returns s with the first Unicode letter mapped to lowercase.
+        Examples:
+        - - '{{ "Hugo rocks!" | strings.FirstLower }}'
+          - hugo rocks!
       FirstUpper:
         Aliases: null
         Args:
         - s
-        Description: FirstUpper converts s making  the first character upper case.
+        Description: FirstUpper returns s with the first Unicode letter mapped to uppercase.
         Examples:
         - - '{{ "hugo rocks!" | strings.FirstUpper }}'
           - Hugo rocks!
@@ -4593,9 +4608,7 @@ tpl:
         - lower
         Args:
         - s
-        Description: |-
-          ToLower returns a copy of the input s with all Unicode letters mapped to their
-          lower case.
+        Description: ToLower returns s with all Unicode letters mapped to lowercase.
         Examples:
         - - '{{ lower "BatMan" }}'
           - batman
@@ -4604,9 +4617,7 @@ tpl:
         - upper
         Args:
         - s
-        Description: |-
-          ToUpper returns a copy of the input s with all Unicode letters mapped to their
-          upper case.
+        Description: ToUpper returns s with all Unicode letters mapped to uppercase.
         Examples:
         - - '{{ upper "BatMan" }}'
           - BATMAN

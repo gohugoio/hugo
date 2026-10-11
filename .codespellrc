@@ -1,13 +1,4 @@
-# Config file for codespell.
-# https://github.com/codespell-project/codespell#using-a-config-file
-
 [codespell]
-
-# Comma separated list of dirs to be skipped.
-skip = *.ai,chroma.css,chroma_dark.css,.cspell.json,./data/docs.yaml
-
-# Comma separated list of words to be ignored. Words must be lowercased.
-ignore-words-list = abl,edn,ist,januar,te,trys,ue,womens
-
-# Check file names as well.
+skip = .cspell.jsonc,./data/docs.yaml
+ignore-words-list = ist,januar,ue,womens
 check-filenames = true

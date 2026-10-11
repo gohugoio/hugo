@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: any
     signatures: [lang.Merge FROM TO]
-aliases: [/functions/lang.merge]
 ---
 
 As an example:

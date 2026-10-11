@@ -4,7 +4,6 @@ description: An overview of Hugo's directory structure.
 categories: []
 keywords: []
 weight: 30
-aliases: [/overview/source-directory/]
 ---
 
 Each Hugo project is a directory, with subdirectories that contribute to  content, structure, behavior, and presentation.

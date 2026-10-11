@@ -83,7 +83,7 @@ END:VCARD
 : (`int`) The number of image pixels per QR code module. Must be greater than or equal to 2. Default is `4`.
 
 `targetDir`
-: (`string`) The subdirectory within the [`publishDir`][] where Hugo will place the generated image.
+: (`string`) The subdirectory within the `public` directory where Hugo will place the generated image.
 
 `alt`
 : (`string`) The `alt` attribute of the `img` element.
@@ -101,7 +101,6 @@ END:VCARD
 : (`string`) The `title` attribute of the `img` element.
 
 [QR code]: https://en.wikipedia.org/wiki/QR_code
-[`publishDir`]: /configuration/all/#publishdir
 [related documentation]: /functions/images/qr/
 [source code]: <{{% eturl qr %}}>
 [vCard]: <https://en.wikipedia.org/wiki/VCard>

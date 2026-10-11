@@ -8,7 +8,6 @@ params:
     aliases: [delimit]
     returnType: string
     signatures: ['collections.Delimit SLICE|MAP DELIMITER [LAST]']
-aliases: [/functions/delimit]
 ---
 
 Delimit a slice:

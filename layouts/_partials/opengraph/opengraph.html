@@ -24,7 +24,7 @@
 		<meta property="og:image" content="{{ . | absURL }}">
 	{{ end -}}
 {{- else -}}
-	{{- $featured := partial "opengraph/get-featured-image.html" . }}
+	{{- $featured := partial "./get-featured-image.html" . }}
 	{{- with $featured -}}
 		<meta property="og:image" content="{{ $featured.Permalink }}">
 	{{- else -}}

@@ -8,7 +8,6 @@ params:
     aliases: [replaceRE]
     returnType: string
     signatures: ['strings.ReplaceRE PATTERN REPLACEMENT STRING [LIMIT]']
-aliases: [/functions/replacere]
 ---
 
 {{% include "/_common/functions/regular-expressions.md" %}}

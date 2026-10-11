@@ -8,7 +8,6 @@ params:
     aliases: [complement]
     returnType: '[]any'
     signatures: ['collections.Complement SLICE [SLICE...]']
-aliases: [/functions/complement]
 ---
 
 To find the elements within `$c3` that do not exist in `$c1` or `$c2`:

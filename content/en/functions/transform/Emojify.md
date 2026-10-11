@@ -8,7 +8,6 @@ params:
     aliases: [emojify]
     returnType: template.HTML
     signatures: [transform.Emojify INPUT]
-aliases: [/functions/emojify]
 ---
 
 See the list of [emoji shortcodes][] for available emoticons.

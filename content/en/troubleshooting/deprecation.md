@@ -32,7 +32,7 @@ The project team will:
 1. Remove the code six or more minor releases after Hugo begins logging ERROR messages and failing the build. At that point, Hugo will throw an error, but the error message will no longer mention the deprecation.
 1. Remove the corresponding documentation two years after the deprecation date.
 
-To see the INFO messages, you must use the `--logLevel` command line flag:
+To see the INFO messages, you must use the `--logLevel` command-line flag:
 
 ```sh
 hugo build --logLevel info

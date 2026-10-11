@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: url.URL
     signatures: [urls.Parse URL]
-aliases: [/functions/urls.parse]
 ---
 
 The `urls.Parse` function parses a URL into a [URL structure][]. The URL may be relative (a path, without a host) or absolute (starting with a [scheme][]). Hugo throws an error when parsing an invalid URL.

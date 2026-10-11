@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: time.Duration
     signatures: [time.ParseDuration DURATION]
-aliases: [/functions/time.parseduration]
 ---
 
 The `time.ParseDuration` function returns a [`time.Duration`][] value that you can use with any of the `Duration` [methods][].

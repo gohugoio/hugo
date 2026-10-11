@@ -7,7 +7,6 @@ params:
     aliases: [int]
     returnType: int
     signatures: [cast.ToInt INPUT]
-aliases: [/functions/int]
 ---
 
 With a decimal (base 10) input:

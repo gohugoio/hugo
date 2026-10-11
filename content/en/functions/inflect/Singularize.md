@@ -8,7 +8,6 @@ params:
     aliases: [singularize]
     returnType: string
     signatures: [inflect.Singularize INPUT]
-aliases: [/functions/singularize]
 ---
 
 ```go-html-template

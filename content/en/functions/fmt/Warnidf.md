@@ -8,7 +8,6 @@ params:
     aliases: [warnidf]
     returnType: string
     signatures: ['fmt.Warnidf ID FORMAT [INPUT]']
-aliases: [/functions/warnidf]
 ---
 
 {{% include "/_common/functions/fmt/format-string.md" %}}

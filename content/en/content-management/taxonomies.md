@@ -3,7 +3,6 @@ title: Taxonomies
 description: Hugo includes support for user-defined taxonomies.
 categories: []
 keywords: []
-aliases: [/taxonomies/overview/,/taxonomies/usage/,/indexes/overview/,/doc/indexes/,/extras/indexes]
 ---
 
 ## What is a taxonomy?
@@ -83,7 +82,7 @@ Each term is a string, and a taxonomy is a flat list of terms rather than a nest
 
 When taxonomies are used Hugo will automatically create both a page listing all the taxonomy's terms and individual pages with lists of content associated with each term. For example, a `categories` taxonomy declared in your configuration and used in your content front matter will create the following pages:
 
-- A single page at `example.com/categories/` that lists all the terms within the taxonomy
+- A single page at `example.org/categories/` that lists all the terms within the taxonomy
 - Individual taxonomy list pages (e.g., `/categories/development/`) for each of the terms that shows a listing of all pages marked as part of that taxonomy within any content file's front matter
 
 ## Configuration

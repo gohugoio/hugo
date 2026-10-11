@@ -7,7 +7,7 @@ The _default sort order_ for [_page collections_](g), used when no other criteri
   1. [`weight`][] (ascending)
   1. [`date`][] (descending)
   1. [`linkTitle`][] falling back to [`title`][] (ascending)
-  1. [logical path](g) (ascending)
+  1. [_logical path_](g) (ascending)
 
   [`date`]: /content-management/front-matter/#date
   [`linkTitle`]: /content-management/front-matter/#linktitle

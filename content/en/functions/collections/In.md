@@ -8,7 +8,6 @@ params:
     aliases: [in]
     returnType: bool
     signatures: [collections.In SLICE|STRING VALUE]
-aliases: [/functions/in]
 ---
 
 ```go-html-template

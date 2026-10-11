@@ -8,7 +8,6 @@ params:
     aliases: [sha1]
     returnType: string
     signatures: [crypto.SHA1 INPUT]
-aliases: [/functions/sha,/functions/sha1]
 ---
 
 ```go-html-template

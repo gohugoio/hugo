@@ -5,7 +5,6 @@ description: Do you prefer a graphical user interface over a text editor? Give t
 categories: []
 keywords: []
 weight: 20
-aliases: [/tools/frontends/]
 ---
 
 ## Commercial

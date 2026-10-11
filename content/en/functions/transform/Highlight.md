@@ -8,7 +8,6 @@ params:
     aliases: [highlight]
     returnType: template.HTML
     signatures: ['transform.Highlight CODE [LANG] [OPTIONS]']
-aliases: [/functions/highlight]
 ---
 
 The `transform.Highlight` function uses the [`alecthomas/chroma`][] package to generate syntax-highlighted HTML from the provided code, [language][], and [options](#options-1).

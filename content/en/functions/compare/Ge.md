@@ -8,7 +8,6 @@ params:
     aliases: [ge]
     returnType: bool
     signatures: ['compare.Ge ARG1 ARG2 [ARG...]']
-aliases: [/functions/ge]
 ---
 
 ## Usage

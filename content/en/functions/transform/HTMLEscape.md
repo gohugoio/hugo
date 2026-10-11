@@ -8,7 +8,6 @@ params:
     aliases: [htmlEscape]
     returnType: string
     signatures: [transform.HTMLEscape INPUT]
-aliases: [/functions/htmlescape]
 ---
 
 The `transform.HTMLEscape` function escapes five special characters by replacing them with [HTML entities][]:

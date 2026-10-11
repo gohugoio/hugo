@@ -58,7 +58,7 @@ title = 'Buch 1'
 translationKey = 'foo'
 {{< /code-toggle >}}
 
-When rendering either either of the pages above:
+When rendering either of the pages above:
 
 ```go-html-template
 {{ .TranslationKey }} → page/foo

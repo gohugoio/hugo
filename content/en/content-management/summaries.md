@@ -4,7 +4,6 @@ linkTitle: Summaries
 description: Create and render content summaries.
 categories: []
 keywords: []
-aliases: [/content/summaries/,/content-management/content-summaries/]
 ---
 
 <!-- Do not remove the manual summary divider below. -->
@@ -104,9 +103,6 @@ For example, with a `summaryLength` of 7, the automatic summary will be:
 <p>This is the second paragraph.</p>
 ```
 
-> [!WARNING]
-> Automatic `.Summary` may cut block tags (e.g., `blockquote`) in the middle when `summaryLength` is reached, causing the browser to recover the end tag (the end tag will be inserted before the parent's end tag), resulting in unexpected rendering behavior. To avoid this, wrap `.Summary` in a `<div>`; alternatively, wrap it together with the heading tag using `<section>`. You can avoid this entirely by using a manual summary. See issue [#14044][] for details.
-
 ## Comparison
 
 Each summary type has different characteristics:
@@ -146,7 +142,6 @@ Instead of calling the `Summary` method on a `Page` object, use the [`strings.Tr
 {{ end }}
 ```
 
-[#14044]: https://github.com/gohugoio/hugo/issues/14044
 [`Summary`]: /methods/page/summary/
 [`strings.Truncate`]: /functions/strings/truncate/
 [`summaryLength`]: /configuration/all/#summarylength

@@ -8,7 +8,6 @@ params:
     aliases: [uniq]
     returnType: '[]any'
     signatures: [collections.Uniq SLICE]
-aliases: [/functions/uniq]
 ---
 
 ```go-html-template

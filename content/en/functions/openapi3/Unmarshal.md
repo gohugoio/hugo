@@ -47,7 +47,7 @@ To work with a remote resource:
 {{ end }}
 ```
 
-In the example above, the same HTTP Authorization header is used for both the initial remote request made by the `resources.GetRemote` function and for subsequent requests by the `openapi.Unmarshal` function as it retrieve remote external references.
+In the example above, the same HTTP Authorization header is used for both the initial remote request made by the `resources.GetRemote` function and for subsequent requests by the `openapi.Unmarshal` function as it retrieves remote external references.
 
 ### Global resource
 

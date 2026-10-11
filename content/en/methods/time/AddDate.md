@@ -7,7 +7,6 @@ params:
   functions_and_methods:
     returnType: time.Time
     signatures: [TIME.AddDate YEARS MONTHS DAYS]
-aliases: [/functions/adddate]
 ---
 
 ```go-html-template

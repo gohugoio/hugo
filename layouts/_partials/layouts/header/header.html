@@ -46,24 +46,24 @@
 		{{ partialCached "layouts/search/input.html" . }}
 		{{/* Theme selector - shown inline on mobile */}}
 		<div class="sm:hidden">
-			{{ partialCached "layouts/header/theme.html" . }}
+			{{ partialCached "./theme.html" . }}
 		</div>
 	</div>
 	<div
 		class="relative hidden sm:flex ml-0 md:ml-8 content-center basis-0 justify-end gap-0 sm:gap-1 xl:grow-1">
 		{{/* QR code. */}}
-		{{ partial "layouts/header/qr.html" . }}
+		{{ partial "./qr.html" . }}
 		{{/* Theme selector - hidden on mobile (shown above) */}}
-		{{ partialCached "layouts/header/theme.html" . }}
+		{{ partialCached "./theme.html" . }}
 
 		{{/* Social. */}}
 		<div
 			class="hidden sm:block ml-2 sm:ml-6 h-6 fill-slate-400 group-hover:fill-slate-500 dark:group-hover:fill-slate-300">
-			{{ partialCached "layouts/header/githubstars.html" . }}
+			{{ partialCached "./githubstars.html" . }}
 		</div>
 		<div
 			class="hidden sm:block ml-2 sm:ml-6 h-6">
-			{{ partialCached "layouts/header/mastodon.html" . }}
+			{{ partialCached "./mastodon.html" . }}
 		</div>
 	</div>
 
@@ -80,4 +80,4 @@
 </header>
 
 {{/* Mobile menu panel */}}
-{{ partialCached "layouts/header/mobilemenu.html" . }}
+{{ partialCached "./mobilemenu.html" . }}

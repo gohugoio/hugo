@@ -5,7 +5,6 @@ description: A summary of Hugo's security model.
 categories: []
 keywords: []
 weight: 30
-aliases: [/about/security-model/]
 ---
 
 ## Security Boundaries

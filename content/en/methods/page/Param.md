@@ -7,7 +7,6 @@ params:
   functions_and_methods:
     returnType: any
     signatures: [PAGE.Param KEY]
-aliases: [/functions/param]
 ---
 
 The `Param` method on a `Page` object looks for the given `KEY` in page parameters, and returns the corresponding value. If it cannot find the `KEY` in page parameters, it looks for the `KEY` in site parameters. If it cannot find the `KEY` in either location, the `Param` method returns `nil`.

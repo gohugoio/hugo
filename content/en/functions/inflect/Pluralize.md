@@ -8,7 +8,6 @@ params:
     aliases: [pluralize]
     returnType: string
     signatures: [inflect.Pluralize INPUT]
-aliases: [/functions/pluralize]
 ---
 
 ```go-html-template

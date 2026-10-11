@@ -11,7 +11,7 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-The `Permalink` method on a `Resource` object writes the resource to the publish directory, typically `public`, and returns its [permalink](g).
+The `Permalink` method on a `Resource` object writes the resource to the `public` directory and returns its [permalink](g).
 
 ```go-html-template
 {{ with resources.Get "images/a.jpg" }}

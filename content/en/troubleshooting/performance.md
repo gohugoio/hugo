@@ -3,7 +3,6 @@ title: Performance
 description: Tools and suggestions for evaluating and improving performance.
 categories: []
 keywords: []
-aliases: [/troubleshooting/build-performance/]
 ---
 
 ## Virus scanning

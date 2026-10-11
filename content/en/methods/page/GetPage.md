@@ -7,7 +7,6 @@ params:
   functions_and_methods:
     returnType: page.Page
     signatures: [PAGE.GetPage PATH]
-aliases: [/functions/getpage]
 ---
 
 The `GetPage` method is also available on a `Site` object. See [details][].

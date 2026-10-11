@@ -1,6 +1,131 @@
-# Netlify redirects. See https://www.netlify.com/docs/redirects/
-{{ range $p := .Site.Pages -}}
-{{ range .Aliases }}
-{{ . | printf "%-35s" }}	{{ $p.RelPermalink -}}
-{{ end -}}
-{{- end -}}
+{{- /* gotmplfmt-ignore-all */}}
+
+{{- /*
+Renders the _redirects file that Netlify uses to configure redirects:
+
+https://docs.netlify.com/manage/routing/redirects/overview/
+
+This template renders redirects in three phases:
+
+1. It renders one line for each record in the data file specified by
+   $dataFilePath, using the status code specified by $statusCode. Each record
+   has source, destination, and date_added fields. The template does not use
+   the date_added field, which identifies aged redirects for future removal.
+   The template throws an error if:
+
+   - The data file does not exist
+   - A source does not begin with a slash
+   - A source ends with a slash
+   - A destination does not begin and end with a slash
+   - A destination is not the RelPermalink of a page
+
+2. It renders one line for each element of each page's aliases front matter
+   array, using the status code specified by $statusCode. Each alias redirects
+   to the page's RelPermalink.
+
+3. It renders one line for each rule specified by $rules, using the status code
+   specified by each rule. Use this phase for rules that the other phases
+   cannot express, such as splats. This phase is last because Netlify applies
+   the first rule that matches a request. The template throws an error if a
+   source does not begin with a slash. For example:
+
+   {{- $rules := slice
+     (dict "source" "/news/*" "destination" "/blog/:splat" "status" "301")
+   }}
+
+In any phase, the template throws an error if:
+
+- The same source is defined more than once
+- A source is the RelPermalink of a page
+
+Netlify does not apply a redirect when a page exists at the source, so a
+source that is the RelPermalink of a page has no effect. This includes a
+redirect from a page to itself. All comparisons are case-sensitive, because
+Netlify paths are case-sensitive, and ignore trailing slashes.
+
+Do not indent the lines that render redirects. Leading whitespace would appear
+in the output.
+*/}}
+
+{{- $t := debug.Timer "redirects" }}
+{{- $dataFilePath := "data/redirects.csv" }}
+{{- $statusCode := "301" }}
+{{- $sources := newScratch }}
+{{- $pageURLs := newScratch }}
+{{- $rules := slice }}
+
+{{- /* Record the RelPermalink of each page, used to validate sources and destinations. */}}
+{{- range site.Pages }}
+	{{- $pageURLs.Set (strings.TrimSuffix "/" .RelPermalink) (or (and .File .File.Path) .Path) }}
+{{- end }}
+
+{{- /* Phase 1: Render redirects from the data file. */}}
+{{- with resources.Get $dataFilePath }}
+	{{- $opts := dict "targetType" "map" }}
+	{{- range $i, $r := transform.Unmarshal $opts . }}
+		{{- $location := fmt.Printf "%s line %d" $dataFilePath (add $i 2) }}
+		{{- if not (strings.HasPrefix $r.source "/") }}
+			{{- fmt.Errorf "The %q template found a source that does not begin with a slash: %q in %s." templates.Current.Name $r.source $location }}
+		{{- else if strings.HasSuffix $r.source "/" }}
+			{{- fmt.Errorf "The %q template found a source that ends with a slash: %q in %s." templates.Current.Name $r.source $location }}
+		{{- else if not (and (strings.HasPrefix $r.destination "/") (strings.HasSuffix $r.destination "/")) }}
+			{{- fmt.Errorf "The %q template found a destination that does not begin and end with a slash: %q in %s." templates.Current.Name $r.destination $location }}
+		{{- else if not ($pageURLs.Get (strings.TrimSuffix "/" $r.destination)) }}
+			{{- fmt.Errorf "The %q template found a destination that is not the RelPermalink of a page: %q in %s." templates.Current.Name $r.destination $location }}
+		{{- else if partial "inline/is-valid-source.html" (dict "sources" $sources "pageURLs" $pageURLs "source" $r.source "location" $location) }}
+{{ fmt.Printf "%s %s %s" $r.source $r.destination $statusCode }}{{/* Do not indent. */}}
+		{{- end }}
+	{{- end }}
+{{- else }}
+	{{- fmt.Errorf "The %q template was unable to find the data file %q." templates.Current.Name $dataFilePath }}
+{{- end }}
+
+{{- /* Phase 2: Render redirects from the aliases front matter field. */}}
+{{- range $p := site.Pages }}
+	{{- $location := fmt.Printf "the front matter of %s" (or (and $p.File $p.File.Path) $p.Path) }}
+	{{- range $p.Aliases }}
+		{{- if partial "inline/is-valid-source.html" (dict "sources" $sources "pageURLs" $pageURLs "source" . "location" $location) }}
+{{ fmt.Printf "%s %s %s" . $p.RelPermalink $statusCode }}{{/* Do not indent. */}}
+		{{- end }}
+	{{- end }}
+{{- end }}
+
+{{- /* Phase 3: Render redirects from the hard-coded rules. */}}
+{{- range $i, $r := $rules }}
+	{{- $location := fmt.Printf "$rules[%d]" $i }}
+	{{- if not (strings.HasPrefix $r.source "/") }}
+		{{- fmt.Errorf "The %q template found a source that does not begin with a slash: %q in %s." templates.Current.Name $r.source $location }}
+	{{- else if partial "inline/is-valid-source.html" (dict "sources" $sources "pageURLs" $pageURLs "source" $r.source "location" $location) }}
+{{ fmt.Printf "%s %s %s" $r.source $r.destination $r.status }}{{/* Do not indent. */}}
+	{{- end }}
+{{- end }}
+{{- $t.Stop }}
+
+{{- /*
+Returns true if the given source is not the RelPermalink of a page and has not
+been seen, recording its location. Otherwise throws an error and returns false.
+The Scratch arguments provide constant-time lookups, avoiding a quadratic
+search. Call this partial directly from this template. The error message uses
+the name of the parent template, which would be wrong if called from another
+partial.
+
+@param {Scratch} sources The sources seen so far, keyed by normalized source.
+@param {Scratch} pageURLs The page file paths, keyed by normalized URL.
+@param {string} source The source to check.
+@param {string} location The location of the source, used in error messages.
+@returns {bool}
+*/}}
+{{- define "_partials/inline/is-valid-source.html" }}
+	{{- $isValid := true }}
+	{{- $key := strings.TrimSuffix "/" .source }}
+	{{- with .pageURLs.Get $key }}
+		{{- fmt.Errorf "The %q template found a source that is the RelPermalink of a page: %q in %s, published by %s." templates.Current.Parent.Name $.source $.location . }}
+		{{- $isValid = false }}
+	{{- else with .sources.Get $key }}
+		{{- fmt.Errorf "The %q template found a duplicate source: %q in %s, first defined in %s." templates.Current.Parent.Name $.source $.location . }}
+		{{- $isValid = false }}
+	{{- else }}
+		{{- .sources.Set $key .location }}
+	{{- end }}
+	{{- return $isValid }}
+{{- end }}

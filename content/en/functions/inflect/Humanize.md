@@ -8,7 +8,6 @@ params:
     aliases: [humanize]
     returnType: string
     signatures: [inflect.Humanize INPUT]
-aliases: [/functions/humanize]
 ---
 
 ```go-html-template

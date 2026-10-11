@@ -5,7 +5,6 @@ description: Hugo Pipes is Hugo's asset processing set of functions.
 categories: []
 keywords: []
 weight: 10
-aliases: [/assets/]
 ---
 
 ## Find resources in assets
@@ -39,13 +38,13 @@ For remote resources, use:
 
 See the [`resources.Copy`][] function.
 
-## Asset directory
+## Assets directory
 
-Asset files must be stored in the asset directory. This is `assets` by default, but can be configured via the configuration file's `assetDir` key.
+Asset files must reside in the `assets` directory of the [unified file system](g).
 
 ## Asset publishing
 
-Hugo publishes assets to the `publishDir` (typically `public`) when you invoke `.Permalink`, `.RelPermalink`, or `.Publish`. You can use `.Content` to inline the asset.
+Hugo publishes assets to the `public` directory when you invoke `.Permalink`, `.RelPermalink`, or `.Publish`. You can use `.Content` to inline the asset.
 
 ## Go Pipes
 

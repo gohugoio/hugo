@@ -83,9 +83,7 @@ For other files (e.g. `JSON`, `CSS`) you need to use the relative path including
 import * as data from 'my/module/data.json';
 ```
 
-Any imports in a file outside `assets` or that does not resolve to a component inside `assets` will be resolved by [`esbuild`][] with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [`hugo mod npm pack`][]. If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo build`.
-
-Also note the new `params` option that can be passed from template to your JS files, e.g.:
+Also note the [`params`](#params) option that can be passed from template to your JS files, e.g.:
 
 ```go-html-template
 {{ $js := resources.Get "js/main.js" | js.Build (dict "params" (dict "api" "https://example.org/api")) }}
@@ -101,14 +99,16 @@ Hugo will, by default, generate a `assets/jsconfig.json` file that maps the impo
 
 ## Node.js dependencies
 
-Use the `js.Build` function to include Node dependencies.
+Use the `js.Build` function to include Node dependencies. Run `npm install` to install your dependencies before you build your site.
 
-Any imports in a file outside `assets` or that does not resolve to a component inside `assets` will be resolved by [`esbuild`][] with the **project directory** as the resolve directory (used as the starting point when looking for `node_modules` etc.). Also see [`hugo mod npm pack`][]. If you have any imported npm dependencies in your project, you need to make sure to run `npm install` before you run `hugo build`.
-
-The start directory for resolving npm packages (aka. packages that live inside a `node_modules` directory) is always the main project directory.
+If an import does not resolve to a file in the `assets` directory, or if the importing file is outside the `assets` directory, [`esbuild`][] resolves the import. It looks for packages in `node_modules` directories, starting from the project directory, but only within the allowed paths. See [file system access](#file-system-access).
 
 > [!NOTE]
 > If you're developing a theme/component that is supposed to be imported and depends on dependencies inside `package.json`, we recommend reading about [`hugo mod npm pack`][], a tool to consolidate all the npm dependencies in a project.
+
+## File system access
+
+{{% include "/_common/functions/node-permissions/imports.md" %}}
 
 ## Artifacts
 

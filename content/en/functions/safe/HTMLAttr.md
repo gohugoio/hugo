@@ -8,7 +8,6 @@ params:
     aliases: [safeHTMLAttr]
     returnType: template.HTMLAttr
     signatures: [safe.HTMLAttr INPUT]
-aliases: [/functions/safehtmlattr]
 ---
 
 ## Introduction

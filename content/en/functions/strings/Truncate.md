@@ -8,7 +8,6 @@ params:
     aliases: [truncate]
     returnType: template.HTML
     signatures: ['strings.Truncate SIZE [ELLIPSIS] STRING']
-aliases: [/functions/truncate]
 ---
 
 When truncating a value marked as safe HTML, such as one returned by the [`safe.HTML`][] function, `strings.Truncate` closes any tag left open by the truncation instead of cutting in the middle of it:

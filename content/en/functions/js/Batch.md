@@ -246,7 +246,7 @@ Each [`Resource`][] will be of media type `application/javascript` or `text/css`
 In a template you would typically handle one group with a given `ID` (e.g., scripts for the current section). Because of the concurrent build, this needs to be done in a [`templates.Defer`][] block:
 
 > [!NOTE]
-> The [`templates.Defer`][] acts as a synchronisation point to handle scripts added concurrently by different templates. If you have a setup with where the batch is created in one go (in one template), you don't need it.
+> The [`templates.Defer`][] acts as a synchronization point to handle scripts added concurrently by different templates. If you have a setup with where the batch is created in one go (in one template), you don't need it.
 >
 > See [this discussion][] for more information.
 
@@ -268,6 +268,10 @@ In a template you would typically handle one group with a given `ID` (e.g., scri
   {{ end }}
 {{ end }}
 ```
+
+## File system access
+
+{{% include "/_common/functions/node-permissions/imports.md" %}}
 
 ## Known Issues
 

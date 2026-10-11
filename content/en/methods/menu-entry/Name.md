@@ -1,6 +1,6 @@
 ---
 title: Name
-description: Returns the `name` property of the given menu entry.
+description: Returns the name property of the given menu entry.
 categories: []
 keywords: []
 params:

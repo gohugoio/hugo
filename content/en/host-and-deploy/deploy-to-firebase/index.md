@@ -1,26 +1,20 @@
 ---
-title: Host on GitHub Pages
-description: Host your project on GitHub Pages.
+title: Deploy to Firebase
+description: Deploy your project to Firebase.
 categories: []
 keywords: []
-aliases: [/hosting-and-deployment/hosting-on-github/]
 ---
 
-Use these instructions to enable continuous deployment from a GitHub repository to GitHub Pages.
+Use these instructions to enable continuous deployment from a GitHub repository. The same general steps apply for other Git providers such as GitLab or Bitbucket.
 
 {{% include "/_common/gitignore-public.md" %}}
-
-## Types of sites
-
-There are three types of GitHub Pages sites: project, user, and organization. Project sites are connected to a specific project hosted on GitHub. User and organization sites are connected to a specific account on GitHub.com.
-
-> [!NOTE]
-> See the [GitHub Pages documentation][] to understand the requirements for repository ownership and naming.
 
 ## Prerequisites
 
 Please complete the following tasks before continuing:
 
+1. [Create](https://accounts.google.com/) a Google account.
+1. [Log in](https://accounts.google.com/) to your Google account.
 1. [Create](https://github.com/signup) a GitHub account.
 1. [Log in](https://github.com/login) to your GitHub account.
 1. [Create](https://github.com/new) a GitHub repository for your project.
@@ -31,28 +25,68 @@ Please complete the following tasks before continuing:
 ## Procedure
 
 Step 1
-: Visit your GitHub repository. From the main menu choose **Settings**&nbsp;>&nbsp;**Pages**. In the center of your screen you will see this:
+: Create a Firebase project.
 
-  ![screen capture](gh-pages-01.png)
+  1. Visit the [Firebase console][].
 
-  Change the **Source** to `GitHub Actions`. The change is immediate; you do not have to press a Save button.
+  1. Click **Get started by setting up a Firebase project**.
 
-  ![screen capture](gh-pages-02.png)
+      ![screen capture](firebase-01.png)
+
+  1. Enter your project name and, if your Google account is associated with a Google Workspace or Cloud Identity organization, select a parent resource. Then press the **Continue** button.
+
+      ![screen capture](firebase-02.png)
+
+  1. Disable Gemini for this project, then press the **Continue** button.
+
+      ![screen capture](firebase-03.png)
+
+  1. Disable Google Analytics for this project, then press the **Create project** button.
+
+      ![screen capture](firebase-04.png)
+
+  1. When your Firebase project is ready, press the **Continue** button.
+
+      ![screen capture](firebase-05.png)
+
+  1. From the sidebar menu, choose **Settings** > **General** and note the Project ID. You will need the Project ID later in this procedure.
+
+      ![screen capture](firebase-06.png)
+
+  1. From the sidebar menu, choose **Settings** > **Service accounts**. At the bottom of the page, press the **Generate new private key** button, then press the **Generate key** button.
+
+        ![screen capture](firebase-07.png)
+
+  1. Download the generated JSON file to any location outside of your project directory.
 
 Step 2
-: Create a `hugo.yaml` file in the `.github/workflows` directory, adjusting the tool versions and time zone as needed.
+: Add the private key to GitHub Secrets.
+
+  1. Go to your GitHub repository.
+  1. Navigate to **Settings** > **Secrets and variables** > **Actions**.
+  1. Click the **New repository secret** button.
+  1. Enter `FIREBASE_SERVICE_ACCOUNT_KEY` for the Name.
+  1. Paste the contents of the downloaded JSON file into the Secret field.
+  1. Press the **Add secret** button.
+  1. Delete the downloaded JSON file.
+
+Step 3
+: Create a `hugo.yaml` file in the `.github/workflows` directory, adjusting the tool versions and time zone as needed. Set the `FIREBASE_PROJECT_ID` to the Project ID that you noted earlier in this procedure.
 
   ```yaml {file=".github/workflows/hugo.yaml" copy=true}
   name: Build and deploy
   env:
     # Define tool versions
-    DART_SASS_VERSION: 1.104.0
-    GO_VERSION: 1.27.0
-    HUGO_VERSION: 0.166.0
-    NODE_VERSION: 24.20.0
+    DART_SASS_VERSION: 1.105.0
+    GO_VERSION: 1.27.1
+    HUGO_VERSION: 0.167.0
+    NODE_VERSION: 24.21.0
 
     # Set the build time zone
     TZ: Europe/Oslo
+
+    # Set the Firebase Project ID.
+    FIREBASE_PROJECT_ID: hosting-firebase-17fe0
   on:
     push:
       branches:
@@ -60,10 +94,9 @@ Step 2
     workflow_dispatch:
   permissions:
     contents: read
-    pages: write
-    id-token: write
+    pull-requests: write
   concurrency:
-    group: pages
+    group: deployment
     cancel-in-progress: false
   defaults:
     run:
@@ -78,10 +111,6 @@ Step 2
             submodules: recursive
             fetch-depth: 0
             lfs: false
-
-        - name: Setup Pages
-          id: pages
-          uses: actions/configure-pages@v6
 
         - name: Create a local tools directory
           run: |
@@ -163,7 +192,6 @@ Step 2
             hugo build \
               --gc \
               --minify \
-              --baseURL "${{ steps.pages.outputs.base_url }}/" \
               --cacheDir "${{ runner.temp }}/.cache/hugo"
 
         - name: Cache save
@@ -172,24 +200,59 @@ Step 2
             path: ${{ runner.temp }}/.cache/hugo
             key: ${{ steps.cache-restore.outputs.cache-primary-key }}
 
-        - name: Upload artifact
-          uses: actions/upload-pages-artifact@v5
+        - name: Upload build artifact
+          uses: actions/upload-artifact@v7
           with:
-            include-hidden-files: false
-            path: ./public
+            name: build-artifact
+            path: public
+            retention-days: 1
     deploy:
-      runs-on: ubuntu-latest
       needs: build
-      environment:
-        name: github-pages
-        url: ${{ steps.deployment.outputs.page_url }}
+      runs-on: ubuntu-latest
       steps:
-        - name: Deploy to GitHub Pages
-          id: deployment
-          uses: actions/deploy-pages@v5
+        - name: Download build artifact
+          uses: actions/download-artifact@v8
+          with:
+            name: build-artifact
+            path: public
+
+        - name: Create Firebase Hosting config
+          run: |
+            cat << 'EOF' > firebase.json
+            {
+              "hosting": {
+                "public": "public"
+              }
+            }
+            EOF
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v7
+          with:
+            node-version: ${{ env.NODE_VERSION }}
+
+        - name: Install Firebase CLI
+          run: npm install -g firebase-tools --no-fund --no-audit --quiet
+
+        - name: Deploy
+          env:
+            FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+          run: |
+            echo "$FIREBASE_SERVICE_ACCOUNT_KEY" > "${RUNNER_TEMP}/gcp_key.json"
+            export GOOGLE_APPLICATION_CREDENTIALS="${RUNNER_TEMP}/gcp_key.json"
+            firebase deploy --only hosting --project "${FIREBASE_PROJECT_ID}"
   ```
 
-Step 3
+Step 4
+: In the project configuration file in the root of your local Git repository, set the [`baseURL`][] to the assigned URL as shown below. The assigned URL is composed of the Project ID that you noted earlier in this procedure, followed by the `web.app` domain name.
+
+  {{< code-toggle file=hugo >}}
+  baseURL = 'https://hosting-firebase-17fe0.web.app/'
+  locale  = 'en-US'
+  title   = 'Hosting Test - Firebase'
+  {{< /code-toggle >}}
+
+Step 5
 : In the project configuration file in the root of your local Git repository, set the location of the image cache to the [`cacheDir`][] as shown below.
 
   {{< code-toggle file=hugo copy=true >}}
@@ -199,36 +262,32 @@ Step 3
 
   See [configure file caches][] for more information.
 
-Step 4
+Step 6
 : Commit the changes to your local Git repository and push to your GitHub repository.
 
-Step 5
+Step 7
 : From GitHub's main menu, choose **Actions**. You will see something like this:
 
-  ![screen capture](gh-pages-03.png)
+  ![screen capture](firebase-08.png)
 
-Step 6
+Step 8
 : When GitHub has finished building and deploying your site, the color of the status indicator will change to green.
 
-  ![screen capture](gh-pages-04.png)
+  ![screen capture](firebase-09.png)
 
-Step 7
-: Click on the commit message as shown above. Under the deploy step, you will see a link to your live site.
-
-  ![screen capture](gh-pages-05.png)
-
-In the future, whenever you push a change from your local Git repository, GitHub Pages will rebuild and deploy your site.
+In the future, whenever you push a change from your local Git repository, GitHub will rebuild and deploy your site.
 
 ## Related resources
 
-For more information on hosting and managing your site with GitHub Pages, consult the official documentation:
+For more information on hosting and managing your site with Firebase Hosting, consult the official documentation:
 
 - [General documentation][]
 - [Custom domain setup][]
 
-[Custom domain setup]: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site
-[General documentation]: https://docs.github.com/en/pages
-[GitHub Pages documentation]: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages#types-of-github-pages-sites
+[Custom domain setup]: https://firebase.google.com/docs/hosting/custom-domain
+[Firebase console]: https://console.firebase.google.com/
+[General documentation]: https://firebase.google.com/docs/hosting
+[`baseURL`]: /configuration/all/#baseurl
 [`cacheDir`]: /configuration/all/#cachedir
 [configure file caches]: /configuration/caches/
 [remote]: https://git-scm.com/docs/git-remote

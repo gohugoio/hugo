@@ -8,7 +8,6 @@ params:
     aliases: [default]
     returnType: any
     signatures: [compare.Default DEFAULT INPUT]
-aliases: [/functions/default]
 ---
 
 ## Usage

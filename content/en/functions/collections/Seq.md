@@ -11,7 +11,6 @@ params:
       - collections.Seq LAST
       - collections.Seq FIRST LAST
       - collections.Seq FIRST INCREMENT LAST
-aliases: [/functions/seq]
 ---
 
 ```go-html-template

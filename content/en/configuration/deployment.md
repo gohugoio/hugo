@@ -156,4 +156,4 @@ s3://my-bucket?endpoint=https://my.minio.instance&awssdk=v2&use_path_style=true&
 [cacheControl]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
 [contentEncoding]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Encoding
 [contentType]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type
-[hugo deploy]: /host-and-deploy/deploy-with-hugo-deploy/
+[hugo deploy]: /host-and-deploy/deploy-with-hugo/

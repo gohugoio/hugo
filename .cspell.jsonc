@@ -1,0 +1,102 @@
+{
+  "version": "0.2",
+  "allowCompoundWords": true,
+  "overrides": [
+    {
+      "filename": "**/*",
+      "enabled": false
+    },
+    {
+      "filename": "**/*.md",
+      "enabled": true
+    }
+  ],
+  "ignorePaths": [
+    "**/emojis.md",
+    "**/commands/*",
+    "**/showcase/*",
+    "**/tools/*"
+  ],
+  "ignoreRegExpList": [
+    // ignore fenced code blocks
+    "^[ \\t]*`{3,}[^\\n]*\\n[\\s\\S]*?^[ \\t]*`{3,}",
+    // ignore words joined with dot
+    "\\w+\\.\\w+",
+    // ignore strings within backticks
+    "`[^`].+?`",
+    // ignore strings within double quotes
+    "\".+?\"",
+    // ignore strings within brackets
+    "\\[.+?\\]"
+  ],
+  "language": "en",
+  "caseSensitive": false,
+  "words": [
+    "achristie",
+    "Ananke",
+    "artikel",
+    "Atishay",
+    "bezpieczeństwo",
+    "blatt",
+    "Bokmål",
+    "Buch",
+    "canonify",
+    "CCPA",
+    "CDPA",
+    "CIFS",
+    "CPRA",
+    "DDMAURIER",
+    "Deindent",
+    "descripción",
+    "Diátaxis",
+    "Disqus",
+    "Dokumentation",
+    "Dynacache",
+    "Erklärungen",
+    "eturl",
+    "Exif",
+    "Français",
+    "gohugoio",
+    "IPTC",
+    "jausten",
+    "jsmith",
+    "Lanczos",
+    "mercredi",
+    "mhchem",
+    "miesiąc",
+    "miesiąca",
+    "miesiące",
+    "miesięcy",
+    "Milli",
+    "Misérables",
+    "Mittwoch",
+    "modh",
+    "monokai",
+    "muchos",
+    "myspa",
+    "Ninke",
+    "Noll",
+    "Norsk",
+    "novembre",
+    "otro",
+    "Pocos",
+    "Pontmercy",
+    "Produits",
+    "Produkte",
+    "Projekt",
+    "prywatność",
+    "Pygments",
+    "Referenz",
+    "RGBA",
+    "slugified",
+    "stringifier",
+    "Stucki",
+    "unheaded",
+    "unmarshal",
+    "VCARD",
+    "Vitter's",
+    "WCAG",
+    "xfeff",
+    "Zgotmpl"
+  ]
+}

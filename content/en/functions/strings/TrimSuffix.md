@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: string
     signatures: [strings.TrimSuffix SUFFIX STRING]
-aliases: [/functions/strings.trimsuffix]
 ---
 
 ```go-html-template

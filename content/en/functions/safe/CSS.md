@@ -8,7 +8,6 @@ params:
     aliases: [safeCSS]
     returnType: template.CSS
     signatures: [safe.CSS INPUT]
-aliases: [/functions/safecss]
 ---
 
 ## Introduction

@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: bool
     signatures: [reflect.IsMap INPUT]
-aliases: [/functions/reflect.ismap]
 ---
 
 ```go-html-template

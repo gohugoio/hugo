@@ -10,13 +10,13 @@ params:
     signatures: [hugo.Environment]
 ---
 
-The `hugo.Environment` function returns the current running [environment](g) as defined through the `--environment` command line flag.
+The `hugo.Environment` function returns the current running [environment](g) as defined through the `--environment` command-line flag.
 
 ```go-html-template
 {{ hugo.Environment }} → production
 ```
 
-Command line examples:
+Command-line examples:
 
 Command|Environment
 :--|:--

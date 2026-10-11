@@ -3,7 +3,6 @@ title: URL management
 description: Control the structure and appearance of URLs through front matter entries and settings in your project configuration.
 categories: []
 keywords: []
-aliases: [/extras/permalinks/,/extras/aliases/,/extras/urls/,/doc/redirects/,/doc/alias/,/doc/aliases/]
 ---
 
 ## Overview
@@ -22,7 +21,7 @@ Override the default URL for a page using these front matter fields.
 
 ### Slug
 
-Set the `slug` in front matter to override the last segment of the path. This front matter field is not applicable to `home`, `section`, `taxonomy`, or `term` pages.
+Set the `slug` in front matter to override the last segment of the path. This front matter field is not applicable to the `home` page.
 
 {{< code-toggle file=content/posts/post-1.md fm=true >}}
 title = 'My First Post'
@@ -35,9 +34,30 @@ The resulting URL will be:
 https://example.org/posts/my-first-post/
 ```
 
+{{< new-in 0.167.0 />}}
+
+When you set the `slug` on a `section`, `taxonomy`, or `term` page, Hugo applies it to the URLs of the pages beneath it, including their [page resources][]. For example:
+
+{{< code-toggle file=content/products/_index.md fm=true >}}
+title = 'Products'
+slug = 'shop'
+{{< /code-toggle >}}
+
+The resulting URLs will be:
+
+```text
+content/products/_index.md             → https://example.org/shop/
+content/products/electronics/_index.md → https://example.org/shop/electronics/
+content/products/electronics/tv.md     → https://example.org/shop/electronics/tv/
+```
+
+A matching [permalink pattern][configure permalinks] takes precedence over slugs inherited from ancestor pages.
+
 ### URL
 
-Set the `url` in front matter to override the entire path. Use this with either regular pages or section pages.
+Set the `url` in front matter to override the entire path. This front matter field is not applicable to the `home` page.
+
+Unlike the `slug`, the `url` of a `section`, `taxonomy`, or `term` page does not affect the URLs of the pages beneath it.
 
 > [!NOTE]
 > Hugo does not sanitize the `url` front matter field, allowing you to generate:
@@ -257,5 +277,6 @@ If you implement server-side redirects, you should disable the generation of ind
 [aliases_method]: /methods/page/aliases/
 [configure permalinks]: /configuration/permalinks/
 [embedded alias template]: <{{% eturl alias %}}>
+[page resources]: /content-management/page-resources/
 [removed in a future release]: https://github.com/gohugoio/hugo/issues/4733
 [reserved characters]: https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions

@@ -8,7 +8,6 @@ params:
     aliases: [anchorize]
     returnType: string
     signatures: [urls.Anchorize INPUT]
-aliases: [/functions/anchorize]
 ---
 
 {{% include "/_common/functions/urls/anchorize-vs-urlize.md" %}}

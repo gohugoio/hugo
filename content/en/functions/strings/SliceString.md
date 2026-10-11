@@ -8,7 +8,6 @@ params:
     aliases: [slicestr]
     returnType: string
     signatures: ['strings.SliceString STRING [START] [END]']
-aliases: [/functions/slicestr]
 ---
 
 The START and END positions are zero-based, where `0` represents the first character of the string. If START is not specified, the substring will begin at position `0`. If END is not specified, the substring will end after the last character.

@@ -1,6 +1,6 @@
 ---
 title: Parent
-description: Returns the `parent` property of the given menu entry.
+description: Returns the parent property of the given menu entry.
 categories: []
 keywords: []
 params:

@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: image.Config
     signatures: [images.Config PATH]
-aliases: [/functions/imageconfig]
 ---
 
 > [!NOTE]

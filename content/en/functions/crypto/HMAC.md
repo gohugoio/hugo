@@ -8,7 +8,6 @@ params:
     aliases: [hmac]
     returnType: string
     signatures: ['crypto.HMAC HASH_TYPE KEY MESSAGE [ENCODING]']
-aliases: [/functions/hmac]
 ---
 
 Set the `HASH_TYPE` argument to `md5`, `sha1`, `sha256`, or `sha512`.

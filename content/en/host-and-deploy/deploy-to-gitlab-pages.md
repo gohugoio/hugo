@@ -1,9 +1,8 @@
 ---
-title: Host on GitLab Pages
-description: Host your project on GitLab Pages.
+title: Deploy to GitLab Pages
+description: Deploy your project to GitLab Pages.
 categories: []
 keywords: []
-aliases: [/hosting-and-deployment/hosting-on-gitlab/]
 ---
 
 Use these instructions to enable continuous deployment from a GitLab repository to GitLab Pages.
@@ -33,10 +32,10 @@ Step 1
   ```yaml {file=".gitlab-ci.yml" copy=true}
   variables:
     # Define tool versions
-    DART_SASS_VERSION: 1.104.0
-    GO_VERSION: 1.27.0
-    HUGO_VERSION: 0.166.0
-    NODE_VERSION: 24.20.0
+    DART_SASS_VERSION: 1.105.0
+    GO_VERSION: 1.27.1
+    HUGO_VERSION: 0.167.0
+    NODE_VERSION: 24.21.0
 
     # Set the build timezone
     TZ: Europe/Oslo

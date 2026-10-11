@@ -8,7 +8,6 @@ params:
     aliases: [after]
     returnType: '[]any'
     signatures: [collections.After N SLICE]
-aliases: [/functions/after]
 ---
 
 ## Basic usage
@@ -35,7 +34,7 @@ The template above is rendered to:
 
 ## Combine with first
 
-You can use `after` in combination with the [`first`][] function and Hugo's [powerful sorting methods][]. Let's assume you have a `section` page at `example.com/articles`. You have 10 articles, but you want your template to show only two rows:
+You can use `after` in combination with the [`first`][] function and Hugo's [powerful sorting methods][]. Let's assume you have a `section` page at `example.org/articles`. You have 10 articles, but you want your template to show only two rows:
 
 1. The top row is titled "Featured" and shows only the most recently published article (i.e. by `publishdate` in the content files' front matter).
 1. The second row is titled "Recent Articles" and shows only the 2nd- to 4th-most recently published articles.

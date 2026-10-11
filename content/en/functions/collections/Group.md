@@ -8,7 +8,6 @@ params:
     aliases: [group]
     returnType: page.PageGroup
     signatures: [collections.Group KEY PAGES]
-aliases: [/functions/group]
 ---
 
 ```go-html-template

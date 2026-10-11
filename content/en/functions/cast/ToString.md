@@ -8,7 +8,6 @@ params:
     aliases: [string]
     returnType: string
     signatures: [cast.ToString INPUT]
-aliases: [/functions/string]
 ---
 
 With a decimal (base 10) input:

@@ -8,7 +8,6 @@ params:
     aliases: [intersect]
     returnType: '[]any'
     signatures: [collections.Intersect SLICE1 SLICE2]
-aliases: [/functions/intersect]
 ---
 
 A useful example is to use it as `AND` filters when combined with where:

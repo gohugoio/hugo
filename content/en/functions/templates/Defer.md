@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: string
     signatures: [templates.Defer OPTIONS]
-aliases: [/functions/templates.defer]
 ---
 
 ## Usage
