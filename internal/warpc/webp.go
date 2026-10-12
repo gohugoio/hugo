@@ -98,12 +98,18 @@ type WebpOutput struct {
 }
 
 type WebpCodec struct {
-	d func() (Dispatcher[WebpInput, WebpOutput], error)
+	d           func() (Dispatcher[WebpInput, WebpOutput], error)
+	memoryLimit int64
+}
+
+// MemoryLimit returns the memory limit in bytes.
+func (d *WebpCodec) MemoryLimit() int64 {
+	return d.memoryLimit
 }
 
 // Decode reads a WEBP image from r and returns it as an image.Image.
 // Note that animated WebP images are returnes as an himage.AnimatedImage.
-func (d *WebpCodec) Decode(r io.Reader) (image.Image, error) {
+func (d *WebpCodec) Decode(r io.Reader, options map[string]any) (image.Image, error) {
 	dd, err := d.d()
 	if err != nil {
 		return nil, err
@@ -127,7 +133,7 @@ func (d *WebpCodec) Decode(r io.Reader) (image.Image, error) {
 		Data: WebpInput{
 			Source:      source,
 			Destination: &destination,
-			Options:     map[string]any{},
+			Options:     options,
 		},
 	}
 

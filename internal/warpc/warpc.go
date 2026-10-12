@@ -512,6 +512,9 @@ func (o *Options) init() error {
 		o.Warnf = func(format string, v ...any) {
 		}
 	}
+	if o.Memory <= 0 {
+		o.Memory = 32 // 32 MiB
+	}
 	return nil
 }
 
@@ -834,13 +837,15 @@ func (d *Dispatchers) Avif() (Dispatcher[AvifInput, AvifOutput], error) {
 
 func (d *Dispatchers) NewWepCodec() (*WebpCodec, error) {
 	return &WebpCodec{
-		d: d.Webp,
+		d:           d.Webp,
+		memoryLimit: int64(d.webp.opts.Memory) << 20,
 	}, nil
 }
 
 func (d *Dispatchers) NewAvifCodec() (*AvifCodec, error) {
 	return &AvifCodec{
-		d: d.Avif,
+		d:           d.Avif,
+		memoryLimit: int64(d.avif.opts.Memory) << 20,
 	}, nil
 }
 
@@ -870,6 +875,9 @@ func AllDispatchers(katexOpts, webpOpts, avifOpts Options) *Dispatchers {
 		panic(err)
 	}
 	if err := webpOpts.init(); err != nil {
+		panic(err)
+	}
+	if err := avifOpts.init(); err != nil {
 		panic(err)
 	}
 	if katexOpts.Runtime.Data == nil {

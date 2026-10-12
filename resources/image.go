@@ -428,7 +428,7 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 			<-imageProcSem
 		}()
 
-		src, err := i.DecodeImage()
+		src, err := i.decodeImage(conf.FirstFrameOnly || !conf.TargetFormat.SupportsAnimation())
 		if err != nil {
 			return nil, nil, &os.PathError{Op: conf.Action, Path: i.TargetPath(), Err: err}
 		}
@@ -483,16 +483,20 @@ func (i *imageResource) doWithImageConfig(conf images.ImageConfig, f func(src im
 	return img, nil
 }
 
-// DecodeImage decodes the image source into an Image.
+// DecodeImage decodes the first frame of the image source into an Image.
 // This for internal use only.
 func (i *imageResource) DecodeImage() (image.Image, error) {
+	return i.decodeImage(true)
+}
+
+func (i *imageResource) decodeImage(firstFrameOnly bool) (image.Image, error) {
 	f, err := i.ReadSeekCloser()
 	if err != nil {
 		return nil, fmt.Errorf("failed to open image for decode: %w", err)
 	}
 	defer f.Close()
 
-	return i.getSpec().Imaging.Codec.DecodeFormat(i.Format, f)
+	return i.getSpec().Imaging.Codec.DecodeFormat(i.Format, f, firstFrameOnly)
 }
 
 func (i *imageResource) clone(img image.Image) *imageResource {

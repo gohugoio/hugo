@@ -81,6 +81,7 @@ typedef struct
 
     bool useSharpYuv; // use sharp YUV for better quality.
     int method;       // quality/speed trade-off (0=fast, 6=slower-better). Default is 2.
+    bool firstFrameOnly; // decode only the first frame of animated images.
 
 } InputOptions;
 
@@ -413,6 +414,7 @@ InputMessage parse_input_message(const char *line)
                 msg.data.options.hint[sizeof(msg.data.options.hint) - 1] = '\0';
             }
             msg.data.options.useSharpYuv = json_object_get_number(options_object, "useSharpYuv") != 0;
+            msg.data.options.firstFrameOnly = json_object_get_boolean(options_object, "firstFrameOnly") == 1;
             msg.data.options.method = (int)json_object_get_number(options_object, "method");
             if (msg.data.options.method < 0 || msg.data.options.method > 6)
             {
@@ -643,22 +645,28 @@ void handle_commands(FILE *stream)
                 output.data.params.width = anim_info.canvas_width;
                 output.data.params.height = anim_info.canvas_height;
                 output.data.params.stride = anim_info.canvas_width * 4;
-                output.data.params.frameCount = anim_info.frame_count;
+                // Without frame durations, the first frame is returned as a still image.
+                uint32_t frame_count = input.data.options.firstFrameOnly ? 1 : anim_info.frame_count;
+                output.data.params.frameCount = frame_count;
                 output.data.params.loopCount = anim_info.loop_count;
                 output.data.params.hasAlpha = true; // Animated WebP always decoded as RGBA
 
-                int *frameDurations = malloc(sizeof(int) * anim_info.frame_count);
-                if (frameDurations == NULL)
+                int *frameDurations = NULL;
+                if (!input.data.options.firstFrameOnly)
                 {
-                    strncpy(output.header.err, "Failed to allocate memory for frame durations", sizeof(output.header.err) - 1);
-                    write_output_message(&output);
-                    WebPAnimDecoderDelete(dec);
-                    goto cleanup;
+                    frameDurations = malloc(sizeof(int) * anim_info.frame_count);
+                    if (frameDurations == NULL)
+                    {
+                        strncpy(output.header.err, "Failed to allocate memory for frame durations", sizeof(output.header.err) - 1);
+                        write_output_message(&output);
+                        WebPAnimDecoderDelete(dec);
+                        goto cleanup;
+                    }
                 }
                 output.data.params.frameDurations = frameDurations;
 
                 // Use a demuxer to get frame durations.
-                WebPDemuxer *demux = WebPDemux(&data);
+                WebPDemuxer *demux = frameDurations != NULL ? WebPDemux(&data) : NULL;
                 if (demux != NULL)
                 {
                     WebPIterator iter;
@@ -678,7 +686,7 @@ void handle_commands(FILE *stream)
                 }
 
                 size_t frame_size = (size_t)anim_info.canvas_width * 4 * anim_info.canvas_height;
-                size_t all_frames_size = frame_size * anim_info.frame_count;
+                size_t all_frames_size = frame_size * frame_count;
                 uint8_t *output_buffer = malloc(all_frames_size);
 
                 if (output_buffer == NULL)
@@ -691,8 +699,8 @@ void handle_commands(FILE *stream)
                     goto cleanup;
                 }
 
-                int frame_index = 0;
-                while (WebPAnimDecoderHasMoreFrames(dec))
+                uint32_t frame_index = 0;
+                while (frame_index < frame_count && WebPAnimDecoderHasMoreFrames(dec))
                 {
                     uint8_t *frame_rgba;
                     int timestamp;
