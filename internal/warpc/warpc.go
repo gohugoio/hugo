@@ -62,6 +62,9 @@ func GetWASMDeps() [][2]string {
 //go:embed wasm/quickjs.wasm
 var quickjsWasm []byte
 
+// The import name used by Javy's dynamically linked modules.
+const quickjsPluginName = "javy-default-plugin-v4"
+
 //go:embed wasm/webp.wasm
 var webpWasm []byte
 
@@ -468,7 +471,7 @@ func (call *call[Q, R]) done() {
 // Binary represents a WebAssembly binary.
 type Binary struct {
 	// The name of the binary.
-	// For 	quickjs, this must match the instance import name, "javy_quickjs_provider_v2".
+	// For quickjs, this must match the instance import name, see quickjsPluginName.
 	// For the main module, we only use this for caching.
 	Name string
 
@@ -881,7 +884,7 @@ func AllDispatchers(katexOpts, webpOpts, avifOpts Options) *Dispatchers {
 		panic(err)
 	}
 	if katexOpts.Runtime.Data == nil {
-		katexOpts.Runtime = Binary{Name: "javy_quickjs_provider_v2", Data: quickjsWasm}
+		katexOpts.Runtime = Binary{Name: quickjsPluginName, Data: quickjsWasm}
 	}
 	if katexOpts.Main.Data == nil {
 		katexOpts.Main = Binary{Name: "renderkatex", Data: katexWasm}
