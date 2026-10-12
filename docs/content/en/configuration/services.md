@@ -19,6 +19,22 @@ This is the default configuration:
   {{ .Site.Config.Services.Disqus.Shortname }}
   ```
 
+`geogebra.baseURL`
+: (`string`) The base URL used by the embedded [GeoGebra shortcode](/shortcodes/geogebra/). Default is `https://www.geogebra.org`. Set this to a mirror that supports the GeoGebra material iframe endpoint. The URL may include a path prefix. To access this value from a template:
+
+  ```go-html-template
+  {{ .Site.Config.Services.GeoGebra.BaseURL }}
+  ```
+
+`geogebra.width`
+: (`int`) The default applet width in pixels for the [GeoGebra shortcode](/shortcodes/geogebra/). Must be positive. Default is `850`. The shortcode's `width` argument overrides this value.
+
+`geogebra.height`
+: (`int`) The default applet height in pixels for the [GeoGebra shortcode](/shortcodes/geogebra/). Must be positive. Default is `600`. The shortcode's `height` argument overrides this value.
+
+`geogebra.showToolBar`
+: (`bool`) Whether to show the toolbar by default for the [GeoGebra shortcode](/shortcodes/geogebra/). Default is `false`. The shortcode's `showToolBar` argument overrides this value, including when explicitly set to `false`.
+
 `googleAnalytics.id`
 : (`string`) The Google tag ID for Google Analytics 4 properties. See [details][google-analytics]. To access this value from a template:
 

@@ -30,6 +30,11 @@ someOtherValue = "foo"
 [services]
 [services.disqus]
 shortname = "DS"
+[services.geogebra]
+baseURL = "https://ggb.example.org"
+width = 900
+height = 500
+showToolBar = true
 [services.googleAnalytics]
 id = "ga_id"
 [services.instagram]
@@ -47,6 +52,7 @@ disableInlineCSS = true
 	c.Assert(config, qt.Not(qt.IsNil))
 
 	c.Assert(config.Disqus.Shortname, qt.Equals, "DS")
+	c.Assert(config.GeoGebra, qt.Equals, GeoGebra{BaseURL: "https://ggb.example.org", Width: 900, Height: 500, ShowToolBar: true})
 	c.Assert(config.GoogleAnalytics.ID, qt.Equals, "ga_id")
 
 	c.Assert(config.Instagram.DisableInlineCSS, qt.Equals, true)
@@ -66,4 +72,5 @@ func TestUseSettingsFromRootIfSet(t *testing.T) {
 
 	c.Assert(config.Disqus.Shortname, qt.Equals, "root_short")
 	c.Assert(config.GoogleAnalytics.ID, qt.Equals, "ga_root")
+	c.Assert(config.GeoGebra, qt.Equals, GeoGebra{BaseURL: "https://www.geogebra.org", Width: 850, Height: 600})
 }

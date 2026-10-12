@@ -1,0 +1,99 @@
+{{- /*
+Renders an embedded GeoGebra material.
+
+@param {string} [id] The material ID. Optional if supplied as the first and only positional argument.
+@param {int} [width=850] The applet width in pixels. Defaults to services.geogebra.width.
+@param {int} [height=600] The applet height in pixels. Defaults to services.geogebra.height.
+@param {string} [class] The class of the wrapping div. When specified, removes inline styles.
+@param {string} [loading=eager] The iframe loading attribute.
+@param {string} [title=GeoGebra material] The iframe title.
+@param {bool} [allowFullScreen=true] Whether to allow full screen mode.
+@param {bool} [enableRightClick=false] Whether to enable right click and keyboard editing.
+@param {bool} [enableShiftDragZoom=false] Whether to enable dragging and zooming.
+@param {bool} [enableLabelDrags=false] Whether to allow label dragging.
+@param {bool} [showAlgebraInput=false] Whether to show the input bar.
+@param {bool} [showMenuBar=false] Whether to show the menu bar.
+@param {bool} [showToolBar=false] Whether to show the toolbar. Defaults to services.geogebra.showToolBar.
+@param {bool} [showToolBarHelp=false] Whether to show toolbar help.
+@param {bool} [showResetIcon=false] Whether to show the reset icon.
+@param {bool} [showAnimationButton=false] Whether to show the animation play button.
+@param {bool} [showFullscreenButton=false] Whether to show the full screen button.
+@param {bool} [showZoomButtons=false] Whether to show zoom buttons.
+
+@returns {template.HTML}
+
+@reference https://geogebra.github.io/docs/reference/en/Material_Embedding_(Iframe)/
+
+@example {{< geogebra zrtmrj3s >}}
+@example {{< geogebra id=zrtmrj3s width=800 height=600 showToolBar=true >}}
+*/}}
+{{- if not .Page.Site.Config.Privacy.GeoGebra.Disable }}
+  {{- $id := or (.Get "id") (.Get 0) }}
+  {{- if not $id }}
+    {{- errorf "The %q shortcode requires an id argument. See %s" .Name .Position }}
+  {{- else if not (findRE `^[a-zA-Z0-9]+$` (printf "%v" $id)) }}
+    {{- errorf "The %q shortcode requires an alphanumeric id. See %s" .Name .Position }}
+  {{- else }}
+    {{- $sc := .Page.Site.Config.Services.GeoGebra }}
+    {{- $width := $sc.Width }}
+    {{- $height := $sc.Height }}
+    {{- if .IsNamedParams }}
+      {{- if isset .Params "width" }}{{ $width = .Get "width" }}{{ end }}
+      {{- if isset .Params "height" }}{{ $height = .Get "height" }}{{ end }}
+    {{- end }}
+    {{- range $name, $value := dict "width" $width "height" $height }}
+      {{- if not (findRE `^[1-9][0-9]*$` (printf "%v" $value)) }}
+        {{- errorf "The %q shortcode requires a positive integer %s. See %s" $.Name $name $.Position }}
+      {{- end }}
+    {{- end }}
+    {{- $baseURL := or $sc.BaseURL "https://www.geogebra.org" }}
+    {{- $u := urls.Parse $baseURL }}
+    {{- if or (not (in (slice "https" "http") $u.Scheme)) (not $u.Host) $u.RawQuery $u.Fragment $u.User }}
+      {{- errorf "The %q shortcode requires services.geogebra.baseURL to be an HTTP(S) URL without credentials, query, or fragment. See %s" .Name .Position }}
+    {{- end }}
+    {{- $src := printf "%s/material/iframe/id/%v/width/%v/height/%v" (strings.TrimRight "/" $baseURL) $id $width $height }}
+    {{- $options := dict
+      "enableRightClick" "rc"
+      "enableShiftDragZoom" "sdz"
+      "enableLabelDrags" "ld"
+      "showAlgebraInput" "ai"
+      "showMenuBar" "smb"
+      "showToolBar" "stb"
+      "showToolBarHelp" "stbh"
+      "showResetIcon" "sri"
+      "showAnimationButton" "ctl"
+      "showFullscreenButton" "sfsb"
+      "showZoomButtons" "szb"
+    }}
+    {{- range $name, $code := $options }}
+      {{- $value := false }}
+      {{- if eq $name "showToolBar" }}{{ $value = $sc.ShowToolBar }}{{ end }}
+      {{- if $.IsNamedParams }}
+        {{- if isset $.Params $name }}
+          {{- $value = in (slice "true" true 1) ($.Get $name) }}
+        {{- end }}
+      {{- end }}
+      {{- $src = printf "%s/%s/%t" $src $code $value }}
+    {{- end }}
+    {{- $allowFullScreen := not (in (slice "false" false 0) (.Get "allowFullScreen")) }}
+    {{- $loading := or (.Get "loading") "eager" }}
+    {{- if not (in (slice "eager" "lazy") $loading) }}
+      {{- errorf "The %q shortcode requires loading to be eager or lazy. See %s" .Name .Position }}
+    {{- end }}
+    {{- $title := or (.Get "title") "GeoGebra material" }}
+    {{- $class := .Get "class" }}
+    {{- $divStyle := printf "position: relative; width: 100%%; max-width: %vpx; aspect-ratio: %v / %v;" $width $width $height }}
+    {{- $iframeStyle := "position: absolute; width: 100%; height: 100%; border: 0;" }}
+    {{- if $class }}
+      {{- $divStyle = "" }}
+      {{- $iframeStyle = "" }}
+    {{- end -}}
+    <div
+      {{- with $class }} class="{{ . }}"{{ end }}
+      {{- with $divStyle }} style="{{ . | safeCSS }}"{{ end -}}>
+      <iframe src="{{ $src }}" width="{{ $width }}" height="{{ $height }}" scrolling="no" loading="{{ $loading }}" title="{{ $title }}" referrerpolicy="strict-origin-when-cross-origin"
+        {{- if $allowFullScreen }} allow="fullscreen"{{ end }}
+        {{- with $iframeStyle }} style="{{ . | safeCSS }}"{{ end -}}></iframe>
+    </div>
+  {{- end }}
+{{- end -}}

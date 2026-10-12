@@ -29,6 +29,7 @@ const (
 // Config is a services configuration for all the relevant services in Hugo.
 type Config struct {
 	Disqus          Disqus
+	GeoGebra        GeoGebra
 	GoogleAnalytics GoogleAnalytics
 	Instagram       Instagram `json:"-"` // the embedded instagram shortcode no longer uses this
 	X               X
@@ -39,6 +40,14 @@ type Config struct {
 type Disqus struct {
 	// A Shortname is the unique identifier assigned to a Disqus site.
 	Shortname string
+}
+
+// GeoGebra holds the configuration settings related to the GeoGebra shortcode.
+type GeoGebra struct {
+	BaseURL     string
+	Width       int
+	Height      int
+	ShowToolBar bool
 }
 
 // GoogleAnalytics holds the functional configuration settings related to the Google Analytics template.
@@ -76,6 +85,11 @@ type RSS struct {
 
 // DecodeConfig creates a services Config from a given Hugo configuration.
 func DecodeConfig(cfg config.Provider) (c Config, err error) {
+	c.GeoGebra = GeoGebra{
+		BaseURL: "https://www.geogebra.org",
+		Width:   850,
+		Height:  600,
+	}
 	m := cfg.GetStringMap(servicesConfigKey)
 
 	err = mapstructure.WeakDecode(m, &c)

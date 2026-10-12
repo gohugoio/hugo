@@ -35,6 +35,7 @@ These are the default privacy settings for Hugo's embedded templates:
 See each template's documentation for a description of its privacy settings:
 
 - [Disqus partial][]
+- [GeoGebra shortcode][]
 - [Google Analytics partial][]
 - [Instagram shortcode][]
 - [Vimeo shortcode][]
@@ -42,6 +43,7 @@ See each template's documentation for a description of its privacy settings:
 - [YouTube shortcode][]
 
 [Disqus partial]: /templates/embedded/#privacy-disqus
+[GeoGebra shortcode]: /shortcodes/geogebra/#privacy
 [Google Analytics partial]: /templates/embedded/#privacy-google-analytics
 [Instagram shortcode]: /shortcodes/instagram/#privacy
 [Vimeo shortcode]: /shortcodes/vimeo/#privacy

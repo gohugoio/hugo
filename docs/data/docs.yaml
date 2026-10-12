@@ -2183,6 +2183,8 @@ config:
   privacy:
     disqus:
       disable: false
+    geoGebra:
+      disable: false
     googleAnalytics:
       disable: false
       respectDoNotTrack: true
@@ -2296,6 +2298,11 @@ config:
   services:
     disqus:
       shortname: ''
+    geoGebra:
+      baseURL: https://www.geogebra.org
+      height: 600
+      showToolBar: false
+      width: 850
     googleAnalytics:
       id: ''
     rss:

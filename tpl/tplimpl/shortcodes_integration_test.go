@@ -891,3 +891,125 @@ title: home
 	b.Assert(err, qt.IsNotNil)
 	b.AssertLogContains(`ERROR The "gist" shortcode was deprecated in v0.143.0 and removed in v0.156.0.`)
 }
+
+func TestGeoGebraShortcode(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+#CONFIG
+-- layouts/page.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: p1
+---
+{{< geogebra zrtmrj3s >}}
+-- content/p2.md --
+---
+title: p2
+---
+{{< geogebra id=23587 width=800 height=400 class="my-class" loading=lazy title="A construction" allowFullScreen=false enableRightClick=true enableShiftDragZoom=true enableLabelDrags=true showAlgebraInput=true showMenuBar=true showToolBar=true showToolBarHelp=true showResetIcon=true showAnimationButton=true showFullscreenButton=true showZoomButtons=true >}}
+-- content/p3.md --
+---
+title: p3
+---
+{{< geogebra id=zrtmrj3s showToolBar=false allowFullScreen=true >}}
+`
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/p1/index.html",
+		`src="https://www.geogebra.org/material/iframe/id/zrtmrj3s/width/850/height/600`,
+		`/rc/false`, `/sdz/false`, `/ld/false`, `/ai/false`, `/smb/false`, `/stb/false`,
+		`/stbh/false`, `/sri/false`, `/ctl/false`, `/sfsb/false`, `/szb/false`,
+		`width="850" height="600"`, `loading="eager"`, `title="GeoGebra material"`,
+		`allow="fullscreen"`, `max-width: 850px; aspect-ratio: 850 / 600;`)
+	b.AssertFileContent("public/p2/index.html",
+		`class="my-class"`, `width="800" height="400"`, `loading="lazy"`, `title="A construction"`,
+		`/rc/true`, `/sdz/true`, `/ld/true`, `/ai/true`, `/smb/true`, `/stb/true`,
+		`/stbh/true`, `/sri/true`, `/ctl/true`, `/sfsb/true`, `/szb/true`)
+	b.Assert(b.FileContent("public/p2/index.html"), qt.Not(qt.Contains), `style=`)
+	b.Assert(b.FileContent("public/p2/index.html"), qt.Not(qt.Contains), `allow="fullscreen"`)
+	b.AssertFileContent("public/p3/index.html", `/stb/false`, `allow="fullscreen"`)
+
+	for _, baseURL := range []string{"https://ggb.example.org", "https://ggb.example.org/", "https://ggb.example.org/proxy/"} {
+		t.Run(baseURL, func(t *testing.T) {
+			f := strings.ReplaceAll(files, "#CONFIG", `services.geogebra.baseURL = "`+baseURL+`"`)
+			b := hugolib.Test(t, f)
+			for _, page := range []string{"p1", "p2", "p3"} {
+				b.AssertFileContent("public/"+page+"/index.html", `src="`+strings.TrimRight(baseURL, "/")+`/material/iframe/id/`)
+				b.Assert(b.FileContent("public/"+page+"/index.html"), qt.Not(qt.Contains), "www.geogebra.org")
+			}
+		})
+	}
+
+	for _, showToolBar := range []string{"true", "false"} {
+		t.Run("global defaults "+showToolBar, func(t *testing.T) {
+			f := strings.ReplaceAll(files, "#CONFIG", `
+[services.geogebra]
+width = 900
+height = 500
+showToolBar = `+showToolBar)
+			f += `
+-- content/p4.md --
+---
+title: p4
+---
+{{< geogebra id=zrtmrj3s width=450 showToolBar="false" >}}
+-- content/p5.md --
+---
+title: p5
+---
+{{< geogebra id=zrtmrj3s height=300 >}}
+`
+			b := hugolib.Test(t, f)
+			b.AssertFileContent("public/p1/index.html", `/width/900/height/500`, `width="900" height="500"`, `aspect-ratio: 900 / 500;`, `/stb/`+showToolBar)
+			b.AssertFileContent("public/p2/index.html", `/width/800/height/400`, `/stb/true`)
+			b.AssertFileContent("public/p3/index.html", `/width/900/height/500`, `/stb/false`)
+			b.AssertFileContent("public/p4/index.html", `/width/450/height/500`, `/stb/false`)
+			b.AssertFileContent("public/p5/index.html", `/width/900/height/300`, `/stb/`+showToolBar)
+		})
+	}
+
+	b = hugolib.Test(t, strings.ReplaceAll(files, "#CONFIG", "privacy.geogebra.disable = true"))
+	b.Assert(b.FileContent("public/p1/index.html"), qt.Not(qt.Contains), "iframe")
+}
+
+func TestGeoGebraShortcodeInvalidArguments(t *testing.T) {
+	t.Parallel()
+
+	for _, test := range []struct {
+		name, config, shortcode, message string
+	}{
+		{"missing ID", "", `{{< geogebra >}}`, "requires an id argument"},
+		{"invalid ID", "", `{{< geogebra id="../foo" >}}`, "requires an alphanumeric id"},
+		{"invalid width", "", `{{< geogebra id=abc width=-1 >}}`, "requires a positive integer width"},
+		{"zero width", "", `{{< geogebra id=abc width=0 >}}`, "requires a positive integer width"},
+		{"global zero width", `services.geogebra.width=0`, `{{< geogebra abc >}}`, "requires a positive integer width"},
+		{"global negative height", `services.geogebra.height=-1`, `{{< geogebra abc >}}`, "requires a positive integer height"},
+		{"invalid height", "", `{{< geogebra id=abc height="bad" >}}`, "requires a positive integer height"},
+		{"invalid loading", "", `{{< geogebra id=abc loading=bad >}}`, "requires loading to be eager or lazy"},
+		{"invalid scheme", `services.geogebra.baseURL="javascript:alert(1)"`, `{{< geogebra abc >}}`, "requires services.geogebra.baseURL to be an HTTP(S) URL"},
+		{"relative URL", `services.geogebra.baseURL="/proxy"`, `{{< geogebra abc >}}`, "requires services.geogebra.baseURL to be an HTTP(S) URL"},
+		{"query", `services.geogebra.baseURL="https://example.org/?x=1"`, `{{< geogebra abc >}}`, "without credentials, query, or fragment"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			files := `
+-- hugo.toml --
+CONFIG
+-- layouts/page.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: p1
+---
+SHORTCODE
+`
+			files = strings.ReplaceAll(files, "CONFIG", test.config)
+			files = strings.ReplaceAll(files, "SHORTCODE", test.shortcode)
+			b, err := hugolib.TestE(t, files)
+			b.Assert(err, qt.IsNotNil)
+			b.AssertLogContains(test.message)
+		})
+	}
+}

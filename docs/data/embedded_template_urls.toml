@@ -21,6 +21,7 @@
 # Shortcodes
 'details' = '_shortcodes/details.html'
 'figure' = '_shortcodes/figure.html'
+'geogebra' = '_shortcodes/geogebra.html'
 'gist' = '_shortcodes/gist.html'
 'highlight' = '_shortcodes/highlight.html'
 'instagram' = '_shortcodes/instagram.html'

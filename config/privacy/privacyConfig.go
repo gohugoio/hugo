@@ -28,6 +28,7 @@ type Service struct {
 // Config is a privacy configuration for all the relevant services in Hugo.
 type Config struct {
 	Disqus          Disqus
+	GeoGebra        GeoGebra
 	GoogleAnalytics GoogleAnalytics
 	Instagram       Instagram
 	Vimeo           Vimeo
@@ -37,6 +38,11 @@ type Config struct {
 
 // Disqus holds the privacy configuration settings related to the Disqus template.
 type Disqus struct {
+	Service `mapstructure:",squash"`
+}
+
+// GeoGebra holds the privacy configuration settings related to the GeoGebra shortcode.
+type GeoGebra struct {
 	Service `mapstructure:",squash"`
 }
 

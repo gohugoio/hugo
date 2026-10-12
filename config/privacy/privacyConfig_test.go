@@ -30,6 +30,8 @@ someOtherValue = "foo"
 [privacy]
 [privacy.disqus]
 disable = true
+[privacy.geogebra]
+disable = true
 [privacy.googleAnalytics]
 disable = true
 respectDoNotTrack = true
@@ -57,7 +59,7 @@ simple = true
 	c.Assert(pc, qt.Not(qt.IsNil))
 
 	got := []bool{
-		pc.Disqus.Disable, pc.GoogleAnalytics.Disable,
+		pc.Disqus.Disable, pc.GeoGebra.Disable, pc.GoogleAnalytics.Disable,
 		pc.GoogleAnalytics.RespectDoNotTrack, pc.Instagram.Disable,
 		pc.Instagram.Simple,
 		pc.Vimeo.Disable, pc.Vimeo.EnableDNT, pc.Vimeo.Simple,
