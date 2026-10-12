@@ -1,7 +1,7 @@
 # The library versions to use.
-LIBAVIF_VERSION = v1.4.1
-AOM_VERSION = v3.14.1
-DAV1D_VERSION = 1.5.3
+LIBAVIF_VERSION = v1.4.2
+AOM_VERSION = v3.15.2
+DAV1D_VERSION = 1.5.4
 # Commit used by Chromium, see https://source.chromium.org/chromium/chromium/src/+/main:DEPS?q=libyuv
 LIBYUV_COMMIT = 9d98aaefe7a5e2710aa6175d44da38892400b381
 
@@ -57,6 +57,7 @@ all: check-wasi-sdk $(LIBAVIF_SRC) $(LIBAVIF_AOM_SRC) $(LIBAVIF_DAV1D_SRC) $(LIB
 	cmake $(LIBAVIF_AOM_SRC) \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DBUILD_SHARED_LIBS=0 \
+		-DENABLE_APPS=0 \
 		-DENABLE_DOCS=0 \
 		-DENABLE_EXAMPLES=0 \
 		-DENABLE_TESTDATA=0 \
