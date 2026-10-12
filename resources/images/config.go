@@ -261,7 +261,9 @@ func DecodeImageConfig(options []string, defaults *config.ConfigNamespace[Imagin
 	options = options[:n]
 
 	for _, part := range options {
-		if _, ok := Actions[part]; ok {
+		if part == "firstframeonly" {
+			c.FirstFrameOnly = true
+		} else if _, ok := Actions[part]; ok {
 			c.Action = part
 		} else if pos, ok := anchorPositions[part]; ok {
 			c.Anchor = pos
@@ -405,6 +407,9 @@ type ImageConfig struct {
 	// AVIF-specific options.
 	EncoderSpeed int
 
+	// If set, only the first frame of animated images is decoded and processed.
+	FirstFrameOnly bool
+
 	Width  int
 	Height int
 }
@@ -416,6 +421,7 @@ func (c *ImageConfig) init(defaults ImagingConfigInternal, sourceFormat Format) 
 	if c.TargetFormat == 0 {
 		c.TargetFormat = sourceFormat
 	}
+	c.FirstFrameOnly = c.FirstFrameOnly || defaults.Imaging.FirstFrameOnly
 	if c.Filter == nil {
 		c.Filter = defaults.ResampleFilter
 	}
@@ -524,6 +530,9 @@ type ImagingConfig struct {
 
 	// Default color used in fill operations (e.g. "fff" for white).
 	BgColor string
+
+	// If set, only the first frame of animated images is decoded and processed.
+	FirstFrameOnly bool
 
 	Exif ExifConfig
 	Meta MetaConfig

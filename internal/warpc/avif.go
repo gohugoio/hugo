@@ -57,7 +57,13 @@ type AvifOutput struct {
 }
 
 type AvifCodec struct {
-	d func() (Dispatcher[AvifInput, AvifOutput], error)
+	d           func() (Dispatcher[AvifInput, AvifOutput], error)
+	memoryLimit int64
+}
+
+// MemoryLimit returns the memory limit in bytes.
+func (d *AvifCodec) MemoryLimit() int64 {
+	return d.memoryLimit
 }
 
 func (d *AvifCodec) DecodeConfig(r io.Reader) (image.Config, error) {
@@ -94,7 +100,7 @@ func (d *AvifCodec) DecodeConfig(r io.Reader) (image.Config, error) {
 	}, nil
 }
 
-func (d *AvifCodec) Decode(r io.Reader) (image.Image, error) {
+func (d *AvifCodec) Decode(r io.Reader, options map[string]any) (image.Image, error) {
 	dd, err := d.d()
 	if err != nil {
 		return nil, err
@@ -118,7 +124,7 @@ func (d *AvifCodec) Decode(r io.Reader) (image.Image, error) {
 		Data: AvifInput{
 			Source:      source,
 			Destination: &destination,
-			Options:     map[string]any{},
+			Options:     options,
 		},
 	}
 

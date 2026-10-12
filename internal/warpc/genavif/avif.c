@@ -51,6 +51,7 @@ typedef struct
     char compression[32]; // "lossy" or "lossless"
     int encoderSpeed;     // 1 (slowest, best) to 10 (fastest). 0 means use default.
     char hint[64];        // drawing, icon, photo, picture, or text. Selects chroma subsampling.
+    bool firstFrameOnly;  // decode only the first frame of image sequences.
 } InputOptions;
 
 typedef struct
@@ -160,6 +161,7 @@ InputMessage parse_input_message(const char *line)
         {
             msg.data.options.quality = (float)json_object_get_number(options_object, "quality");
             msg.data.options.encoderSpeed = (int)json_object_get_number(options_object, "encoderSpeed");
+            msg.data.options.firstFrameOnly = json_object_get_boolean(options_object, "firstFrameOnly") == 1;
             const char *compression_str = json_object_get_string(options_object, "compression");
             if (compression_str != NULL)
             {
@@ -462,7 +464,8 @@ void handle_commands(FILE *stream)
             output.data.params.width = decoder->image->width;
             output.data.params.height = decoder->image->height;
             output.data.params.loopCount = decoder->repetitionCount;
-            output.data.params.frameCount = decoder->imageCount;
+            int frame_count = input.data.options.firstFrameOnly ? 1 : decoder->imageCount;
+            output.data.params.frameCount = frame_count;
             output.data.params.depth = decoder->image->depth;
             output.data.params.colorPrimaries = decoder->image->colorPrimaries;
             output.data.params.transferCharacteristics = decoder->image->transferCharacteristics;
@@ -478,7 +481,7 @@ void handle_commands(FILE *stream)
             output.data.params.stride = row_bytes;
 
             size_t frame_size = (size_t)row_bytes * decoder->image->height;
-            size_t all_frames_size = frame_size * decoder->imageCount;
+            size_t all_frames_size = frame_size * frame_count;
             uint8_t *all_frames_data = malloc(all_frames_size);
             if (all_frames_data == NULL)
             {
@@ -488,9 +491,9 @@ void handle_commands(FILE *stream)
                 goto cleanup;
             }
 
-            if (decoder->imageCount > 1)
+            if (frame_count > 1)
             {
-                output.data.params.frameDurations = malloc(sizeof(int) * decoder->imageCount);
+                output.data.params.frameDurations = malloc(sizeof(int) * frame_count);
                 if (output.data.params.frameDurations == NULL)
                 {
                     snprintf(output.header.err, sizeof(output.header.err), "Failed to allocate memory for frame durations");
@@ -510,8 +513,8 @@ void handle_commands(FILE *stream)
             rgb.rowBytes = row_bytes;
 
             int frame_index = 0;
-            avifResult next_result;
-            while ((next_result = avifDecoderNextImage(decoder)) == AVIF_RESULT_OK)
+            avifResult next_result = AVIF_RESULT_OK;
+            while (frame_index < frame_count && (next_result = avifDecoderNextImage(decoder)) == AVIF_RESULT_OK)
             {
                 rgb.pixels = all_frames_data + (frame_index * frame_size);
 
@@ -530,7 +533,7 @@ void handle_commands(FILE *stream)
                     goto cleanup;
                 }
 
-                if (decoder->imageCount > 1)
+                if (frame_count > 1)
                 {
                     uint64_t duration_ms = (uint64_t)(decoder->imageTiming.duration * 1000.0);
                     output.data.params.frameDurations[frame_index] = (int)duration_ms;
@@ -539,7 +542,7 @@ void handle_commands(FILE *stream)
                 frame_index++;
             }
 
-            if (next_result != AVIF_RESULT_NO_IMAGES_REMAINING)
+            if (next_result != AVIF_RESULT_OK && next_result != AVIF_RESULT_NO_IMAGES_REMAINING)
             {
                 snprintf(output.header.err, sizeof(output.header.err), "Failed to decode AVIF frame %d: %s", frame_index, avifResultToString(next_result));
                 free(all_frames_data);
@@ -553,9 +556,9 @@ void handle_commands(FILE *stream)
                 goto cleanup;
             }
 
-            if (frame_index != decoder->imageCount)
+            if (frame_index != frame_count)
             {
-                snprintf(output.header.err, sizeof(output.header.err), "Decoded %d frames, expected %d", frame_index, decoder->imageCount);
+                snprintf(output.header.err, sizeof(output.header.err), "Decoded %d frames, expected %d", frame_index, frame_count);
                 free(all_frames_data);
                 if (output.data.params.frameDurations != NULL)
                 {

@@ -14,6 +14,7 @@
 package images_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/bep/logg"
@@ -233,5 +234,80 @@ gohugoio.png: {{ (resources.Get "gohugoio.png").FrameCount }}|
 		"sunset.webp: 1|",
 		"sunset.jpg: 1|",
 		"gohugoio.png: 1|",
+	)
+}
+
+// See issue 15433.
+func TestImageFirstFrameOnly(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[imaging]
+firstFrameOnly = IMAGING_FIRST_FRAME_ONLY
+-- assets/giphy.gif --
+sourcefilename: ../testdata/giphy.gif
+-- assets/anim.webp --
+sourcefilename: ../testdata/webp/anim.webp
+-- layouts/home.html --
+{{ $giphy := resources.Get "giphy.gif" }}
+{{ $webp := resources.Get "anim.webp" }}
+giphy.gif resized: {{ ($giphy.Resize "10x").FrameCount }}|
+giphy.gif processed firstFrameOnly: {{ ($giphy.Process "resize 10x firstFrameOnly").FrameCount }}|
+anim.webp resized: {{ ($webp.Resize "10x").FrameCount }}|
+anim.webp processed firstFrameOnly: {{ ($webp.Process "resize 10x firstFrameOnly").FrameCount }}|
+`
+
+	b := hugolib.Test(t, strings.ReplaceAll(files, "IMAGING_FIRST_FRAME_ONLY", "false"))
+	b.AssertFileContent("public/index.html",
+		"giphy.gif resized: 14|",
+		"giphy.gif processed firstFrameOnly: 1|",
+		"anim.webp resized: 17|",
+		"anim.webp processed firstFrameOnly: 1|",
+	)
+
+	b = hugolib.Test(t, strings.ReplaceAll(files, "IMAGING_FIRST_FRAME_ONLY", "true"))
+	b.AssertFileContent("public/index.html",
+		"giphy.gif resized: 1|",
+		"giphy.gif processed firstFrameOnly: 1|",
+		"anim.webp resized: 1|",
+		"anim.webp processed firstFrameOnly: 1|",
+	)
+}
+
+// See issue 15433.
+func TestImageAnimationMemoryLimit(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- assets/giphy.gif --
+sourcefilename: ../testdata/giphy.gif
+-- assets/anim.webp --
+sourcefilename: ../testdata/webp/anim.webp
+-- assets/giphy.avif --
+sourcefilename: ../testdata/giphy.avif
+-- layouts/home.html --
+{{ $giphy := resources.Get "giphy.gif" }}
+{{ $webp := resources.Get "anim.webp" }}
+{{ $avif := resources.Get "giphy.avif" }}
+{{ with try ($webp.Resize "10x") }}Decode: {{ .Err }}|{{ end }}
+{{ with try ($giphy.Resize "480x webp") }}Encode: {{ .Err }}|{{ end }}
+anim.webp firstFrameOnly: {{ ($webp.Resize "10x firstFrameOnly").FrameCount }}|
+anim.webp to jpg: {{ ($webp.Resize "10x jpg").FrameCount }}|
+giphy.gif to webp firstFrameOnly: {{ ($giphy.Resize "480x webp firstFrameOnly").FrameCount }}|
+giphy.avif resized: {{ ($avif.Resize "10x").FrameCount }}|
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptWithConfig(func(c *hugolib.IntegrationTestConfig) {
+		c.WarpcMemory = 8
+	}))
+
+	b.AssertFileContent("public/index.html",
+		"anim.webp: 17 frames of 500x360 need at least 11 MiB of memory, the limit is 8 MiB; consider using firstFrameOnly|",
+		"giphy.gif&#34;: 14 frames of 480x480 need at least 12 MiB of memory, the limit is 8 MiB; consider using firstFrameOnly|",
+		"anim.webp firstFrameOnly: 1|",
+		"anim.webp to jpg: 1|",
+		"giphy.gif to webp firstFrameOnly: 1|",
+		"giphy.avif resized: 1|",
 	)
 }
