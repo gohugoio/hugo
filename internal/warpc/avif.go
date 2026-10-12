@@ -27,9 +27,9 @@ import (
 
 // Keep in sync with genavif/Makefile.
 const (
-	libavifVersion = "v1.4.1"
-	aomVersion     = "v3.14.1"
-	dav1dVersion   = "1.5.3"
+	libavifVersion = "v1.4.2"
+	aomVersion     = "v3.15.2"
+	dav1dVersion   = "1.5.4"
 )
 
 var (
