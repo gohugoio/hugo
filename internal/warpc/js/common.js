@@ -1,3 +1,9 @@
+// Javy writes console.log to stdout, which we use for the JSONL output.
+console.log = (...args) => {
+	// Stderr file descriptor
+	Javy.IO.writeSync(2, new TextEncoder().encode(args.join(' ') + '\n'));
+};
+
 // Read JSONL from stdin.
 export function readInput(handle) {
 	const buffSize = 1024;

@@ -467,7 +467,7 @@ var (
 	}
 
 	quickjsBinary = Binary{
-		Name: "javy_quickjs_provider_v2",
+		Name: quickjsPluginName,
 		Data: quickjsWasm,
 	}
 )
