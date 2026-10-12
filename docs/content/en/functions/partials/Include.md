@@ -8,7 +8,6 @@ params:
     aliases: [partial]
     returnType: any
     signatures: ['partials.Include NAME [CONTEXT]']
-aliases: [/functions/partial]
 ---
 
 Without a [`return`][] statement, the `partial` function returns a string of type `template.HTML`. With a `return` statement, the `partial` function can return any data type.

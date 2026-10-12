@@ -8,7 +8,6 @@ params:
     aliases: [base64Encode]
     returnType: string
     signatures: [encoding.Base64Encode INPUT]
-aliases: [/functions/base64, /functions/base64Encode]
 ---
 
 ```go-html-template

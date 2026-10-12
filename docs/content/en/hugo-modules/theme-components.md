@@ -4,7 +4,6 @@ description: Hugo provides advanced theming support with theme components.
 categories: []
 keywords: []
 weight: 30
-aliases: [/themes/customize/,/themes/customizing/]
 ---
 
 A project can configure a theme as a composite of as many theme components as you need:

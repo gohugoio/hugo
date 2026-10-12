@@ -37,7 +37,7 @@ The `images.QR` function accepts an options map.
 : (`int`) The number of image pixels per QR code module. Must be greater than or equal to `2`. Default is `4`.
 
 `targetDir`
-: (`string`) The subdirectory within the [`publishDir`][] where Hugo will place the generated image. Use Unix-style slashes (`/`) to separarate path segments. If empty or not provided, the image is placed directly in the `publishDir` root. Hugo automatically creates the necessary subdirectories if they don't exist.
+: (`string`) The subdirectory within the `public` directory where Hugo will place the generated image. Use Unix-style slashes (`/`) to separate path segments. If empty or not provided, the image is placed directly in the root of the `public` directory. Hugo automatically creates the necessary subdirectories if they don't exist.
 
 ## Examples
 
@@ -136,5 +136,4 @@ https://gohugo.io
 The `qr` shortcode accepts several arguments including `level` and `scale`. See the [related documentation][] for details.
 
 [QR code]: https://en.wikipedia.org/wiki/QR_code
-[`publishDir`]: /configuration/all/#publishdir
 [related documentation]: /shortcodes/qr/

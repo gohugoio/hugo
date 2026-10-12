@@ -1,6 +1,6 @@
 ---
 title: Identifier
-description: Returns the `identifier` property of the given menu entry.
+description: Returns the identifier property of the given menu entry.
 categories: []
 keywords: []
 params:

@@ -97,7 +97,10 @@ func nextJSCtx(s []byte, preceding jsCtx) jsCtx {
 		for j > 0 && isJSIdentPart(rune(s[j-1])) {
 			j--
 		}
-		if regexpPrecederKeywords[string(s[j:])] {
+		// An IdentifierName after a property-access dot is a property name,
+		// which precedes a div op.
+		if regexpPrecederKeywords[string(s[j:])] &&
+			!bytes.HasSuffix(bytes.TrimRight(s[:j], jsWhitespace), []byte(".")) {
 			return jsCtxRegexp
 		}
 	}
@@ -107,8 +110,9 @@ func nextJSCtx(s []byte, preceding jsCtx) jsCtx {
 	return jsCtxDivOp
 }
 
-// regexpPrecederKeywords is a set of reserved JS keywords that can precede a
-// regular expression in JS source.
+// regexpPrecederKeywords is a set of JS keywords that can precede a regular
+// expression in JS source. It deliberately treats the context-sensitive
+// keyword yield as a keyword.
 var regexpPrecederKeywords = map[string]bool{
 	"break":      true,
 	"case":       true,
@@ -124,6 +128,7 @@ var regexpPrecederKeywords = map[string]bool{
 	"try":        true,
 	"typeof":     true,
 	"void":       true,
+	"yield":      true,
 }
 
 var jsonMarshalType = reflect.TypeFor[json.Marshaler]()

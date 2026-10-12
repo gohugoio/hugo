@@ -7,7 +7,6 @@ params:
   functions_and_methods:
     returnType: int
     signatures: [PAGER.PagerSize]
-aliases: [/methods/pager/pagesize/]
 ---
 
 The number of pages per pager is determined by the optional second argument passed to the [`Paginate`][] method, falling back to the `pagerSize` as defined in your [project configuration][].

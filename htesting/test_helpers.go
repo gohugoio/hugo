@@ -167,6 +167,19 @@ func IsWindows() bool {
 	return runtime.GOOS == "windows"
 }
 
+// Is32Bit reports whether int is 32 bits wide, e.g. GOARCH=386.
+func Is32Bit() bool {
+	return strconv.IntSize == 32
+}
+
+// SkipSlowWasmTestOn32Bit skips heavy WebAssembly tests on 32-bit,
+// where Wazero falls back to its (much slower) interpreter.
+func SkipSlowWasmTestOn32Bit(t testing.TB) {
+	if Is32Bit() {
+		t.Skip("skipping slow Wasm test on 32-bit")
+	}
+}
+
 var goMinorVersionRe = regexp.MustCompile(`go1.(\d*)`)
 
 func extractMinorVersionFromGoTag(tag string) int {

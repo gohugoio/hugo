@@ -3,7 +3,6 @@ title: Themes
 description: If you've built a Hugo theme and want to contribute back to the Hugo Community, please share it with us.
 categories: []
 keywords: []
-aliases: [/contribute/theme/]
 ---
 
 Visit [themes.gohugo.io][] to browse a collection of themes created by the Hugo community.

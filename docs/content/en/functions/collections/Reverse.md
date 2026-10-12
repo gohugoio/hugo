@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: '[]any'
     signatures: [collections.Reverse SLICE]
-aliases: [/functions/collections.reverse]
 ---
 
 ```go-html-template

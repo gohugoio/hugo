@@ -4,7 +4,6 @@ linkTitle: Organization
 description: Hugo assumes that the same structure that works to organize your source content is used to organize the rendered site.
 categories: []
 keywords: []
-aliases: [/content/sections/]
 ---
 
 ## Page bundles
@@ -130,7 +129,7 @@ section
 : A default content type is determined by the section in which a content item is stored. The section is determined by the location within the project's `content` directory. The section cannot be specified or overridden in front matter.
 
 slug
-: The slug is the last segment of the URL path, defined by the file name and optionally overridden by a `slug` value in front matter. See [URL management][slug] for details.
+: The slug is the last segment of the URL path, defined by the last segment of the page's [logical path](g) and optionally overridden by a `slug` value in front matter. See [URL management][slug] for details.
 
 path
 : A content's path is determined by the section's path to the file. The file path:

@@ -6,7 +6,6 @@ keywords: []
 params:
   minVersion: v0.158.0
 weight: 10
-aliases: [/quickstart/,/overview/quickstart/]
 ---
 
 In this tutorial you will:
@@ -36,7 +35,7 @@ Use these commands to create a new Hugo project.
 >
 > - Do not use the Command Prompt
 > - Do not use Windows PowerShell
-> - Run these commands from [PowerShell][] or a Linux terminal such as WSL or Git > Bash
+> - Run these commands from [PowerShell][] or a POSIX shell such as Bash in WSL or Git Bash
 >
 > PowerShell and Windows PowerShell [are different applications][].
 

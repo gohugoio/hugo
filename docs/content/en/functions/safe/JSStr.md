@@ -8,7 +8,6 @@ params:
     aliases: [safeJSStr]
     returnType: template.JSStr
     signatures: [safe.JSStr INPUT]
-aliases: [/functions/safejsstr]
 ---
 
 ## Introduction

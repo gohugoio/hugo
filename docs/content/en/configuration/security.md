@@ -46,35 +46,39 @@ This is the default security configuration:
 `http.urls`
 : (`[]string`) A slice of [regular expressions](g) matching the URLs that the `resources.GetRemote` function is allowed to access.
 
-  The default allowlist denies URLs with an IP address or `localhost` as the host name. In addition, with the default allowlist, Hugo validates the resolved address when connecting and rejects connections to loopback, private, link-local, and other non-public addresses, e.g. a host name that resolves to a cloud metadata endpoint. This validation is disabled if you override `http.urls`, as the override may intentionally allow access to hosts on your local network, such as a development server.
+  The default allowlist denies URLs with an IP address or `localhost` as the host name. In addition, with the default allowlist, Hugo validates the resolved address when connecting and rejects connections to loopback, private, link-local, and other non-public addresses, such as a host name that resolves to a cloud metadata endpoint. This validation is disabled if you override `http.urls`, as the override may intentionally allow access to hosts on your local network, such as a development server.
 
 `node.permissions.disable`
 : {{< new-in 0.161.0 />}}
-: (`bool`) Whether to disable the Node.js [permission model][]. When `false`, Hugo runs Node.js tools with the `--permission` flag, restricting their file system and resource access to what is explicitly allowed below. Default is `false`.
+: (`bool`) Whether to disable the Node.js [permission model][]. When `false`, Hugo runs Node tools with the `--permission` flag, restricting their file system and resource access to what is explicitly allowed below. Default is `false`.
 
 `node.permissions.allowAddons`
 : {{< new-in 0.161.0 />}}
-: (`[]string`) A slice of Node.js tool names permitted to load native addons (`--allow-addons`).
+: (`[]string`) A slice of Node tool names permitted to load native addons. For these tools, Hugo passes the `--allow-addons` flag to `node`.
 
 `node.permissions.allowChildProcess`
 : {{< new-in 0.161.0 />}}
-: (`[]string`) A slice of Node.js tool names permitted to spawn child processes (`--allow-child-process`).
+: (`[]string`) A slice of Node tool names permitted to spawn child processes. For these tools, Hugo passes the `--allow-child-process` flag to `node`.
 
 `node.permissions.allowRead`
 : {{< new-in 0.161.0 />}}
-: (`[]string`) A slice of file system paths that Node.js tools are allowed to read (`--allow-fs-read`). Paths are relative to the working directory; `"."` means the working directory itself. Use `"*"` to allow all paths.
+: (`[]string`) A slice of file system paths that Node tools, such as those used by [`js.Babel`][], [`css.PostCSS`][], and [`css.TailwindCSS`][], are allowed to read. Hugo passes these paths to `node` with the `--allow-fs-read` flag. Paths are relative to the working directory, where `"."` means the working directory itself. Use `"*"` to allow all paths. Default is `["."]`.
 
-  The same paths bound what `js.Build`, `js.Batch`, `css.Build` and `css.Sass` may import from outside the `assets` directory, e.g. from `node_modules`. This check does not depend on `node.permissions.disable`.
+  Hugo also allows reading from the `assets` directories of the project and its modules. Node tools can also read from the `node_modules` directory where they are installed.
 
-  Node.js follows symbolic links even when they point outside the allowed paths. Hugo therefore fails the build if any allowed path contains a symbolic link whose target resolves outside the allowed set. To permit such a link, add its target to the list. The check runs once per build; if you also grant write access to an allowed path, a Node.js tool can create links at build time that escape this check.
+  The Node permission model enforces these limits, so they do not apply to Node tools when `node.permissions.disable` is `true`.
+
+  Hugo applies the same limits to files that [`js.Build`][], [`js.Batch`][], [`css.Build`][], and [`css.Sass`][] import from outside the `assets` directory, such as files in `node_modules`. These functions do not run in Node, so Hugo performs this check itself, regardless of the `node.permissions.disable` setting.
+
+  Node follows symbolic links even when they point outside the allowed paths. When the permission model is enabled, Hugo fails the build if an allowed path contains a symbolic link whose target resolves outside the allowed paths. To permit such a link, add its target to the list. Hugo scans each allowed path once, the first time a Node tool runs. If you also grant write access to an allowed path, a Node tool can create links after the scan that Hugo does not detect.
 
 `node.permissions.allowWorker`
 : {{< new-in 0.161.0 />}}
-: (`[]string`) A slice of Node.js tool names permitted to spawn worker threads (`--allow-worker`).
+: (`[]string`) A slice of Node tool names permitted to spawn worker threads. For these tools, Hugo passes the `--allow-worker` flag to `node`.
 
 `node.permissions.allowWrite`
 : {{< new-in 0.161.0 />}}
-: (`[]string`) A slice of file system paths that Node.js tools are allowed to write (`--allow-fs-write`). Paths are relative to the working directory; `"."` means the working directory itself. Use `"*"` to allow all paths.
+: (`[]string`) A slice of file system paths that Node tools are allowed to write. Hugo passes these paths to `node` with the `--allow-fs-write` flag. Paths are relative to the working directory, where `"."` means the working directory itself. Use `"*"` to allow all paths.
 
 ## Negation rules
 
@@ -82,11 +86,11 @@ This is the default security configuration:
 
 Any pattern in an allowlist can be negated by prefixing it with an exclamation mark (`!`) and one space to turn it into a deny rule. Deny rules take precedence over allow rules. An allowlist composed entirely of deny rules implicitly allows everything it does not deny. An empty allowlist rejects everything.
 
-For example, to allow all URLs except those pointing to `evil.example.com`:
+For example, to allow all URLs except those pointing to `evil.example.org`:
 
 ```toml
 [security.http]
-urls = ['.*', '! ^https?://evil\.example\.com']
+urls = ['.*', '! ^https?://evil\.example\.org']
 ```
 
 Setting an allowlist to the string `none` will completely disable the associated feature.
@@ -101,6 +105,13 @@ export HUGO_SECURITY_HTTP_URLS=none
 
 Learn more about [using environment variables][] to configure your site.
 
+[`css.Build`]: /functions/css/build/
+[`css.PostCSS`]: /functions/css/postcss/
+[`css.Sass`]: /functions/css/sass/
+[`css.TailwindCSS`]: /functions/css/tailwindcss/
+[`js.Babel`]: /functions/js/babel/
+[`js.Batch`]: /functions/js/batch/
+[`js.Build`]: /functions/js/build/
 [`os.Getenv`]: /functions/os/getenv/
 [`resources.GetRemote`]: /functions/resources/getremote/
 [classification]: /content-management/formats/#classification

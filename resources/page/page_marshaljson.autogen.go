@@ -17,7 +17,9 @@ package page
 
 import (
 	"encoding/json"
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/config"
+	"github.com/gohugoio/hugo/media"
 	"time"
 )
 
@@ -34,7 +36,6 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 	kind := p.Kind()
 	layout := p.Layout()
 	linkTitle := p.LinkTitle()
-	isNode := p.IsNode()
 	isBranch := p.IsBranch()
 	isPage := p.IsPage()
 	path := p.Path()
@@ -44,53 +45,72 @@ func MarshalPageToJSON(p Page) ([]byte, error) {
 	sitemap := p.Sitemap()
 	typ := p.Type()
 	weight := p.Weight()
+	resourceType := p.ResourceType()
+	mediaType := p.MediaType()
+	permalink := p.Permalink()
+	relPermalink := p.RelPermalink()
+	name := p.Name()
+	title := p.Title()
+	params := p.Params()
 
 	s := struct {
-		Date        time.Time
-		Lastmod     time.Time
-		PublishDate time.Time
-		ExpiryDate  time.Time
-		BundleType  string
-		Description string
-		Draft       bool
-		IsHome      bool
-		Keywords    []string
-		Kind        string
-		Layout      string
-		LinkTitle   string
-		IsNode      bool
-		IsBranch    bool
-		IsPage      bool
-		Path        string
-		Slug        string
-		IsSection   bool
-		Section     string
-		Sitemap     config.SitemapConfig
-		Type        string
-		Weight      int
+		Date         time.Time
+		Lastmod      time.Time
+		PublishDate  time.Time
+		ExpiryDate   time.Time
+		BundleType   string
+		Description  string
+		Draft        bool
+		IsHome       bool
+		Keywords     []string
+		Kind         string
+		Layout       string
+		LinkTitle    string
+		IsBranch     bool
+		IsPage       bool
+		Path         string
+		Slug         string
+		IsSection    bool
+		Section      string
+		Sitemap      config.SitemapConfig
+		Type         string
+		Weight       int
+		ResourceType string
+		MediaType    media.Type
+		Permalink    string
+		RelPermalink string
+		Name         string
+		Title        string
+		Params       hmaps.Params
 	}{
-		Date:        date,
-		Lastmod:     lastmod,
-		PublishDate: publishDate,
-		ExpiryDate:  expiryDate,
-		BundleType:  bundleType,
-		Description: description,
-		Draft:       draft,
-		IsHome:      isHome,
-		Keywords:    keywords,
-		Kind:        kind,
-		Layout:      layout,
-		LinkTitle:   linkTitle,
-		IsNode:      isNode,
-		IsBranch:    isBranch,
-		IsPage:      isPage,
-		Path:        path,
-		Slug:        slug,
-		IsSection:   isSection,
-		Section:     section,
-		Sitemap:     sitemap,
-		Type:        typ,
-		Weight:      weight,
+		Date:         date,
+		Lastmod:      lastmod,
+		PublishDate:  publishDate,
+		ExpiryDate:   expiryDate,
+		BundleType:   bundleType,
+		Description:  description,
+		Draft:        draft,
+		IsHome:       isHome,
+		Keywords:     keywords,
+		Kind:         kind,
+		Layout:       layout,
+		LinkTitle:    linkTitle,
+		IsBranch:     isBranch,
+		IsPage:       isPage,
+		Path:         path,
+		Slug:         slug,
+		IsSection:    isSection,
+		Section:      section,
+		Sitemap:      sitemap,
+		Type:         typ,
+		Weight:       weight,
+		ResourceType: resourceType,
+		MediaType:    mediaType,
+		Permalink:    permalink,
+		RelPermalink: relPermalink,
+		Name:         name,
+		Title:        title,
+		Params:       params,
 	}
 
 	return json.Marshal(&s)

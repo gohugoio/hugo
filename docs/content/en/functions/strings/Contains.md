@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: bool
     signatures: [strings.Contains STRING SUBSTRING]
-aliases: [/functions/strings.contains]
 ---
 
 ```go-html-template

@@ -26,7 +26,7 @@ func TestEncodePage(t *testing.T) {
 	files := `
 -- hugo.toml --
 baseURL = "https://example.org"
--- layouts/home.html --
+-- layouts/all.html --
 Page: |{{ index .Site.RegularPages 0 | jsonify }}|
 Site: {{ site | jsonify }}
 -- content/page.md --
@@ -37,7 +37,8 @@ date: 2019-02-28
 
 Content.
 `
-	b := Test(t, files)
+	b := Test(t, files, TestOptWarn())
 
 	b.AssertFileContent("public/index.html", `"Date":"2019-02-28T00:00:00Z"`)
+	b.AssertLogContains("! WARN", "! deprecated", "! IsNode")
 }

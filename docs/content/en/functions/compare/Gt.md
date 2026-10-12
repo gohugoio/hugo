@@ -8,7 +8,6 @@ params:
     aliases: [gt]
     returnType: bool
     signatures: ['compare.Gt ARG1 ARG2 [ARG...]']
-aliases: [/functions/gt]
 ---
 
 ## Usage

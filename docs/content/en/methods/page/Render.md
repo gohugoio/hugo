@@ -7,7 +7,6 @@ params:
   functions_and_methods:
     returnType: template.HTML
     signatures: ['PAGE.Render VIEW [CONTEXT]']
-aliases: [/functions/render]
 ---
 
 The `Render` method on a `Page` object renders a [view template][] with the given page as [context](g), or with an optional context argument.

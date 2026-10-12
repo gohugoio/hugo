@@ -1,7 +1,7 @@
 ---
-title: Command line interface
+title: Command-line interface
 linkTitle: CLI
-description: Use the command line interface (CLI) to manage your project.
+description: Use the command-line interface (CLI) to manage your project.
 categories: []
 keywords: []
 weight: 10

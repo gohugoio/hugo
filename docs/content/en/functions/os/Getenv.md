@@ -8,7 +8,6 @@ params:
     aliases: [getenv]
     returnType: string
     signatures: [os.Getenv VARIABLE]
-aliases: [/functions/getenv]
 ---
 
 ## Security

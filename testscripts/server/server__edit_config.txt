@@ -30,10 +30,10 @@ title = "Hugo New Server Test"
 baseURL = "https://example.org/"
 [languages]
 [languages.en]
-languageName = "English"
+label = "English"
 weight = 1
 [languages.nn]
-languageName = "Nynorsk"
+label = "Nynorsk"
 title = "Hugo Nynorsk Server Test"
 weight = 2
 

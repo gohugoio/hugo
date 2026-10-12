@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: string
     signatures: [transform.Remarshal FORMAT INPUT]
-aliases: [/functions/transform.remarshal]
 ---
 
 ## Usage

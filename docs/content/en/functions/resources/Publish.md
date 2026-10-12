@@ -14,7 +14,7 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-The `resources.Publish` function writes the given resource to the [`publishDir`][] and returns the resource, making it useful within a template pipeline.
+The `resources.Publish` function writes the given resource to the `public` directory and returns the resource, making it useful within a template pipeline.
 
 ```go-html-template
 {{ resources.Get "main.js" | js.Build | resources.Publish }}
@@ -29,4 +29,3 @@ This is equivalent to:
 See the [`Publish`][] method for the non-pipeline form.
 
 [`Publish`]: /methods/resource/publish/
-[`publishDir`]: /configuration/all/#publishdir

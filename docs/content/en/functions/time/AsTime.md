@@ -8,7 +8,6 @@ params:
     aliases: [time]
     returnType: time.Time
     signatures: ['time.AsTime INPUT [TIMEZONE]']
-aliases: [/functions/time]
 ---
 
 ## Overview

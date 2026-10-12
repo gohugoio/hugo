@@ -4,7 +4,6 @@ description: Use modules to manage the content, layout, presentation, and behavi
 categories: []
 keywords: []
 weight: 20
-aliases: [/themes/usage/,/themes/installing/,/installing-and-using-themes/]
 ---
 
 > [!NOTE]

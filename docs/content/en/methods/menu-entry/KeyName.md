@@ -1,6 +1,6 @@
 ---
 title: KeyName
-description: Returns the `identifier` property of the given menu entry, falling back to its `name` property.
+description: Returns the identifier property of the given menu entry, falling back to its name property.
 categories: []
 keywords: []
 params:

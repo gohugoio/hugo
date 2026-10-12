@@ -527,7 +527,12 @@ LOOP:
 		}
 	}
 
-	config, err := decodeConfig(c.logger.Logger(), tc.cfg, c.moduleConfig.replacementsMap)
+	// Only the project can define replacements.
+	replacements := c.moduleConfig.replacementsMap
+	if replacements == nil {
+		replacements = map[string]string{}
+	}
+	config, err := decodeConfig(c.logger.Logger(), tc.cfg, replacements)
 	if err != nil {
 		return err
 	}

@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: bool
     signatures: [reflect.IsSlice INPUT]
-aliases: [/functions/reflect.isslice]
 ---
 
 ```go-html-template

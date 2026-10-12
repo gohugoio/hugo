@@ -3,7 +3,6 @@ title: Related content
 description: List related content in "See Also" sections.
 categories: []
 keywords: []
-aliases: [/content/related/,/related/,/content-management/related/]
 ---
 
 Hugo uses a set of factors to identify a page's related content based on front matter parameters. This can be tuned to the desired set of indices and parameters.

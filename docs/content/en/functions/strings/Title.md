@@ -8,7 +8,6 @@ params:
     aliases: [title]
     returnType: string
     signatures: [strings.Title STRING]
-aliases: [/functions/title]
 ---
 
 ```go-html-template

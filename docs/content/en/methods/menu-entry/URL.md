@@ -1,6 +1,6 @@
 ---
 title: URL
-description: Returns the relative permalink of the page associated with the given menu entry, else its `url` property.
+description: Returns the relative permalink of the page associated with the given menu entry, else its url property.
 categories: []
 keywords: []
 params:

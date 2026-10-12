@@ -7,7 +7,6 @@ params:
   functions_and_methods:
     returnType: template.HTML
     signatures: ['PAGE.RenderString [OPTIONS] MARKUP']
-aliases: [/functions/renderstring]
 ---
 
 The `RenderString` method on a `Page` object renders markup to HTML.

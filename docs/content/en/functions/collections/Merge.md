@@ -8,7 +8,6 @@ params:
     aliases: [merge]
     returnType: map[string]any
     signatures: [collections.Merge MAP MAP...]
-aliases: [/functions/merge]
 ---
 
 Returns the result of merging two or more maps from left to right. If a key already exists, `merge` updates its value. If a key is absent, `merge` inserts the value under the new key.

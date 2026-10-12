@@ -8,7 +8,6 @@ params:
     aliases: [sort]
     returnType: any
     signatures: ['collections.Sort MAP|SLICE [KEY] [ORDER]']
-aliases: [/functions/sort]
 ---
 
 The `KEY` is optional when sorting slices in ascending order, otherwise it is required. When sorting slices, use the literal `value` in place of the `KEY`. See examples below.

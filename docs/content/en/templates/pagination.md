@@ -4,7 +4,6 @@ description: Split a list page into two or more subsets.
 categories: []
 keywords: []
 weight: 160
-aliases: [/extras/pagination,/doc/pagination/]
 ---
 
 Displaying a large page collection on a list page is not user-friendly:

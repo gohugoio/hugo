@@ -1,6 +1,6 @@
 ---
 title: path.Dir
-description: Returns all but the last element of the given path, after replacing path separators with slashes (`/`).
+description: Returns all but the last element of the given path, after replacing path separators with slashes (/).
 categories: []
 keywords: []
 params:
@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: string
     signatures: [path.Dir PATH]
-aliases: [/functions/path.dir]
 ---
 
 ```go-html-template

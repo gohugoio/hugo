@@ -8,4 +8,4 @@ Please read [Hugo's Security Model](https://gohugo.io/about/security/) first. If
 
 If, after the above, you believe you have found a vulnerability in Hugo itself with a concrete, reproducible impact, report it privately to **[bjorn.erik.pedersen@gmail.com](mailto:bjorn.erik.pedersen@gmail.com)**. Include a minimal reproducer, the Hugo version, and the observed vs. expected behavior.
 
-You should receive an initial response within a few days. Confirmed issues are typically patched within days, depending on complexity.
+You should receive an initial response within a few days. Confirmed issues are typically patched within days, depending on complexity. For accepted security issue, we handle CVE creation via GitHub's Security Advisory system. Please, please, please give us some time to handle and fix the issue before you start publishing this to alternative CVE registries.

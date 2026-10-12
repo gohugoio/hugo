@@ -7,10 +7,13 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
 func TestAvifColorPropertyPreservation(t *testing.T) {
+	htesting.SkipSlowWasmTestOn32Bit(t)
+
 	if testing.Short() {
 		t.Skip("Skipping in short mode")
 	}

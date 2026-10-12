@@ -4,7 +4,6 @@ description: Organize content into sections.
 
 categories: []
 keywords: []
-aliases: [/content/sections/]
 ---
 
 ## Overview

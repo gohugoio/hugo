@@ -1,9 +1,8 @@
 ---
-title: Host on SourceHut Pages
-description: Host your project on SourceHut Pages.
+title: Deploy to SourceHut Pages
+description: Deploy your project to SourceHut Pages.
 categories: []
 keywords: []
-aliases: [/hosting-and-deployment/hosting-on-sourcehut/]
 ---
 
 Use these instructions to host your site on SourceHut Pages using either manual deployment or the SourceHut build system.
@@ -72,7 +71,7 @@ environment:
   site: <YourUsername>.srht.site
 tasks:
 - package: |
-    DART_SASS_VERSION=1.104.0
+    DART_SASS_VERSION=1.105.0
     mkdir -p $HOME/.local
     curl -L https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/dart-sass-${DART_SASS_VERSION}-linux-x64-musl.tar.gz -o dart-sass.tar.gz
     tar -xzf dart-sass.tar.gz -C $HOME/.local

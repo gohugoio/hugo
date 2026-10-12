@@ -20,4 +20,4 @@ LibSass support (3)|:x:|:x:|:heavy_check_mark:|:heavy_check_mark:
 
 [Dart Sass]: /functions/css/sass/#dart-sass
 [Transpile Sass to CSS]: /functions/css/sass/
-[details]: /host-and-deploy/deploy-with-hugo-deploy/
+[details]: /host-and-deploy/deploy-with-hugo/

@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: string
     signatures: [strings.TrimLeft CUTSET STRING]
-aliases: [/functions/strings.trimleft]
 ---
 
 ```go-html-template

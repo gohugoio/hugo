@@ -2381,3 +2381,39 @@ page c
 	b.Build()
 	b.AssertFileContent("public/c/index.html", "<p>c</p>", "|Summary: <p>c</p>|")
 }
+
+// See issue 12838.
+func TestRebuildEditContentMountedAsAssets(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "section"]
+[[module.mounts]]
+source = "content"
+target = "assets"
+-- content/_index.md --
+---
+title: Home
+---
+home v1
+-- content/p1.md --
+---
+title: P1
+---
+p1 v1
+-- layouts/home.html --
+{{ .Content }}
+-- layouts/page.html --
+{{ .Content }}
+`
+	b := TestRunning(t, files)
+	b.AssertFileContent("public/index.html", "home v1")
+	b.AssertFileContent("public/p1/index.html", "p1 v1")
+
+	b.EditFileReplaceAll("content/_index.md", "home v1", "home v2").Build()
+	b.AssertFileContent("public/index.html", "home v2")
+
+	b.EditFileReplaceAll("content/p1.md", "p1 v1", "p1 v2").Build()
+	b.AssertFileContent("public/p1/index.html", "p1 v2")
+}

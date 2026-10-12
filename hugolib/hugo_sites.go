@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"iter"
+	"os"
 	"slices"
 	"strings"
 	"sync"
@@ -424,7 +425,7 @@ func (h *HugoSites) reportProgress(f func() (state terminal.ProgressState, progr
 
 		h.progressReporter.state = state
 		h.progressReporter.progress = progress
-		terminal.ReportProgress(h.Log.StdOut(), state, h.progressReporter.progress)
+		terminal.ReportProgress(h.Log.StdOut(), state, h.progressReporter.progress, "")
 	}
 
 	// Drain queue first.
@@ -438,6 +439,33 @@ func (h *HugoSites) reportProgress(f func() (state terminal.ProgressState, progr
 	h.progressReporter.queue = nil
 
 	handleOne(nil, f)
+}
+
+// reportBuildEnd reports done, idle (when watching or running) or error.
+// Fast builds are only reported when entering or leaving the error state.
+func (h *HugoSites) reportBuildEnd(err error) {
+	pr := h.progressReporter
+	pr.mu.Lock()
+	defer pr.mu.Unlock()
+
+	pr.queue = nil
+
+	if pr.t.IsZero() && (err == nil && pr.state != terminal.ProgressError || !terminal.PrintANSIColors(os.Stdout)) {
+		return
+	}
+
+	state := terminal.ProgressDone
+	if h.Conf.Watching() || h.Conf.Running() {
+		state = terminal.ProgressHidden
+	}
+	var msg string
+	if err != nil {
+		state = terminal.ProgressError
+		msg = err.Error()
+	}
+
+	pr.state, pr.progress, pr.renderProgressStart = state, 0, 0
+	terminal.ReportProgress(h.Log.StdOut(), state, 1.0, msg)
 }
 
 func (h *HugoSites) onPageRender() {

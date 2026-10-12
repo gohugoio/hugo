@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: page.siteWrapper
     signatures: [site]
-aliases: [/functions/site]
 ---
 
 Use the `site` function to return the `Site` object regardless of current context.

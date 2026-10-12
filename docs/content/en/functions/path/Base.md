@@ -1,6 +1,6 @@
 ---
 title: path.Base
-description: Returns the last element of the given path, after replacing path separators with slashes (`/`).
+description: Returns the last element of the given path, after replacing path separators with slashes (/).
 categories: []
 keywords: []
 params:
@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: string
     signatures: [path.Base PATH]
-aliases: [/functions/path.base]
 ---
 
 ```go-html-template

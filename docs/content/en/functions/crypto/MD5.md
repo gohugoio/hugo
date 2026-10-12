@@ -8,7 +8,6 @@ params:
     aliases: [md5]
     returnType: string
     signatures: [crypto.MD5 INPUT]
-aliases: [/functions/md5]
 ---
 
 ```go-html-template

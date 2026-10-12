@@ -8,12 +8,11 @@ params:
     aliases: [eq]
     returnType: bool
     signatures: ['compare.Eq ARG1 ARG2 [ARG...]']
-aliases: [/functions/eq]
 ---
 
 ## Usage
 
-The `compare.Eq` function reports whether the first argument is equal to any of the subsequent arguments. You can also use this function to compare strings, boolean values, dates, and other comparable data types.
+The `compare.Eq` function reports whether the first argument is equal to any of the subsequent arguments. Numbers are compared by value, regardless of type. You can also use this function to compare strings, boolean values, dates, and other comparable data types.
 
 ## Examples
 
@@ -25,6 +24,12 @@ The `compare.Eq` function reports whether the first argument is equal to any of 
 {{ compare.Eq 1 1 2 }} → true
 {{ compare.Eq 1 2 1 }} → true
 {{ compare.Eq 1 2 2 }} → false
+```
+
+Comparing numbers of different types:
+
+```go-html-template
+{{ compare.Eq 1 1.0 }} → true
 ```
 
 Comparing other data types:

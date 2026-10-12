@@ -12,7 +12,7 @@ A _processable image_ is an image file characterized by one of the following [_m
   - `image/tiff`
   - `image/webp`
 
-  Hugo can decode and encode these image formats, allowing you to use any of the [resource methods][] applicable to images such as `Width`, `Height`, `Crop`, `Fill`, `Fit`, `Filter`, `Process`, `Resize`, etc.
+  Hugo can decode and encode these image formats, allowing you to use any of the [resource methods][] applicable to images such as `Width`, `Height`, `Crop`, `Fill`, `Fit`, `Filter`, `Process`, and `Resize`.
 
   Use the [`reflect.IsImageResourceProcessable`][] function to determine if an image can be processed.
 

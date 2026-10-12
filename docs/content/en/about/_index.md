@@ -5,5 +5,4 @@ description: Learn about Hugo and its features, privacy protections, and securit
 categories: []
 keywords: []
 weight: 7
-aliases: [/about-hugo/,/docs/]
 ---

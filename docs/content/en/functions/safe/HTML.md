@@ -8,7 +8,6 @@ params:
     aliases: [safeHTML]
     returnType: template.HTML
     signatures: [safe.HTML INPUT]
-aliases: [/functions/safehtml]
 ---
 
 ## Introduction

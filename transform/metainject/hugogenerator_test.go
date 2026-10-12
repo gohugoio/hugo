@@ -30,22 +30,22 @@ func TestHugoGeneratorInject(t *testing.T) {
 		{`<head>
 	<foo />
 </head>`, `<head>
-	META
 	<foo />
+	META
 </head>`},
 		{`<HEAD>
 	<foo />
 </HEAD>`, `<HEAD>
-	META
 	<foo />
+	META
 </HEAD>`},
 		{`<head><meta name="generator" content="Jekyll"></head>`, `<head><meta name="generator" content="Jekyll"></head>`},
 		{`<head><meta name='generator' content='Jekyll'></head>`, `<head><meta name='generator' content='Jekyll'></head>`},
 		{`<head><meta name=generator content=Jekyll></head>`, `<head><meta name=generator content=Jekyll></head>`},
 		{`<head><META     NAME="GENERATOR" content="Jekyll"></head>`, `<head><META     NAME="GENERATOR" content="Jekyll"></head>`},
 		{"", ""},
-		{"</head>", "</head>"},
-		{"<head>", "<head>\n\tMETA"},
+		{"</head>", "\tMETA\n</head>"},
+		{"<head>", "<head>"},
 	} {
 		in := strings.NewReader(this.in)
 		out := new(bytes.Buffer)

@@ -1,6 +1,6 @@
 ---
-title: Host on Cloudflare
-description: Host your project on Cloudflare.
+title: Deploy to Cloudflare
+description: Deploy your project to Cloudflare.
 categories: []
 keywords: []
 ---
@@ -58,10 +58,10 @@ Step 2
   set -euo pipefail
 
   # Define tool versions
-  DART_SASS_VERSION=1.104.0
-  GO_VERSION=1.27.0
-  HUGO_VERSION=0.166.0
-  NODE_VERSION=24.20.0
+  DART_SASS_VERSION=1.105.0
+  GO_VERSION=1.27.1
+  HUGO_VERSION=0.167.0
+  NODE_VERSION=24.21.0
 
   # Set the build time zone
   TZ=Europe/Oslo

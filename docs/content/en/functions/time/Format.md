@@ -8,7 +8,6 @@ params:
     aliases: [dateFormat]
     returnType: string
     signatures: [time.Format LAYOUT INPUT]
-aliases: [/functions/dateformat]
 ---
 
 Use the `time.Format` function with `time.Time` values:

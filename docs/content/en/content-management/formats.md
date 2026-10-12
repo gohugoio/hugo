@@ -3,7 +3,6 @@ title: Content formats
 description: Create your content using Markdown, HTML, Emacs Org Mode, AsciiDoc, Pandoc, or reStructuredText.
 categories: []
 keywords: []
-aliases: [/content/markdown-extras/,/content/supported-formats/,/doc/supported-formats/]
 ---
 
 ## Introduction

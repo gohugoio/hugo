@@ -8,7 +8,6 @@ params:
     aliases: [lower]
     returnType: string
     signatures: [strings.ToLower STRING]
-aliases: [/functions/lower]
 ---
 
 ```go-html-template

@@ -4,7 +4,6 @@ description: Create templates to render one or more menus.
 categories: []
 keywords: []
 weight: 150
-aliases: [/templates/menus/,/templates/menu-templates/]
 ---
 
 ## Overview

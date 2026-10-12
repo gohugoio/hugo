@@ -8,7 +8,6 @@ params:
     aliases: [now]
     returnType: time.Time
     signatures: [time.Now]
-aliases: [/functions/now]
 ---
 
 For example, when building a site on October 15, 2023 in the America/Los_Angeles time zone:

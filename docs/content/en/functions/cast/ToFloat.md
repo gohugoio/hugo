@@ -8,7 +8,6 @@ params:
     aliases: [float]
     returnType: float64
     signatures: [cast.ToFloat INPUT]
-aliases: [/functions/float]
 ---
 
 With a decimal (base 10) input:

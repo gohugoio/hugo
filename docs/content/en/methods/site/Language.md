@@ -35,6 +35,38 @@ weight = 2
   {{ .Site.Language.Direction }} → ltr
   ```
 
+`FormatAccounting`
+: {{< new-in 0.168.0 />}}
+: (`string`) Formats a number as currency in accounting notation for this language. See [`lang.FormatAccounting`][].
+
+  ```go-html-template
+  {{ .Site.Language.FormatAccounting 2 "EUR" -12.3 }} → -12,30 €
+  ```
+
+`FormatCurrency`
+: {{< new-in 0.168.0 />}}
+: (`string`) Formats a number as currency for this language. See [`lang.FormatCurrency`][].
+
+  ```go-html-template
+  {{ .Site.Language.FormatCurrency 2 "EUR" 12.3 }} → 12,30 €
+  ```
+
+`FormatNumber`
+: {{< new-in 0.168.0 />}}
+: (`string`) Formats a number for this language. See [`lang.FormatNumber`][].
+
+  ```go-html-template
+  {{ .Site.Language.FormatNumber 2 1234.5 }} → 1.234,50
+  ```
+
+`FormatPercent`
+: {{< new-in 0.168.0 />}}
+: (`string`) Formats a number as a percentage for this language. See [`lang.FormatPercent`][].
+
+  ```go-html-template
+  {{ .Site.Language.FormatPercent 1 12.3 }} → 12,3 %
+  ```
+
 `IsDefault`
 : {{< new-in 0.153.0 />}}
 : (`bool`) Reports whether this is the [default language](g).
@@ -83,6 +115,22 @@ weight = 2
   {{ .Site.Language.Name }} → de
   ```
 
+`Translate`
+: {{< new-in 0.168.0 />}}
+: (`string`) Translates a string using the translation tables for this language. See [`lang.Translate`][].
+
+  ```go-html-template
+  {{ .Site.Language.Translate "hello" }} → Hallo
+  ```
+
+  Use this to translate a string into a language other than that of the current page:
+
+  ```go-html-template
+  {{ range .Site.Languages }}
+    {{ .Translate "hello" }}
+  {{ end }}
+  ```
+
 `Weight`
 : {{<deprecated-in 0.158.0 />}}
 
@@ -99,6 +147,11 @@ Some of the methods above are commonly used in a _base_ template as attributes f
 
 [RFC 5646]: https://datatracker.ietf.org/doc/html/rfc5646
 [`direction`]: /configuration/languages/#direction
+[`lang.FormatAccounting`]: /functions/lang/formataccounting/
+[`lang.FormatCurrency`]: /functions/lang/formatcurrency/
+[`lang.FormatNumber`]: /functions/lang/formatnumber/
+[`lang.FormatPercent`]: /functions/lang/formatpercent/
+[`lang.Translate`]: /functions/lang/translate/
 [`label`]: /configuration/languages/#label
 [`locale`]: /configuration/languages/#locale
 [details]: /methods/page/language/

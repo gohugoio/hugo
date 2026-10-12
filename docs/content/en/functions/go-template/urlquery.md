@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: string
     signatures: ['urlquery VALUE [VALUE...]']
-aliases: [/functions/urlquery]
 ---
 
 This template code:

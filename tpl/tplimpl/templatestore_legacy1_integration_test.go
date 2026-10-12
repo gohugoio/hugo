@@ -202,62 +202,6 @@ title: "P1 SV"
 	b.AssertFileContent("public/sv/p1/index.html", "layouts/_default/single.sv.html")
 }
 
-func TestLayoutWithLanguagesLegacyMounts(t *testing.T) {
-	t.Parallel()
-	files := `
--- hugo.toml --
-disableKinds = ["taxonomy", "term", "sitemap", "rss"]
-defaultContentLanguage = "en"
-defaultContentLanguageInSubdir = true
-[languages]
-[languages.en]
-weight = 1
-[languages.nn]
-weight = 2
-[languages.sv]
-weight = 3
-
-
-[[module.mounts]]
-source = 'layouts/en'
-target = 'layouts'
-lang = 'en'
-
-[[module.mounts]]
-source = 'layouts/nn'
-target = 'layouts'
-lang = 'nn'
-[[module.mounts]]
-source = 'layouts/sv'
-target = 'layouts'
-lang = 'sv'
-
--- layouts/en/_default/single.html --
-layouts/en/_default/single.html
--- layouts/nn/_default/single.html --
-layouts/nn/_default/single.html
--- layouts/sv/_default/single.html --
-layouts/sv/_default/single.html
--- content/p1.md --
----
-title: "P1"
----
--- content/p1.nn.md --
----
-title: "P1 NN"
----
--- content/p1.sv.md --
----
-title: "P1 SV"
----
-`
-	b := hugolib.Test(t, files)
-
-	b.AssertFileContent("public/en/p1/index.html", "layouts/en/_default/single.html")
-	b.AssertFileContent("public/nn/p1/index.html", "layouts/nn/_default/single.html")
-	b.AssertFileContent("public/sv/p1/index.html", "layouts/sv/_default/single.html")
-}
-
 func TestLegacyPartialIssue13599(t *testing.T) {
 	t.Parallel()
 

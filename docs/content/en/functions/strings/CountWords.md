@@ -8,7 +8,6 @@ params:
     aliases: [countwords]
     returnType: int
     signatures: [strings.CountWords STRING]
-aliases: [/functions/countwords]
 ---
 
 ```go-html-template

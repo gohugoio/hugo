@@ -591,11 +591,18 @@ func (c *hugoBuilder) doWithPublishDirs(f func(sourceFs *filesystems.SourceFiles
 }
 
 func (c *hugoBuilder) progressIntermediate() {
-	terminal.ReportProgress(c.r.StdOut, terminal.ProgressIntermediate, 0)
+	terminal.ReportProgress(c.r.StdOut, terminal.ProgressIntermediate, 0, "")
 }
 
 func (c *hugoBuilder) progressHidden() {
-	terminal.ReportProgress(c.r.StdOut, terminal.ProgressHidden, 0)
+	terminal.ReportProgress(c.r.StdOut, terminal.ProgressHidden, 0, "")
+}
+
+// progressInterrupted reports idle, as recommended for interrupted programs in OSC 7501.
+func (c *hugoBuilder) progressInterrupted() {
+	if terminal.PrintANSIColors(os.Stdout) {
+		c.progressHidden()
+	}
 }
 
 func (c *hugoBuilder) fullBuild(noBuildLock bool) error {
@@ -1112,11 +1119,17 @@ func (c *hugoBuilder) hugoTry() *hugolib.HugoSites {
 
 func (c *hugoBuilder) loadConfig(cd *simplecobra.Commandeer, running bool) error {
 	if terminal.PrintANSIColors(os.Stdout) {
-		defer c.progressHidden()
+		var shown atomic.Bool
+		defer func() {
+			if shown.Load() {
+				c.progressHidden()
+			}
+		}()
 		// If the configuration takes a while to load, we want to show some progress.
 		// This is typically loading of external modules.
 		d := debounce.New(500 * time.Millisecond)
 		d(func() {
+			shown.Store(true)
 			c.progressIntermediate()
 		})
 		defer d(func() {})

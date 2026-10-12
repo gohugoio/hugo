@@ -8,7 +8,6 @@ params:
     aliases: [last]
     returnType: 'any'
     signatures: [collections.Last N SLICE|STRING]
-aliases: [/functions/last]
 ---
 
 ```go-html-template

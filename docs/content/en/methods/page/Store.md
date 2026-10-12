@@ -7,7 +7,6 @@ params:
   functions_and_methods:
     returnType: maps.Scratch
     signatures: [PAGE.Store]
-aliases: [/functions/store/,/extras/scratch/,/doc/scratch/,/functions/scratch]
 ---
 
 Use the `Store` method on a `Page` object to create a persistent data structure for storing and manipulating keyed values, scoped to the current page. To create a data structure with a different [scope](g), refer to the [scope](#scope) section below.

@@ -1,6 +1,6 @@
 ---
 title: Weight
-description: Returns the `weight` property of the given menu entry.
+description: Returns the weight property of the given menu entry.
 categories: []
 keywords: []
 params:

@@ -6,7 +6,6 @@ params:
   functions_and_methods:
     returnType: int64
     signatures: [TIME.Unix]
-aliases: [/functions/unix]
 ---
 
 See [Unix epoch][].

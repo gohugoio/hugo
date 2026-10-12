@@ -1,6 +1,6 @@
 ---
 title: Pre
-description: Returns the `pre` property of the given menu entry.
+description: Returns the pre property of the given menu entry.
 categories: []
 keywords: []
 params:

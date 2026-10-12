@@ -8,7 +8,6 @@ params:
     aliases: [plainify]
     returnType: template.HTML
     signatures: [transform.Plainify INPUT]
-aliases: [/functions/plainify]
 ---
 
 ```go-html-template

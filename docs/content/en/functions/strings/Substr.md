@@ -8,7 +8,6 @@ params:
     aliases: [substr]
     returnType: string
     signatures: ['strings.Substr STRING [START] [LENGTH]']
-aliases: [/functions/substr]
 ---
 
 The start position is zero-based, where `0` represents the first character of the string. If START is not specified, the substring will begin at position `0`. Specify a negative START position to extract characters from the end of the string.

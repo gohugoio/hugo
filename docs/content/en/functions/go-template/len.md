@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: int
     signatures: [len VALUE]
-aliases: [/functions/len]
 ---
 
 With a string:

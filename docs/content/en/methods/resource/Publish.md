@@ -11,7 +11,7 @@ params:
 
 {{% include "/_common/methods/resource/global-page-remote-resources.md" %}}
 
-The `Publish` method on a `Resource` object writes the given resource to the [`publishDir`][].
+The `Publish` method on a `Resource` object writes the given resource to the `public` directory.
 
 This example uses [`resources.FromString`][] to create a resource from a string, then publishes it:
 
@@ -36,6 +36,5 @@ Instead of this:
 
 To publish a resource within a pipeline, use the [`resources.Publish`][] function instead.
 
-[`publishDir`]: /configuration/all/#publishdir
 [`resources.FromString`]: /functions/resources/fromstring/
 [`resources.Publish`]: /functions/resources/publish/

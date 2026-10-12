@@ -8,7 +8,6 @@ params:
     aliases: [babel]
     returnType: resource.Resource
     signatures: ['js.Babel [OPTIONS] RESOURCE']
-aliases: [/functions/resources/babel/]
 ---
 
 The `js.Babel` function transforms JavaScript using [Babel][].
@@ -84,6 +83,10 @@ Step 7
     {{ partial "js.html" . }}
   </head>
   ```
+
+## File system access
+
+{{% include "/_common/functions/node-permissions/node-tools.md" %}}
 
 ## Options
 

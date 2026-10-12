@@ -14,7 +14,6 @@ layout: single
 params:
   hide_in_this_section: true
   searchable: true
-aliases: [/getting-started/glossary/]
 ---
 
 {{% glossary %}}

@@ -8,7 +8,6 @@ params:
     aliases: [split]
     returnType: '[]string'
     signatures: [strings.Split STRING DELIM]
-aliases: [/functions/split]
 ---
 
 Examples:

@@ -56,7 +56,7 @@ The following is the default configuration that matches the table above:
 : (`bool`) Whether to disable ugly URLs for this output format when [`uglyURLs`][] are enabled in your project configuration. Default is `false`.
 
 `path`
-: (`string`) The first segment of the publication path for this output format. This path segment is relative to the root of your [`publishDir`][]. If omitted, Hugo will use the file's original content path for publishing.
+: (`string`) The first segment of the publication path for this output format. This path segment is relative to the root of your `public` directory. If omitted, Hugo will use the file's original content path for publishing.
 
 `permalinkable`
 : (`bool`) Whether to return the rendering output format rather than the main output format when invoking the [`Permalink`][] and [`RelPermalink`][] methods on a `Page` object. Along with [`isHTML`](#ishtml), this must be `true` to create [alias redirects][]. Enabled by default for the `html` and `amp` output formats. Default is `false`.
@@ -68,7 +68,7 @@ The following is the default configuration that matches the table above:
 : (`string`) The relationship of the output format to the current page. Hugo uses this property to determine the [canonical output format](g) of the current page. For the predefined `html` output format, the default value is `canonical`; for all other predefined output formats, the default value is `alternate`.
 
 `root`
-: (`bool`) Whether to publish files to the root of the publish directory. Default is `false`.
+: (`bool`) Whether to publish files to the root of the `public` directory. Default is `false`.
 
 `ugly`
 : (`bool`) Whether to enable uglyURLs for this output format when `uglyURLs` is `false` in your project configuration. Default is `false`.
@@ -194,7 +194,6 @@ Output format|Template path
 [`RelPermalink`]: /methods/page/relpermalink/
 [`baseURL`]: /configuration/all/#baseurl
 [`html/template`]: https://pkg.go.dev/html/template
-[`publishDir`]: /configuration/all/#publishdir
 [`text/template`]: https://pkg.go.dev/text/template
 [`uglyURLs`]: /configuration/ugly-urls/
 [alias redirects]: /content-management/urls/#aliases

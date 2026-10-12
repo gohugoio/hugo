@@ -8,7 +8,6 @@ params:
     aliases: []
     returnType: int
     signatures: [strings.Count SUBSTR STRING]
-aliases: [/functions/strings.count]
 ---
 
 If `SUBSTR` is an empty string, this function returns 1 plus the number of Unicode [code points](g) in `STRING`.

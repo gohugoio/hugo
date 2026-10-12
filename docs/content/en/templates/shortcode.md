@@ -4,7 +4,6 @@ description: Create custom shortcodes to simplify and standardize content creati
 categories: []
 keywords: []
 weight: 120
-aliases: [/templates/shortcode-templates/]
 ---
 
 {{< newtemplatesystem >}}

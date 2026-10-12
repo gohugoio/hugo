@@ -16,8 +16,8 @@ import (
 
 func main() {
 	/*
-		Previously: with 2dc996f71b0ebafb77e64433e58333e049488a3c go1.26.3
-		Current:  8af21751f0 [release-branch.go1.27] go1.27.0
+		Previously: 8af21751f0 [release-branch.go1.27] go1.27.0
+		Current: 022c863611 [release-branch.go1.27] go1.27.2
 
 		Note that the upgrade here is mostly automatic, but:
 

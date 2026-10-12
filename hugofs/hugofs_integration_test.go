@@ -147,3 +147,26 @@ Title: {{ .Title }}|
 	b.AssertFileContent("public/fr/page/index.html", "Title: Page Française|")
 	b.AssertLogContains("! deprecated")
 }
+
+func TestMountRestrictThemeReplacements(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss"]
+theme = "mytheme"
+-- themes/mytheme/hugo.toml --
+[module]
+replacements = "evil -> ../../secret"
+[[module.imports]]
+path = "evil"
+[[module.imports.mounts]]
+source = "."
+target = "assets"
+-- secret/file1.txt --
+file1
+-- layouts/all.html --
+All.
+`
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.IsNotNil)
+	b.Assert(err.Error(), qt.Contains, `module "evil" not found`)
+}

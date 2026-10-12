@@ -115,13 +115,15 @@ Rotate(role): {{ with .Rotate "role" }}{{ range . }}{{ template "printp" . }}|{{
 	for range 3 {
 		b := hugolib.Test(t, files)
 
-		b.AssertFileContent("public/guest/v2.0.0/en/publicpost/index.html",
+		b.AssertFileContent(
+			"public/guest/v2.0.0/en/publicpost/index.html",
 			"Rotate(language): /guest/v2.0.0/en/publicpost/:/l:en/v:v2.0.0/r:guest|$",
 			"Rotate(version): /guest/v4.0.0/en/publicpost/:/l:en/v:v4.0.0/r:guest|/guest/v3.0.0/en/publicpost/:/l:en/v:v3.0.0/r:guest|/guest/v2.0.0/en/publicpost/:/l:en/v:v2.0.0/r:guest|/guest/v1.2.3/en/publicpost/:/l:en/v:v1.2.3/r:guest|$",
 			"Rotate(role): /guest/v2.0.0/en/publicpost/:/l:en/v:v2.0.0/r:guest|$",
 		)
 
-		b.AssertFileContent("public/guest/v3.0.0/en/index.html",
+		b.AssertFileContent(
+			"public/guest/v3.0.0/en/index.html",
 			"Rotate(language): /guest/v3.0.0/en/:/l:en/v:v3.0.0/r:guest|/guest/v3.0.0/nn/:/l:nn/v:v3.0.0/r:guest|$",
 			"Rotate(version): /guest/v4.0.0/en/:/l:en/v:v4.0.0/r:guest|/guest/v3.0.0/en/:/l:en/v:v3.0.0/r:guest|/guest/v2.1.0/en/:/l:en/v:v2.1.0/r:guest|/guest/v2.0.0/en/:/l:en/v:v2.0.0/r:guest|/guest/v1.2.3/en/:/l:en/v:v1.2.3/r:guest",
 			"Rotate(role): /member/v3.0.0/en/:/l:en/v:v3.0.0/r:member|/guest/v3.0.0/en/:/l:en/v:v3.0.0/r:guest|$",
@@ -215,11 +217,6 @@ versions = ["v1**"]
 	dims = strings.Replace(dims, `["v1**"]`, `["v2**"]`, 1)
 	files = strings.Replace(files, "DIMSNN", dims, 1)
 	testOne(t, "new", files)
-
-	// Old format:
-	files = strings.Replace(filesTemplate, "DIMSEN", `lang = "en"`, 1)
-	files = strings.Replace(files, "DIMSNN", `lang = "nn"`, 1)
-	testOne(t, "old", files)
 }
 
 func TestSpecificMountShouldAlwaysWin(t *testing.T) {
@@ -796,7 +793,8 @@ All. {{ site.Language.Name }}|{{ site.Version.Name }}|{{ site.Role.Name }}
 	b.AssertFileContent("public/member/v1.4.0/nn/p2/index.html", "All.")
 	s := b.SiteHelper("nn", "v1.4.0", "member")
 	p2 := s.PageHelper("/p2")
-	s.Assert(p2.MatrixFromPageConfig(), qt.DeepEquals,
+	s.Assert(
+		p2.MatrixFromPageConfig(), qt.DeepEquals,
 		map[string]map[string][]string{
 			"complements": {
 				"languages": {"en"},
@@ -830,7 +828,8 @@ func TestLanguageVersionRoleIsDefault(t *testing.T) {
 	files := filesVariationsSitesMatrix
 
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/guest/v2.0.0/en/index.html",
+	b.AssertFileContent(
+		"public/guest/v2.0.0/en/index.html",
 		".Language.IsDefault: /guest/v2.0.0/en/: en: true|/guest/v2.0.0/nn/: nn: false|$",
 		".Version.IsDefault: /guest/v2.0.0/en/: v2.0.0: true|/guest/v1.4.0/en/: v1.4.0: false|/guest/v1.2.3/en/: v1.2.3: false|$",
 		".Role.IsDefault: /member/v2.0.0/en/: member: false|/guest/v2.0.0/en/: guest: true|$",
@@ -1287,7 +1286,8 @@ title: "P%d"
 			BuildCfg: hugolib.BuildCfg{
 				SkipRender: skipRender,
 			},
-		})
+		},
+	)
 	return b
 }
 

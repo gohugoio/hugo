@@ -19,10 +19,13 @@ import (
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
 
 func TestWebPMisc(t *testing.T) {
+	htesting.SkipSlowWasmTestOn32Bit(t)
+
 	files := `
 -- assets/sunrise.webp --
 sourcefilename: ../../resources/testdata/sunrise.webp
@@ -49,6 +52,8 @@ ImageConfig: {{ printf "%d/%d" $ic.Width $ic.Height }}|
 }
 
 func TestWebPEncodeGrayscale(t *testing.T) {
+	htesting.SkipSlowWasmTestOn32Bit(t)
+
 	files := `
 -- assets/gopher.png --
 sourcefilename: ../../resources/testdata/bw-gopher.png
@@ -89,6 +94,8 @@ Resized RelPermalink: {{ $resized.RelPermalink }}|
 
 // This test isn't great, but we have golden tests to verify the output itself.
 func TestWebPAnimation(t *testing.T) {
+	htesting.SkipSlowWasmTestOn32Bit(t)
+
 	files := `
 -- hugo.toml --
 disableKinds = ["page", "section", "taxonomy", "term", "sitemap", "robotsTXT", "404"]

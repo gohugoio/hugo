@@ -10,7 +10,6 @@ params:
     signatures:
       - urls.RelRef PAGE PATH
       - urls.RelRef PAGE OPTIONS
-aliases: [/functions/relref]
 ---
 
 ## Usage

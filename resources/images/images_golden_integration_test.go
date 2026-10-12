@@ -18,6 +18,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/resources/images/imagetesting"
 )
 
@@ -466,6 +467,7 @@ Home.
 
 func TestImagesGoldenProcessAvif(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowWasmTestOn32Bit(t)
 
 	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
@@ -527,6 +529,7 @@ Home.
 
 func TestImagesGoldenProcessAviStraws(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowWasmTestOn32Bit(t)
 
 	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
@@ -557,6 +560,7 @@ Home.
 
 func TestImagesGoldenProcessWebP(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowWasmTestOn32Bit(t)
 
 	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
@@ -631,6 +635,7 @@ Home.
 
 func TestImagesGoldenWebPAnimation(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowWasmTestOn32Bit(t)
 
 	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
@@ -737,6 +742,7 @@ Home.
 
 func TestImagesGoldenConfigLossyVsQuality(t *testing.T) {
 	t.Parallel()
+	htesting.SkipSlowWasmTestOn32Bit(t)
 
 	if imagetesting.SkipGoldenTests {
 		t.Skip("Skip golden test on this architecture")
