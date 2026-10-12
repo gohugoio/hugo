@@ -107,7 +107,8 @@ COUNT2: {{ len .Data.Artifacts }}
 `
 
 	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		"COUNT: 1",
 		"ARTIFACT: /js/main.js.map|https://example.org/js/main.js.map|application/source-map",
 		"COUNT2: 0",
@@ -516,4 +517,32 @@ allowRead = [".", ".."]
 		c.Assert(err, qt.IsNil)
 		b.AssertFileContent("public/index.html", "PWN-SECRET", "LOCAL-HELPER-OK")
 	})
+}
+
+// See issue 15435.
+func TestBuildCharset(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- assets/js/main.js --
+console.log("日本語");
+-- assets/css/main.css --
+p::before { content: "日本語"; }
+-- layouts/home.html --
+{{ resources.Get "js/main.js" | js.Build (dict "targetPath" "js/ascii.js") | resources.Publish }}
+{{ resources.Get "js/main.js" | js.Build (dict "targetPath" "js/utf8.js" "charset" "utf8") | resources.Publish }}
+{{ resources.Get "css/main.css" | css.Build (dict "targetPath" "css/ascii.css") | resources.Publish }}
+{{ resources.Get "css/main.css" | css.Build (dict "targetPath" "css/utf8.css" "charset" "utf8") | resources.Publish }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+
+	b.AssertFileContent("public/js/ascii.js", "! 日本語")
+	b.AssertFileContent("public/js/utf8.js", `"日本語"`)
+	b.AssertFileContent("public/css/ascii.css", "! 日本語")
+	b.AssertFileContent("public/css/utf8.css", `"日本語"`)
+
+	files = strings.Replace(files, `"charset" "utf8"`, `"charset" "foo"`, 1)
+	_, err := hugolib.TestE(t, files, hugolib.TestOptOsFs())
+	b.Assert(err, qt.ErrorMatches, `.*unsupported charset: "foo".*`)
 }

@@ -160,6 +160,11 @@ type ExternalOptions struct {
 	// See https://esbuild.github.io/api/#platform
 	Platform string
 
+	// One of ascii, utf8.
+	// Default is ascii, which escapes non-ASCII characters.
+	// See https://esbuild.github.io/api/#charset
+	Charset string
+
 	// When you import a package in node, the main field in that package's package.json file
 	// determines which file is imported (along with a lot of other rules).
 	// The default main fields is controlled by ESBuild and depend on the current platform setting.
@@ -385,6 +390,17 @@ OUTER:
 		return
 	}
 
+	var charset api.Charset
+	switch opts.Charset {
+	case "", "ascii":
+		charset = api.CharsetASCII
+	case "utf8":
+		charset = api.CharsetUTF8
+	default:
+		err = fmt.Errorf("unsupported charset: %q", opts.Charset)
+		return
+	}
+
 	var defines map[string]string
 	if opts.Defines != nil {
 		defines = hmaps.ToStringMapString(opts.Defines)
@@ -441,6 +457,7 @@ OUTER:
 		Format:         format,
 		MainFields:     opts.MainFields,
 		Platform:       platform,
+		Charset:        charset,
 		Sourcemap:      sourceMap,
 		SourcesContent: sourcesContent,
 

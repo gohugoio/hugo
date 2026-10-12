@@ -37,6 +37,7 @@ func TestToBuildOptions(t *testing.T) {
 		Target:         api.ESNext,
 		Format:         api.FormatIIFE,
 		Platform:       api.PlatformBrowser,
+		Charset:        api.CharsetASCII,
 		SourcesContent: 1,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
@@ -58,6 +59,7 @@ func TestToBuildOptions(t *testing.T) {
 		Target:            api.ES2018,
 		Format:            api.FormatCommonJS,
 		Platform:          api.PlatformBrowser,
+		Charset:           api.CharsetASCII,
 		SourcesContent:    1,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
@@ -80,6 +82,7 @@ func TestToBuildOptions(t *testing.T) {
 		Target:            api.ES2018,
 		Format:            api.FormatCommonJS,
 		Platform:          api.PlatformBrowser,
+		Charset:           api.CharsetASCII,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
 		MinifyWhitespace:  true,
@@ -103,6 +106,7 @@ func TestToBuildOptions(t *testing.T) {
 		Target:            api.ES2018,
 		Format:            api.FormatCommonJS,
 		Platform:          api.PlatformBrowser,
+		Charset:           api.CharsetASCII,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
 		MinifyWhitespace:  true,
@@ -126,6 +130,7 @@ func TestToBuildOptions(t *testing.T) {
 		Target:            api.ES2018,
 		Format:            api.FormatCommonJS,
 		Platform:          api.PlatformBrowser,
+		Charset:           api.CharsetASCII,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
 		MinifyWhitespace:  true,
@@ -148,6 +153,7 @@ func TestToBuildOptions(t *testing.T) {
 		Target:         api.ESNext,
 		Format:         api.FormatIIFE,
 		Platform:       api.PlatformBrowser,
+		Charset:        api.CharsetASCII,
 		SourcesContent: 1,
 		Stdin: &api.StdinOptions{
 			Loader: api.LoaderJS,
@@ -227,6 +233,7 @@ func TestDecodeExternalOptions(t *testing.T) {
 		Target:         api.ESNext,
 		Format:         api.FormatIIFE,
 		Platform:       api.PlatformNode,
+		Charset:        api.CharsetASCII,
 		SourcesContent: api.SourcesContentInclude,
 	})
 }
