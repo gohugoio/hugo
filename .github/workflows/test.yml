@@ -135,7 +135,7 @@ jobs:
         run: |
           mage -v test
         env:
-          HUGO_BUILD_TAGS: extended,withdeploy
+          HUGO_BUILD_TAGS: withdeploy
       - if: matrix.os == 'ubuntu-latest'
         name: Test 386
         run: |
