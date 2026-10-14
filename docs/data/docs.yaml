@@ -1457,6 +1457,7 @@ config:
       disableLatLong: false
       excludeFields: GPS|Exif|Exposure[M|P|B]|Contrast|Resolution|Sharp|JPEG|Metering|Sensing|Saturation|ColorSpace|Flash|WhiteBalance
       includeFields: ''
+    firstFrameOnly: false
     jpeg:
       quality: 75
     meta:
