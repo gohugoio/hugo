@@ -94,8 +94,7 @@ func (s *Site) renderPages(ctx *siteRenderContext) error {
 					select {
 					case <-s.h.Done():
 						return radix.WalkStop, nil
-					default:
-						pages <- p
+					case pages <- p:
 					}
 				}
 			}
