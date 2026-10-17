@@ -85,13 +85,13 @@ type Namespace struct {
 // Emojify returns a copy of s with all emoji codes replaced with actual emojis.
 //
 // See http://www.emoji-cheat-sheet.com/
-func (ns *Namespace) Emojify(s any) (template.HTML, error) {
+func (ns *Namespace) Emojify(s any) (string, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	return template.HTML(helpers.Emojify([]byte(ss))), nil
+	return string(helpers.Emojify([]byte(ss))), nil
 }
 
 // Highlight returns a copy of CODE as an HTML string with syntax
