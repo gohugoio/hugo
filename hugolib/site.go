@@ -1638,6 +1638,8 @@ func (s *Site) renderAndWritePage(statCounter *uint64, targetPath string, p *pag
 
 	ctx := s.TemplateStore.PrepareTopLevelRenderCtx(context.Background(), p)
 	ctx = tpl.Context.DependencyManagerScopedProvider.Set(ctx, p)
+	hasDeferred := new(bool)
+	ctx = tpl.Context.HasDeferred.Set(ctx, hasDeferred)
 
 	if err := s.renderForTemplate(ctx, p.Kind(), of.Name, d, renderBuffer, templ); err != nil {
 		return err
@@ -1655,6 +1657,7 @@ func (s *Site) renderAndWritePage(statCounter *uint64, targetPath string, p *pag
 		TargetPath:   targetPath,
 		StatCounter:  statCounter,
 		OutputFormat: p.outputFormat(),
+		HasDeferred:  *hasDeferred,
 	}
 
 	if isRSS {
