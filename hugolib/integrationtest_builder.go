@@ -899,6 +899,8 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		}
 
 		isBinaryRe := regexp.MustCompile(`^(.*)(\.png|\.jpg)$`)
+		// txtar has no escape mechanism, so nested archives use == name == as file markers.
+		txtarMarkerRe := regexp.MustCompile(`(?m)^== (.+?) ==$`)
 
 		const dataSourceFilenamePrefix = "sourcefilename:"
 
@@ -918,9 +920,17 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 				data, err = base64.StdEncoding.DecodeString(string(data))
 				s.Assert(err, qt.IsNil)
 
+			} else if strings.HasSuffix(filename, ".txtar") {
+				data = txtarMarkerRe.ReplaceAll(data, []byte("-- $1 --"))
 			}
 			s.Assert(afs.MkdirAll(filepath.Dir(filename), 0o777), qt.IsNil)
 			s.Assert(afero.WriteFile(afs, filename, data, 0o666), qt.IsNil)
+		}
+
+		afs, err := hugofs.NewTxtarFsIfExists(afs, s.Cfg.WorkingDir)
+		if err != nil {
+			initErr = err
+			return
 		}
 
 		configDir := "config"
@@ -1142,7 +1152,15 @@ func (s *IntegrationTestBuilder) changeEvents() []fsnotify.Event {
 		})
 	}
 
+	txtarFs, _ := s.fs.Source.(*hugofs.TxtarFs)
+
 	for _, v := range s.changedFiles {
+		if txtarFs != nil && v == txtarFs.Filename() {
+			evs, err := txtarFs.Reload()
+			s.Assert(err, qt.IsNil)
+			events = append(events, evs...)
+			continue
+		}
 		events = append(events, fsnotify.Event{
 			Name: v,
 			Op:   fsnotify.Write,
