@@ -2,6 +2,14 @@
 
 set -e
 
+# Usage: ./check.sh [--full] [packages]
+# --full also runs staticcheck (slow, and also run in CI).
+FULL=false
+if [ "$1" = "--full" ]; then
+    FULL=true
+    shift
+fi
+
 # Default to all packages if none specified
 PACKAGES="${1:-./...}"
 
@@ -70,7 +78,9 @@ run_tests() {
 TOTAL_START=$(date +%s.%N)
 
 time_step "gofmt" run_gofmt
-time_step "staticcheck" run_staticcheck
+if [ "$FULL" = true ]; then
+    time_step "staticcheck" run_staticcheck
+fi
 time_step "tests" run_tests
 
 TOTAL_END=$(date +%s.%N)
