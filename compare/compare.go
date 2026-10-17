@@ -13,6 +13,15 @@
 
 package compare
 
+import (
+	"reflect"
+	"time"
+
+	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/htime"
+	"github.com/gohugoio/hugo/common/types"
+)
+
 // Eqer can be used to determine if this value is equal to the other.
 // The semantics of equals is that the two value are interchangeable
 // in the Hugo templates.
@@ -37,20 +46,74 @@ type Comparer interface {
 	Compare(other any) int
 }
 
-// Eq returns whether v1 is equal to v2.
+// Eq returns the boolean truth of arg1 == arg2 || arg1 == arg3 || arg1 == arg4.
+// Numbers are compared by value regardless of type, so e.g. 1 and 1.0 are considered equal.
 // It will use the Eqer interface if implemented, which
 // defines equals when two value are interchangeable
 // in the Hugo templates.
-func Eq(v1, v2 any) bool {
-	if v1 == nil || v2 == nil {
-		return v1 == v2
+func Eq(first any, others ...any) bool {
+	return EqInLocation(time.UTC, first, others...)
+}
+
+// EqInLocation is like Eq, but allows specifying a time.Location for time comparisons.
+func EqInLocation(loc *time.Location, first any, others ...any) bool {
+	normalize := func(v any) any {
+		if types.IsNil(v) {
+			return nil
+		}
+		if at, ok := v.(htime.AsTimeProvider); ok {
+			return at.AsTime(loc)
+		}
+		return v
 	}
 
-	if eqer, ok := v1.(Eqer); ok {
-		return eqer.Eq(v2)
+	normFirst := normalize(first)
+	fv := reflect.ValueOf(normFirst)
+	for _, other := range others {
+		if e, ok := first.(Eqer); ok {
+			if e.Eq(other) {
+				return true
+			}
+			continue
+		}
+
+		if e, ok := other.(Eqer); ok {
+			if e.Eq(first) {
+				return true
+			}
+			continue
+		}
+
+		other = normalize(other)
+		if normFirst == nil || other == nil {
+			if normFirst == other {
+				return true
+			}
+			continue
+		}
+
+		ov := reflect.ValueOf(other)
+
+		if fv.Kind() == reflect.String && ov.Kind() == reflect.String {
+			if fv.String() == ov.String() {
+				return true
+			}
+			continue
+		}
+
+		if c, ok := hreflect.CompareNumbers(fv, ov); ok {
+			if c == 0 {
+				return true
+			}
+			continue
+		}
+
+		if reflect.DeepEqual(normFirst, other) {
+			return true
+		}
 	}
 
-	return v1 == v2
+	return false
 }
 
 // ProbablyEq returns whether v1 is probably equal to v2.
