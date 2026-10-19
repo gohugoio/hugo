@@ -24,7 +24,6 @@ import (
 
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources/page"
@@ -138,16 +137,13 @@ func (t *templateExecHelper) RedirectField(ctx context.Context, tmpl texttemplat
 
 	key := strings.ToLower(next)
 	var templateName string
-	if tmpl, ok := tmpl.(interface{ Name() string }); ok {
+	if tmpl, ok := tmpl.(interface{ Filename() string }); ok {
+		templateName = tmpl.Filename()
+	} else if tmpl, ok := tmpl.(interface{ Name() string }); ok {
 		templateName = tmpl.Name()
 	}
 	if _, loaded := t.paramsDeprecations.LoadOrStore(templateName+"|"+key, true); !loaded {
-		hugo.DeprecateWithLogger(
-			fmt.Sprintf("Using .Params.%s to get the %s front matter field (in template %q)", key, key, templateName),
-			fmt.Sprintf("Use .%s instead.", method),
-			"0.169.0",
-			t.log.Logger(),
-		)
+		page.DeprecateReservedParam(t.log.Logger(), fmt.Sprintf(".Params.%s in template %q", key, templateName), key, "."+method)
 	}
 
 	return method, true

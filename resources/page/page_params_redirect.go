@@ -13,7 +13,14 @@
 
 package page
 
-import "strings"
+import (
+	"fmt"
+	"iter"
+	"strings"
+
+	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/common/hugo"
+)
 
 // RootParamProvider is for internal use only.
 type RootParamProvider interface {
@@ -53,4 +60,44 @@ func ReservedParamMethod(v any, key string) (string, bool) {
 		return "", false
 	}
 	return method, true
+}
+
+// FindReservedParam returns the first page in pages where key would be
+// redirected by ReservedParamMethod, and the name of the method to use.
+func FindReservedParam(key string, pages iter.Seq[any]) (Page, string, bool) {
+	if _, found := reservedParamMethods[strings.ToLower(key)]; !found {
+		return nil, "", false
+	}
+	for v := range pages {
+		if method, ok := ReservedParamMethod(v, key); ok {
+			if p, ok := v.(Page); ok {
+				return p, method, true
+			}
+		}
+	}
+	return nil, "", false
+}
+
+// DeprecateReservedParam logs that the reserved front matter field key
+// was looked up in Params via usage, e.g. `ByParam "title"`.
+func DeprecateReservedParam(log logg.Logger, usage, key, alternative string) {
+	hugo.DeprecateWithLogger(
+		fmt.Sprintf("Using %s to get the %s front matter field", usage, strings.ToLower(key)),
+		fmt.Sprintf("Use %s instead.", alternative),
+		"0.169.0",
+		log,
+	)
+}
+
+func (p Pages) deprecateReservedParam(usage, key string, alternative func(method string) string) {
+	seq := func(yield func(any) bool) {
+		for _, pp := range p {
+			if !yield(pp) {
+				return
+			}
+		}
+	}
+	if pp, method, ok := FindReservedParam(key, seq); ok {
+		DeprecateReservedParam(pp.Language().Logger(), usage, key, alternative(method))
+	}
 }

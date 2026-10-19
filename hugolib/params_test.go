@@ -118,7 +118,10 @@ params:
 -- layouts/page.html --
 {{ partial "params.html" . }}
 -- layouts/home.html --
-Home.
+Where: {{ range where site.RegularPages "Params.title" "p1" }}{{ .Path }}|{{ end }}
+WhereMagic: {{ range where site.RegularPages "Params.magic" 42 }}{{ .Path }}|{{ end }}
+ByParam: {{ range site.RegularPages.ByParam "title" }}{{ .Title }}|{{ end }}
+GroupByParam: {{ range site.RegularPages.GroupByParam "title" }}{{ .Key }}|{{ end }}
 -- layouts/_partials/params.html --
 Title: {{ .Params.title }}|{{ $.Params.Title }}|{{ (.).Params.TITLE }}|
 Summary: {{ .Params.summary }}|{{ .RawSummary }}|
@@ -139,11 +142,67 @@ Magic: {{ .Params.magic }}|
 	b.AssertFileContent("public/p4/index.html", "Title: |||", "Magic: 42|")
 	b.AssertFileContent("public/p5/index.html", "Title: params-title-p5|params-title-p5|params-title-p5|")
 
+	b.AssertFileContent("public/index.html",
+		"Where: /p1|",
+		"WhereMagic: /p1|/p4|",
+		"ByParam: cascade-title|p1|p2|p5|p4|",
+		"GroupByParam: cascade-title|p1|params-title|params-title-p5|",
+	)
+
 	b.AssertLogContains(
-		`Using .Params.title to get the title front matter field (in template "_partials/params.html") was deprecated in Hugo 0.169.0`,
+		`Using .Params.title in template "_partials/params.html" to get the title front matter field was deprecated in Hugo 0.169.0`,
 		"Use .Title instead.",
 		"Use .RawSummary instead.",
 		"Use .Draft instead.",
-		"! .Params.magic",
+		`Using where with "Params.title" to get the title front matter field was deprecated in Hugo 0.169.0 and will be removed in a future release. Use where with "Title" instead.`,
+		`Using ByParam "title" to get the title front matter field was deprecated in Hugo 0.169.0 and will be removed in a future release. Use sort with "Title" instead.`,
+		`Using GroupByParam "title" to get the title front matter field was deprecated in Hugo 0.169.0 and will be removed in a future release. Use GroupBy "Title" instead.`,
+		"! magic",
 	)
+}
+
+// See issue 15411.
+func TestPageParamReservedFrontMatterField(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+[params]
+description = "site"
+-- content/p1.md --
+---
+title: p1
+description: fm
+---
+-- content/p2.md --
+---
+title: p2
+---
+-- layouts/page.html --
+{{ .Param "description" }}|
+`
+	b := Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "fm|")
+	b.AssertFileContent("public/p2/index.html", "site|")
+}
+
+// See issue 15411.
+func TestPageParamReservedFrontMatterFieldDeprecation(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/p1.md --
+---
+title: p1
+description: fm
+---
+-- layouts/page.html --
+{{ .Param "description" }}|
+`
+	b := Test(t, files, TestOptInfo())
+
+	b.AssertFileContent("public/p1/index.html", "fm|")
+	b.AssertLogContains("to get the description front matter field was deprecated")
 }
