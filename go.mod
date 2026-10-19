@@ -32,7 +32,7 @@ require (
 	github.com/fortytw2/leaktest v1.3.0
 	github.com/frankban/quicktest v1.14.6
 	github.com/fsnotify/fsnotify v1.10.1
-	github.com/getkin/kin-openapi v0.149.0
+	github.com/getkin/kin-openapi v0.151.0
 	github.com/gobuffalo/flect v1.0.3
 	github.com/gobwas/glob v1.0.0
 	github.com/goccy/go-yaml v1.19.2
