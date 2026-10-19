@@ -20,15 +20,15 @@ import (
 	"strings"
 	"sync"
 	"unicode"
+	"unicode/utf8"
 
 	"github.com/bep/helpers/contexthelpers"
-	bp "github.com/gohugoio/hugo/bufferpool"
 	"github.com/gohugoio/hugo/common/collections"
+	"github.com/gohugoio/hugo/common/hhtml"
 
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/langs"
 
-	htmltemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/htmltemplate"
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
 )
 
@@ -109,42 +109,102 @@ const (
 	HugoDeferredTemplateSuffix = "__d="
 )
 
-const hugoNewLinePlaceholder = "___hugonl_"
-
-var stripHTMLReplacerPre = strings.NewReplacer("\n", " ", "</p>", hugoNewLinePlaceholder, "<br>", hugoNewLinePlaceholder, "<br />", hugoNewLinePlaceholder)
-
-// StripHTML strips out all HTML tags in s.
+// StripHTML strips out all HTML tags, comments and the content of script and
+// style elements in s. Paragraph ends and line breaks are replaced with a
+// newline, other newlines with a space, text in adjacent block elements is
+// separated by a space, and repeated whitespace is collapsed.
+// Strings without any '<' are returned unchanged.
 func StripHTML(s string) string {
-	// Shortcut strings with no tags in them
-	if !strings.ContainsAny(s, "<>") {
+	if strings.IndexByte(s, '<') == -1 {
 		return s
 	}
 
-	pre := stripHTMLReplacerPre.Replace(s)
-	preReplaced := pre != s
-
-	s = htmltemplate.StripTags(pre)
-
-	if preReplaced {
-		s = strings.ReplaceAll(s, hugoNewLinePlaceholder, "\n")
-	}
-
-	var wasSpace bool
-	b := bp.GetBuffer()
-	defer bp.PutBuffer(b)
-	for _, r := range s {
-		isSpace := unicode.IsSpace(r)
-		if !(isSpace && wasSpace) {
-			b.WriteRune(r)
+	w := stripHTMLWriter{}
+	w.b.Grow(len(s))
+	sc := hhtml.NewScanner(s, 0)
+	for {
+		textStart := sc.Pos()
+		t, ok := sc.Next(len(s))
+		if !ok {
+			w.writeText(s[textStart:])
+			break
 		}
-		wasSpace = isSpace
+		w.writeText(s[textStart:t.Start])
+		switch {
+		case t.Type == hhtml.StartTag && t.Name == "br", t.Type == hhtml.EndTag && t.Name == "p":
+			w.writeSpace('\n')
+		case t.Type == hhtml.StartTag && (t.Name == "script" || t.Name == "style"):
+			if !t.SelfClosing {
+				sc.SkipRawText(len(s), t.Name)
+			}
+		case hhtml.IsBlockElement(t.Name):
+			// Keep text in e.g. adjacent list items apart.
+			w.needsSpace = true
+		}
 	}
 
-	if b.Len() > 0 {
-		s = b.String()
-	}
+	return w.b.String()
+}
 
-	return s
+type stripHTMLWriter struct {
+	b        strings.Builder
+	wasSpace bool
+	// needsSpace is set when a space should separate the next text
+	// from any text before it.
+	needsSpace bool
+}
+
+func (w *stripHTMLWriter) writeText(s string) {
+	for i := 0; i < len(s); {
+		c := s[i]
+		if c >= utf8.RuneSelf {
+			r, size := utf8.DecodeRuneInString(s[i:])
+			if unicode.IsSpace(r) {
+				if !w.wasSpace {
+					w.b.WriteString(s[i : i+size])
+					w.wasSpace = true
+				}
+			} else {
+				w.writeNonSpace(s[i : i+size])
+			}
+			i += size
+			continue
+		}
+		if isASCIISpace(c) {
+			if c == '\n' {
+				c = ' '
+			}
+			w.writeSpace(c)
+			i++
+			continue
+		}
+		j := i + 1
+		for j < len(s) && s[j] < utf8.RuneSelf && !isASCIISpace(s[j]) {
+			j++
+		}
+		w.writeNonSpace(s[i:j])
+		i = j
+	}
+}
+
+func (w *stripHTMLWriter) writeNonSpace(s string) {
+	if w.needsSpace && !w.wasSpace && w.b.Len() > 0 {
+		w.b.WriteByte(' ')
+	}
+	w.b.WriteString(s)
+	w.wasSpace = false
+	w.needsSpace = false
+}
+
+func (w *stripHTMLWriter) writeSpace(c byte) {
+	if !w.wasSpace {
+		w.b.WriteByte(c)
+		w.wasSpace = true
+	}
+}
+
+func isASCIISpace(c byte) bool {
+	return c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f' || c == '\r'
 }
 
 // DeferredExecution holds the template and data for a deferred execution.
