@@ -124,7 +124,7 @@ func NewStore(opts StoreOptions, siteOpts SiteOptions) (*TemplateStore, error) {
 		optsOrig:             opts,
 		siteOptsOrig:         siteOpts,
 		htmlFormat:           html,
-		storeSite:            configureSiteStorage(siteOpts, opts.Watching),
+		storeSite:            configureSiteStorage(siteOpts, opts.Watching, opts.Log),
 		treeMain:             doctree.NewSimpleTree[map[nodeKey]*TemplInfo](),
 		treeShortcodes:       doctree.NewSimpleTree[map[string]map[TemplateDescriptor]*TemplInfo](),
 		templatesByPath:      hmaps.NewCache[string, *TemplInfo](),
@@ -843,7 +843,7 @@ func (t *TemplateStore) UnusedTemplates() []*TemplInfo {
 // but with a different template function execution context.
 func (s TemplateStore) WithSiteOpts(opts SiteOptions) *TemplateStore {
 	s.siteOpts = opts
-	s.storeSite = configureSiteStorage(opts, s.opts.Watching)
+	s.storeSite = configureSiteStorage(opts, s.opts.Watching, s.opts.Log)
 	return &s
 }
 
@@ -2218,7 +2218,7 @@ func (w weight) isEqualWeights(other weight) bool {
 	return w.w1 == other.w1 && w.w2 == other.w2 && w.w3 == other.w3
 }
 
-func configureSiteStorage(opts SiteOptions, watching bool) *storeSite {
+func configureSiteStorage(opts SiteOptions, watching bool, log loggers.Logger) *storeSite {
 	funcsv := make(map[string]reflect.Value)
 
 	for k, v := range opts.TemplateFuncs {
@@ -2247,6 +2247,7 @@ func configureSiteStorage(opts SiteOptions, watching bool) *storeSite {
 		opts: opts,
 		execHelper: &templateExecHelper{
 			watching:   watching,
+			log:        log,
 			funcs:      funcsv,
 			site:       reflect.ValueOf(opts.Site),
 			siteParams: reflect.ValueOf(opts.Site.Params()),

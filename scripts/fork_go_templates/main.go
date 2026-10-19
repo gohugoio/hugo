@@ -69,6 +69,7 @@ var (
 		"type state struct", "type stateOld struct",
 		"func (s *state) evalFunction", "func (s *state) evalFunctionOld",
 		"func (s *state) evalField(", "func (s *state) evalFieldOld(",
+		"func (s *state) evalFieldChain(", "func (s *state) evalFieldChainOld(",
 		"func (s *state) evalCall(", "func (s *state) evalCallOld(",
 		"func (s *state) walkTemplate(", "func (s *state) walkTemplateOld(",
 		"func (s *state) validateType(", "func (s *state) _validateType(",

@@ -19,6 +19,7 @@ import (
 	"io"
 	"iter"
 	"reflect"
+	"slices"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hmaps"
@@ -48,6 +49,9 @@ type ExecHelper interface {
 	GetFunc(ctx context.Context, tmpl Preparer, name string) (reflect.Value, reflect.Value, bool)
 	GetMethod(ctx context.Context, tmpl Preparer, receiver reflect.Value, name string) (method reflect.Value, firstArg reflect.Value)
 	GetMapValue(ctx context.Context, tmpl Preparer, receiver, key reflect.Value) (reflect.Value, bool)
+	// RedirectField returns the name of a field or method to evaluate on receiver
+	// instead of the chain receiver.name.next, and whether to redirect.
+	RedirectField(ctx context.Context, tmpl Preparer, receiver reflect.Value, name, next string) (string, bool)
 	OnCalled(ctx context.Context, tmpl Preparer, name string, args []reflect.Value, result reflect.Value)
 }
 
@@ -232,6 +236,27 @@ func (s *state) evalFunction(dot reflect.Value, node *parse.IdentifierNode, cmd 
 // evalField evaluates an expression like (.Field) or (.Field arg1 arg2).
 // The 'final' argument represents the return value from the preceding
 // value of the pipeline, if any.
+// evalFieldChain evaluates .X.Y.Z possibly preceded by a non-identifier,
+// allowing the ExecHelper to replace two adjacent identifiers with one.
+func (s *state) evalFieldChain(dot, receiver reflect.Value, node parse.Node, ident []string, args []parse.Node, final reflect.Value) reflect.Value {
+	n := len(ident)
+	for i := 0; i < n-1; i++ {
+		// Added for Hugo.
+		if s.helper != nil {
+			if name, ok := s.helper.RedirectField(s.ctx, s.prep, receiver, ident[i], ident[i+1]); ok {
+				ident = slices.Concat(ident[:i], []string{name}, ident[i+2:])
+				n--
+				if i == n-1 {
+					break
+				}
+			}
+		}
+		receiver = s.evalField(dot, ident[i], node, nil, missingVal, receiver)
+	}
+	// Now if it's a method, it gets the arguments.
+	return s.evalField(dot, ident[n-1], node, args, final, receiver)
+}
+
 func (s *state) evalField(dot reflect.Value, fieldName string, node parse.Node, args []parse.Node, final, receiver reflect.Value) reflect.Value {
 	if !receiver.IsValid() {
 		if s.tmpl.option.missingKey == mapError { // Treat invalid value as missing map key.

@@ -123,6 +123,14 @@ func (p *nopPage) Description() string {
 	return ""
 }
 
+func (p *nopPage) RawSummary() string {
+	return ""
+}
+
+func (p *nopPage) IsRootParam(key string) bool {
+	return false
+}
+
 func (p *nopPage) RefFrom(argsm map[string]any, source any) (string, error) {
 	return "", nil
 }
