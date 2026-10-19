@@ -77,3 +77,73 @@ Params: {{ range $k, $v := .Params }}{{ $k }}: {{ $v }}|{{ end }}$
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "We renamed the _build keyword")
 }
+
+// Issue 15411.
+func TestParamsReservedFieldsRedirect(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+-- content/_index.md --
+---
+title: Home
+cascade:
+  - params:
+      title: cascade-title
+    target:
+      path: "{/p3}"
+---
+-- content/p1.md --
+---
+title: p1
+summary: A **bold** word.
+magic: 41
+params:
+  magic: 42
+---
+-- content/p2.md --
+---
+title: p2
+params:
+  title: params-title
+---
+-- content/p3.md --
+---
+---
+-- content/_content.gotmpl --
+{{ .AddPage (dict "path" "p4" "title" "p4" "params" (dict "magic" 42)) }}
+{{ .AddPage (dict "path" "p5" "title" "p5" "params" (dict "title" "params-title-p5")) }}
+-- layouts/page.html --
+{{ partial "params.html" . }}
+-- layouts/home.html --
+Home.
+-- layouts/_partials/params.html --
+Title: {{ .Params.title }}|{{ $.Params.Title }}|{{ (.).Params.TITLE }}|
+Summary: {{ .Params.summary }}|{{ .RawSummary }}|
+Draft: {{ .Params.draft }}|
+Magic: {{ .Params.magic }}|
+`
+
+	b := Test(t, files, TestOptInfo())
+
+	b.AssertFileContent("public/p1/index.html",
+		"Title: p1|p1|p1|",
+		"Summary: A **bold** word.|A **bold** word.|",
+		"Draft: false|",
+		"Magic: 42|",
+	)
+	b.AssertFileContent("public/p2/index.html", "Title: params-title|params-title|params-title|")
+	b.AssertFileContent("public/p3/index.html", "Title: cascade-title|cascade-title|cascade-title|")
+	b.AssertFileContent("public/p4/index.html", "Title: |||", "Magic: 42|")
+	b.AssertFileContent("public/p5/index.html", "Title: params-title-p5|params-title-p5|params-title-p5|")
+
+	b.AssertLogContains(
+		`Using .Params.title to get the title front matter field (in template "_partials/params.html") was deprecated in Hugo 0.169.0`,
+		"Use .Title instead.",
+		"Use .RawSummary instead.",
+		"Use .Draft instead.",
+		"! .Params.magic",
+	)
+}
