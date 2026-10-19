@@ -192,6 +192,10 @@ func (p Pages) GroupByParam(key string, order ...string) (PagesGroup, error) {
 		direction = "desc"
 	}
 
+	p.deprecateReservedParam(fmt.Sprintf("GroupByParam %q", key), key, func(method string) string {
+		return fmt.Sprintf("GroupBy %q", method)
+	})
+
 	var tmp reflect.Value
 	var keyt reflect.Type
 	for _, e := range p {
@@ -330,6 +334,10 @@ func (p Pages) GroupByLastmod(format string, order ...string) (PagesGroup, error
 // Valid values for order is asc, desc, rev and reverse.
 // For valid format strings, see https://golang.org/pkg/time/#Time.Format
 func (p Pages) GroupByParamDate(key string, format string, order ...string) (PagesGroup, error) {
+	p.deprecateReservedParam(fmt.Sprintf("GroupByParamDate %q", key), key, func(method string) string {
+		return "GroupBy" + method
+	})
+
 	// Cache the dates.
 	dates := make(map[Page]time.Time)
 
