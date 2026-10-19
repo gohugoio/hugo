@@ -6,9 +6,11 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [plainify]
-    returnType: template.HTML
+    returnType: any
     signatures: [transform.Plainify INPUT]
 ---
+
+If the argument is of type `template.HTML`, returns `template.HTML`, else returns a `string`.
 
 ```go-html-template
 {{ "<b>BatMan</b>" | plainify }} → BatMan

@@ -6,9 +6,11 @@ keywords: []
 params:
   functions_and_methods:
     aliases: [emojify]
-    returnType: template.HTML
+    returnType: any
     signatures: [transform.Emojify INPUT]
 ---
+
+If the argument is of type `template.HTML`, returns `template.HTML`, else returns a `string`.
 
 See the list of [emoji shortcodes][] for available emoticons.
 
