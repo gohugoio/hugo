@@ -84,14 +84,22 @@ type Namespace struct {
 
 // Emojify returns a copy of s with all emoji codes replaced with actual emojis.
 //
+// If s is of type template.HTML, the result is template.HTML, else a string.
+//
 // See http://www.emoji-cheat-sheet.com/
-func (ns *Namespace) Emojify(s any) (string, error) {
+func (ns *Namespace) Emojify(s any) (any, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	return string(helpers.Emojify([]byte(ss))), nil
+	res := string(helpers.Emojify([]byte(ss)))
+	switch s.(type) {
+	case template.HTML:
+		return template.HTML(res), nil
+	default:
+		return res, nil
+	}
 }
 
 // Highlight returns a copy of CODE as an HTML string with syntax
@@ -228,13 +236,20 @@ func (ns *Namespace) Markdownify(ctx context.Context, s any) (template.HTML, err
 }
 
 // Plainify returns a copy of s with all HTML tags removed.
-func (ns *Namespace) Plainify(s any) (template.HTML, error) {
+// If s is of type template.HTML, the result is template.HTML, else a string.
+func (ns *Namespace) Plainify(s any) (any, error) {
 	ss, err := cast.ToStringE(s)
 	if err != nil {
 		return "", err
 	}
 
-	return template.HTML(tpl.StripHTML(ss)), nil
+	res := tpl.StripHTML(ss)
+	switch s.(type) {
+	case template.HTML:
+		return template.HTML(res), nil
+	default:
+		return res, nil
+	}
 }
 
 // PortableText converts the portable text in v to Markdown.

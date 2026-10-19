@@ -39,6 +39,7 @@ func TestEmojify(t *testing.T) {
 	}{
 		{":notamoji:", ":notamoji:"},
 		{"I :heart: Hugo", "I ❤️ Hugo"},
+		{template.HTML("I :heart: <b>Hugo</b>"), template.HTML("I ❤️ <b>Hugo</b>")},
 		// errors
 		{tstNoStringer{}, false},
 	} {
@@ -219,6 +220,7 @@ func TestPlainify(t *testing.T) {
 	}{
 		{"<em>Note:</em> blah <b>blah</b>", "Note: blah blah"},
 		{"<div data-action='click->my-controller#doThing'>qwe</div>", "qwe"},
+		{template.HTML("<em>Note:</em> A &amp; B"), template.HTML("Note: A &amp; B")},
 		// errors
 		{tstNoStringer{}, false},
 	} {
@@ -231,6 +233,6 @@ func TestPlainify(t *testing.T) {
 		}
 
 		b.Assert(err, qt.IsNil)
-		b.Assert(result, qt.Equals, template.HTML(test.expect.(string)))
+		b.Assert(result, qt.Equals, test.expect)
 	}
 }
