@@ -52,11 +52,6 @@ func (t *Template) All() iter.Seq[*Template] {
 	}
 }
 
-// See https://github.com/golang/go/issues/5884
-func StripTags(html string) string {
-	return stripTags(html)
-}
-
 func indirect(a any) any {
 	in := doIndirect(a)
 
