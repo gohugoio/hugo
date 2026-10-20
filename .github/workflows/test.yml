@@ -33,12 +33,25 @@ jobs:
           swap-storage: true
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - if: matrix.os == 'windows-latest'
+        # C: has little free space; runner.temp lives on the same drive as the workspace.
+        name: "Move Go cache and temp dirs off C:"
+        run: |
+          Get-PSDrive -PSProvider FileSystem
+          $d = "${{ runner.temp }}"
+          foreach ($n in "gocache","gomodcache","gotmp","tmp") { New-Item -ItemType Directory -Force "$d\$n" | Out-Null }
+          "GOCACHE=$d\gocache"       >> $env:GITHUB_ENV
+          "GOMODCACHE=$d\gomodcache" >> $env:GITHUB_ENV
+          "GOTMPDIR=$d\gotmp"        >> $env:GITHUB_ENV
+          "TMP=$d\tmp"               >> $env:GITHUB_ENV
+          "TEMP=$d\tmp"              >> $env:GITHUB_ENV
       - name: Install Go
         uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
           go-version: ${{ matrix.go-version }}
           check-latest: true
-          cache: true
+          # Restoring the build cache on Windows is slow and eats disk space.
+          cache: ${{ matrix.os != 'windows-latest' }}
       - name: Install Node
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
@@ -78,9 +91,6 @@ jobs:
         run: |
           choco install pandoc
       - run: pandoc -v
-      - if: matrix.os == 'windows-latest'
-        run: |
-          choco install mingw
       - if: matrix.os == 'ubuntu-latest'
         name: Install dart-sass Linux
         run: |
@@ -131,11 +141,13 @@ jobs:
           HUGO_BUILD_TAGS: extended,withdeploy
       - if: matrix.os == 'windows-latest'
         # See issue #11052. We limit the build to regular test (no -race flag) on Windows for now.
+        # The withdeploy tag (cloud SDKs) is tested on Linux.
         name: Test
         run: |
           mage -v test
-        env:
-          HUGO_BUILD_TAGS: withdeploy
+      - if: always() && matrix.os == 'windows-latest'
+        name: Show disk usage
+        run: Get-PSDrive -PSProvider FileSystem
       - if: matrix.os == 'ubuntu-latest'
         name: Test 386
         run: |
