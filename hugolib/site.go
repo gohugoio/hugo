@@ -186,6 +186,10 @@ func (s siteLanguageVersionRole) Version() versions.Version {
 	return s.version
 }
 
+func (s siteLanguageVersionRole) SiteVector() sitesmatrix.Vector {
+	return s.siteVector
+}
+
 func (s siteLanguageVersionRole) isDefault() bool {
 	return s.isDefaultLanguage && s.roleInternal.Default && s.versionInternal.Default
 }
