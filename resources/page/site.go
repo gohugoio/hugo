@@ -15,6 +15,7 @@ package page
 
 import (
 	"slices"
+	"strconv"
 	"time"
 
 	"github.com/gohugoio/hugo/common/hmaps"
@@ -169,8 +170,11 @@ func WrapSite(s Site) Site {
 	return &siteWrapper{s: s}
 }
 
+// Key is used for hashing, e.g. a Site passed as a partialCached variant,
+// and must be unique per site (language, version and role).
 func (s *siteWrapper) Key() string {
-	return s.s.Language().Lang
+	v := s.s.(SiteVectorProvider).SiteVector()
+	return "site/" + strconv.Itoa(v[0]) + "/" + strconv.Itoa(v[1]) + "/" + strconv.Itoa(v[2])
 }
 
 func (s *siteWrapper) GetPage(ref ...string) (Page, error) {

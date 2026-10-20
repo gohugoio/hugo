@@ -559,3 +559,29 @@ a/helper
 
 	b.AssertFileContent("public/index.html", "deferred:a/helper")
 }
+
+// Issue 15466.
+func TestIncludeCachedSiteVariant(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "section", "page"]
+defaultContentVersion = "v2.0.0"
+[versions."v1.0.0"]
+[versions."v2.0.0"]
+-- content/_index.md --
+---
+sites:
+  matrix:
+    versions: ["**"]
+---
+-- layouts/_partials/p.html --
+{{ return .String }}
+-- layouts/home.html --
+{{ range hugo.Sites }}{{ partialCached "p.html" . . }};{{ end }}
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "Site [0 0 0]: [en v2.0.0 guest];Site [0 1 0]: [en v1.0.0 guest];")
+}
