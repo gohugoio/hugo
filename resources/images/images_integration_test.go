@@ -311,3 +311,30 @@ giphy.avif resized: {{ ($avif.Resize "10x").FrameCount }}|
 		"giphy.avif resized: 1|",
 	)
 }
+
+func TestOverlayAndMaskKeyStableAcrossBuildsIssue15467(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+-- layouts/home.html --
+{{- $a := resources.Get "sunset.jpg" -}}
+{{- $s := $a.Process "resize 32x" -}}
+overlay={{ ($a | images.Filter (images.Overlay $s 0 0)).RelPermalink }}|mask={{ ($a | images.Filter (images.Mask $s)).RelPermalink }}|key={{ $s.Key }}|
+`
+	tempDir := t.TempDir()
+	var first string
+	for i := range 2 {
+		b := hugolib.Test(t, files, hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
+			cfg.NeedsOsFS = true
+			cfg.WorkingDir = tempDir
+		}))
+		content := b.FileContent("public/index.html")
+		if i == 0 {
+			first = content
+		} else if content != first {
+			t.Fatalf("output changed between builds:\nbuild 1: %s\nbuild 2: %s", first, content)
+		}
+	}
+}
