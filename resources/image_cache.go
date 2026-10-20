@@ -90,6 +90,7 @@ func (c *ImageCache) getOrCreate(
 			img.setOpenSource(func() (hugio.ReadSeekCloser, error) {
 				return c.fcache.Fs.Open(info.Name)
 			})
+			img.setSourceFilenameIsHash(true)
 			return img.EncodeTo(conf, conv, w)
 		}
 
