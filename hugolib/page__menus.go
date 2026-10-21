@@ -17,6 +17,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/navigation"
 )
 
@@ -74,10 +75,18 @@ func (p *pageMenus) init() {
 			}
 		}
 
-		var err error
-		p.pm, err = navigation.PageMenusFromPage(menus, p.p)
+		// Front matter is content, which is not trusted unless HTML content is allowed.
+		allowHTML := p.p.s.ExecHelper.Sec().AllowContent.Accept("text/html")
+		var (
+			escapedHTML bool
+			err         error
+		)
+		p.pm, escapedHTML, err = navigation.PageMenusFromPage(menus, p.p, allowHTML)
 		if err != nil {
 			p.p.s.Log.Errorln(p.p.wrapError(err))
+		}
+		if escapedHTML {
+			p.p.s.Log.Warnidf(constants.WarnMenuPrePostHTMLEscaped, "HTML in front matter menu pre/post escaped in %q; allow text/html in security.allowContent to render it as HTML", p.p.pathOrTitle())
 		}
 	})
 }

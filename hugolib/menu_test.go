@@ -14,6 +14,7 @@
 package hugolib
 
 import (
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -712,4 +713,64 @@ URL: {{ .URL }}| Name: {{ .Name }}| Title: {{ .Title }}| PageRef: {{ .PageRef }}
 		`URL: /s2/| Name: S2_Title| Title: S2_Title| PageRef: /s2| Page.Title: S2_Title| Page.LinkTitle: S2_Title|`,
 		`URL: /s3/| Name: S3_LinkTitle| Title: S3_Title| PageRef: /s3| Page.Title: S3_Title| Page.LinkTitle: S3_LinkTitle|`,
 	)
+}
+
+func TestMenusFrontMatterPrePostHTML(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+[[menus.main]]
+name = "Config"
+url = "/config/"
+pre = "<i>config</i>"
+weight = 1
+-- content/p1.md --
+---
+title: P1
+menus:
+  main:
+    weight: 2
+    pre: "<script>alert(1)</script>"
+    post: "<b>p1</b>"
+---
+-- content/p2.md --
+---
+title: P2
+menus:
+  main:
+    weight: 3
+    pre: "Q&A"
+---
+-- layouts/single.html --
+{{ .Title }}
+-- layouts/home.html --
+{{- range site.Menus.main }}
+{{ .Name }}: {{ .Pre }}|{{ .Post }}|
+{{- end }}
+`
+
+	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
+		b := Test(t, files, TestOptWarn())
+		b.AssertFileContent("public/index.html",
+			"Config: <i>config</i>||",
+			"P1: &lt;script&gt;alert(1)&lt;/script&gt;|&lt;b&gt;p1&lt;/b&gt;|",
+			"P2: Q&amp;A||",
+		)
+		b.AssertLogContains("WARN  HTML in front matter menu pre/post escaped in", "p1.md", "! p2.md")
+	})
+
+	t.Run("HTML content allowed", func(t *testing.T) {
+		t.Parallel()
+		b := Test(t, strings.Replace(files, "[[menus.main]]", "[security]\nallowContent = ['.*']\n[[menus.main]]", 1), TestOptWarn())
+		b.AssertFileContent("public/index.html",
+			"Config: <i>config</i>||",
+			"P1: <script>alert(1)</script>|<b>p1</b>|",
+			"P2: Q&A||",
+		)
+		b.AssertLogContains("! HTML in front matter menu pre/post escaped")
+	})
 }

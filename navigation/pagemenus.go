@@ -15,6 +15,8 @@ package navigation
 
 import (
 	"fmt"
+	"html/template"
+	"strings"
 
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/types"
@@ -41,9 +43,12 @@ type MenuQueryProvider interface {
 	IsMenuCurrent(menuID string, inme *MenuEntry) bool
 }
 
-func PageMenusFromPage(ms any, p Page) (PageMenus, error) {
+// PageMenusFromPage creates the menu entries defined in the front matter of p.
+// Front matter is not trusted, so Pre and Post are HTML escaped unless allowHTML is set.
+// The returned bool reports whether any Pre or Post value with HTML markup was escaped.
+func PageMenusFromPage(ms any, p Page, allowHTML bool) (PageMenus, bool, error) {
 	if ms == nil {
-		return nil, nil
+		return nil, false, nil
 	}
 	pm := PageMenus{}
 	me := MenuEntry{}
@@ -55,7 +60,7 @@ func PageMenusFromPage(ms any, p Page) (PageMenus, error) {
 	if err == nil {
 		me.Menu = mname
 		pm[mname] = &me
-		return pm, nil
+		return pm, false, nil
 	}
 
 	// Could be a slice of strings
@@ -66,7 +71,7 @@ func PageMenusFromPage(ms any, p Page) (PageMenus, error) {
 			me.Menu = mname
 			pm[mname] = &me
 		}
-		return pm, nil
+		return pm, false, nil
 	}
 
 	wrapErr := func(err error) error {
@@ -76,25 +81,41 @@ func PageMenusFromPage(ms any, p Page) (PageMenus, error) {
 	// Could be a structured menu entry
 	menus, err := hmaps.ToStringMapE(ms)
 	if err != nil {
-		return pm, wrapErr(err)
+		return pm, false, wrapErr(err)
 	}
 
+	var escapedHTML bool
 	for name, menu := range menus {
 		menuEntry := MenuEntry{Menu: name}
 		if menu != nil {
 			ime, err := hmaps.ToStringMapE(menu)
 			if err != nil {
-				return pm, wrapErr(err)
+				return pm, false, wrapErr(err)
 			}
 			if err := mapstructure.WeakDecode(ime, &menuEntry.MenuConfig); err != nil {
-				return pm, err
+				return pm, false, err
+			}
+			if !allowHTML {
+				var escaped bool
+				menuEntry.Pre, escaped = escapeHTML(menuEntry.Pre)
+				escapedHTML = escapedHTML || escaped
+				menuEntry.Post, escaped = escapeHTML(menuEntry.Post)
+				escapedHTML = escapedHTML || escaped
 			}
 		}
 		SetPageValues(&menuEntry, p)
 		pm[name] = &menuEntry
 	}
 
-	return pm, nil
+	return pm, escapedHTML, nil
+}
+
+// escapeHTML escapes s and reports whether s contained HTML markup.
+func escapeHTML(s template.HTML) (template.HTML, bool) {
+	if s == "" {
+		return s, false
+	}
+	return template.HTML(template.HTMLEscapeString(string(s))), strings.Contains(string(s), "<")
 }
 
 func NewMenuQueryProvider(
