@@ -36,4 +36,8 @@ To render the menu:
 </ul>
 ```
 
+> [!NOTE]
+> The `pre` and `post` values of menu entries defined in front matter are HTML escaped unless `text/html` is allowed in the [`allowContent`][] security policy. Menu entries defined in your project configuration are not escaped.
+
+[`allowContent`]: /configuration/security/
 [emoji shortcodes]: /quick-reference/emojis/
