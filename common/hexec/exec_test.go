@@ -566,7 +566,7 @@ func TestCheckReadPath(t *testing.T) {
 	c.Assert(e.CheckReadPath(filepath.Join(site, "assets", "..", "assets", "a.js")), qt.IsNil)
 	c.Assert(e.CheckReadPath(secret), qt.ErrorMatches, `".*secret.txt" resolves to ".*secret.txt" outside the project.*allowRead.*`)
 	c.Assert(e.CheckReadPath(slink), qt.ErrorMatches, `".*slink.js" resolves to ".*secret.txt" outside the project.*allowRead.*`)
-	c.Assert(e.CheckReadPath(filepath.Join(site, "doesnotexist.js")), qt.ErrorMatches, `.*no such file.*`)
+	c.Assert(e.CheckReadPath(filepath.Join(site, "doesnotexist.js")), qt.IsNil)
 
 	e = newExec(".", outside)
 	c.Assert(e.CheckReadPath(secret), qt.IsNil)

@@ -546,3 +546,35 @@ p::before { content: "日本語"; }
 	_, err := hugolib.TestE(t, files, hugolib.TestOptOsFs())
 	b.Assert(err, qt.ErrorMatches, `.*unsupported charset: "foo".*`)
 }
+
+// Issue 15481.
+func TestBuildBrowserDisabledModuleExtensionless(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "robotsTXT", "section", "page"]
+-- assets/main.js --
+import value from "browser-disabled-repro";
+console.log(value);
+-- node_modules/browser-disabled-repro/package.json --
+{
+  "name": "browser-disabled-repro",
+  "version": "1.0.0",
+  "main": "index.js",
+  "browser": {
+    "./util.inspect.js": false
+  }
+}
+-- node_modules/browser-disabled-repro/index.js --
+module.exports = require("./util.inspect");
+-- node_modules/browser-disabled-repro/util.inspect.js --
+module.exports = "EXCLUDED-FROM-BROWSER";
+-- layouts/home.html --
+{{ $js := resources.Get "main.js" | js.Build }}
+JS Content:{{ $js.Content }}:End:
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs())
+	b.AssertFileContent("public/index.html", "(disabled):node_modules/browser-disabled-repro/util.inspect", "! EXCLUDED-FROM-BROWSER")
+}
