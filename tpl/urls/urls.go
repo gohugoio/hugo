@@ -215,6 +215,10 @@ func (ns *Namespace) JoinPath(elements ...any) (string, error) {
 		}
 	}
 
+	if len(selements) == 0 {
+		return "", nil
+	}
+
 	result, err := url.JoinPath(selements[0], selements[1:]...)
 	if err != nil {
 		return "", err
