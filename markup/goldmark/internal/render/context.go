@@ -259,6 +259,8 @@ func textPlainTo(c ast.Node, source []byte, buf *bytes.Buffer) {
 	case *east.Emoji:
 		buf.WriteString(string(c.ShortName))
 	default:
-		textPlainTo(c.FirstChild(), source, buf)
+		for cc := c.FirstChild(); cc != nil; cc = cc.NextSibling() {
+			textPlainTo(cc, source, buf)
+		}
 	}
 }

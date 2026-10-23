@@ -161,6 +161,42 @@ title: "p1"
 	)
 }
 
+// See issue 15472.
+func TestHeadingIDLinkTextStartingWithBracket(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- content/p1.md --
+---
+title: "p1"
+---
+## [[2603.24477] Composer 2 Technical Report](https://arxiv.org/abs/2603.24477)
+
+## [Plain link heading](https://example.com)
+
+## [2603.24477] Bracketed text, no link
+
+## [[2504.18425] Kimi-Audio Technical Report](https://arxiv.org/abs/2504.18425)
+
+## [Link with *emphasis* inside](https://example.com)
+-- layouts/page.html --
+{{ .Content }}
+-- layouts/_markup/render-heading.html --
+<h{{ .Level }} id="{{ .Anchor }}">{{ .PlainText }}</h{{ .Level }}>
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		`<h2 id="260324477-composer-2-technical-report">[2603.24477] Composer 2 Technical Report</h2>`,
+		`<h2 id="plain-link-heading">Plain link heading</h2>`,
+		`<h2 id="260324477-bracketed-text-no-link">[2603.24477] Bracketed text, no link</h2>`,
+		`<h2 id="250418425-kimi-audio-technical-report">[2504.18425] Kimi-Audio Technical Report</h2>`,
+		`<h2 id="link-with-emphasis-inside">Link with emphasis inside</h2>`,
+	)
+}
+
 func TestHighlight(t *testing.T) {
 	t.Parallel()
 
