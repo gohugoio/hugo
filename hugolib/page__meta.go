@@ -557,8 +557,9 @@ func (ps *pageState) setMetaPost(cascades *page.PageMatcherParamsConfigs) error 
 	// Cascade defined on itself has higher priority than inherited ones.
 	allCascades := hiter.Concat(ps.m.cascadeCompiled.All(), cascades.All())
 
+	params := ps.m.pageConfigSource.FrontMatterParams()
 	for v := range allCascades {
-		if !v.Target.Match(ps.Kind(), ps.Path(), ps.s.Conf.Environment(), ps.s.siteVector) {
+		if !v.Target.Match(ps.Kind(), ps.Path(), ps.s.Conf.Environment(), params, ps.s.siteVector) {
 			continue
 		}
 
