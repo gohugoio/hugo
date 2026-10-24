@@ -90,6 +90,9 @@ func TestJoinPath(t *testing.T) {
 		{[]any{".", "..", "/a", "b"}, `a/b`},
 		{[]any{"https://example.org", "a"}, `https://example.org/a`},
 		{[]any{nil}, `/`},
+		// Empty slices. See issue 15473.
+		{[]any{}, ""},
+		{[]string{}, ""},
 		// errors
 		{tstNoStringer{}, false},
 		{[]any{tstNoStringer{}}, false},
@@ -102,6 +105,20 @@ func TestJoinPath(t *testing.T) {
 			continue
 		}
 
+		c.Assert(err, qt.IsNil)
+		c.Assert(result, qt.Equals, test.expect)
+	}
+
+	// Test variadic slice combinations. See issue 15473.
+	for _, test := range []struct {
+		elements []any
+		expect   string
+	}{
+		{[]any{[]any{}, []string{}}, ""},
+		{[]any{[]any{}, "a", []string{}}, "a"},
+		{[]any{[]string{}, []any{"a", "b"}, "c"}, "a/b/c"},
+	} {
+		result, err := ns.JoinPath(test.elements...)
 		c.Assert(err, qt.IsNil)
 		c.Assert(result, qt.Equals, test.expect)
 	}
