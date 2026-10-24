@@ -66,6 +66,13 @@ func (e *execHelper) GetMethod(ctx context.Context, tmpl Preparer, receiver refl
 	return m, reflect.ValueOf("v2")
 }
 
+func (e *execHelper) RedirectField(ctx context.Context, tmpl Preparer, receiver reflect.Value, name, next string) (string, bool) {
+	if name == "M" && next == "b" {
+		return "S", true
+	}
+	return "", false
+}
+
 func (e *execHelper) OnCalled(ctx context.Context, tmpl Preparer, name string, args []reflect.Value, returnValue reflect.Value) {
 }
 
@@ -77,6 +84,7 @@ func TestTemplateExecutor(t *testing.T) {
 {{ printf "hugo" }}
 Map: {{ .M.A }}
 Method: {{ .Hello1 "v1" }}
+Redirect: {{ .M.b }}|{{ $.M.b }}|{{ (.).M.b }}|{{ .M.a }}|
 
 `)
 
@@ -94,6 +102,7 @@ Method: {{ .Hello1 "v1" }}
 	c.Assert(got, qt.Contains, "hello hugo")
 	c.Assert(got, qt.Contains, "Map: av")
 	c.Assert(got, qt.Contains, "Method: v2 v1")
+	c.Assert(got, qt.Contains, "Redirect: sv|sv|sv|av|")
 }
 
 // See issue 15385.

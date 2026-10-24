@@ -17,12 +17,16 @@ package tplimpl
 
 import (
 	"context"
+	"fmt"
 	"reflect"
 	"strings"
+	"sync"
 
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hreflect"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/tpl"
 
 	texttemplate "github.com/gohugoio/hugo/tpl/internal/go_templates/texttemplate"
@@ -35,9 +39,13 @@ var (
 
 type templateExecHelper struct {
 	watching   bool // whether we're in server/watch mode.
+	log        loggers.Logger
 	site       reflect.Value
 	siteParams reflect.Value
 	funcs      map[string]reflect.Value
+
+	// Logged deprecations of reserved front matter fields accessed via .Params, keyed by template name and field.
+	paramsDeprecations sync.Map
 }
 
 func (t *templateExecHelper) GetFunc(ctx context.Context, tmpl texttemplate.Preparer, name string) (fn reflect.Value, firstArg reflect.Value, found bool) {
@@ -111,6 +119,34 @@ func (t *templateExecHelper) GetMethod(ctx context.Context, tmpl texttemplate.Pr
 	}
 
 	return fn, zero
+}
+
+// RedirectField redirects e.g. .Params.title to .Title for pages where
+// title is set from a reserved front matter field and not in params.
+func (t *templateExecHelper) RedirectField(ctx context.Context, tmpl texttemplate.Preparer, receiver reflect.Value, name, next string) (string, bool) {
+	if !strings.EqualFold(name, "params") || !receiver.IsValid() || !receiver.CanInterface() {
+		return "", false
+	}
+	if (receiver.Kind() == reflect.Pointer || receiver.Kind() == reflect.Interface) && receiver.IsNil() {
+		return "", false
+	}
+	method, ok := page.ReservedParamMethod(receiver.Interface(), next)
+	if !ok {
+		return "", false
+	}
+
+	key := strings.ToLower(next)
+	var templateName string
+	if tmpl, ok := tmpl.(interface{ Filename() string }); ok {
+		templateName = tmpl.Filename()
+	} else if tmpl, ok := tmpl.(interface{ Name() string }); ok {
+		templateName = tmpl.Name()
+	}
+	if _, loaded := t.paramsDeprecations.LoadOrStore(templateName+"|"+key, true); !loaded {
+		page.DeprecateReservedParam(t.log.Logger(), fmt.Sprintf(".Params.%s in template %q", key, templateName), key, "."+method)
+	}
+
+	return method, true
 }
 
 func (t *templateExecHelper) OnCalled(ctx context.Context, tmpl texttemplate.Preparer, name string, args []reflect.Value, result reflect.Value) {

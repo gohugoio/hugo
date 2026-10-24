@@ -218,6 +218,9 @@ type PageMetaProvider interface {
 	// The configured layout to use to render this page. Typically set in front matter.
 	Layout() string
 
+	// RawSummary returns the summary as set in front matter, without any processing.
+	RawSummary() string
+
 	// The title used for links.
 	LinkTitle() string
 
@@ -327,6 +330,8 @@ func NamedPageMetaValue(p PageMetaLanguageResource, nameLower string) (any, bool
 type PageMetaInternalProvider interface {
 	// This is for internal use only.
 	PathInfo() *paths.Path
+
+	RootParamProvider
 }
 
 // PageRenderProvider provides a way for a Page to render content.

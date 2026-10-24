@@ -154,6 +154,9 @@ type pageMeta struct {
 	content *cachedContent // The source and the parsed page content.
 
 	datesOriginal pagemeta.Dates // Original dates for rebuilds.
+
+	// The keys in Params set from a params section, in front matter or in a cascade.
+	userParamKeys map[string]bool
 }
 
 func (p *pageState) getCascade() *page.PageMatcherParamsConfigs {
@@ -456,6 +459,25 @@ func (m *pageMeta) Layout() string {
 	return m.pageConfig.Layout
 }
 
+func (m *pageMeta) RawSummary() string {
+	return m.pageConfig.Summary
+}
+
+// IsRootParam reports whether key in Params was set from outside of a params section,
+// e.g. from a front matter field such as title, or by Hugo itself.
+// This is for internal use only.
+func (m *pageMeta) IsRootParam(key string) bool {
+	if m.pageConfigSource.IsFromContentAdapter {
+		// Params holds only the params set in the content adapter.
+		return false
+	}
+	if m.userParamKeys[key] {
+		return false
+	}
+	_, found := m.pageConfig.Params[key]
+	return found
+}
+
 func (m *pageMeta) LinkTitle() string {
 	if m.pageConfig.LinkTitle != "" {
 		return m.pageConfig.LinkTitle
@@ -553,6 +575,7 @@ func (ps *pageState) setMetaPost(cascades *page.PageMatcherParamsConfigs) error 
 	if ps.m.pageConfigSource.IsFromContentAdapter && ps.m.pageConfig.ContentAdapterData == nil {
 		ps.m.pageConfig.ContentAdapterData = make(hmaps.Params)
 	}
+	ps.m.userParamKeys = make(map[string]bool)
 
 	// Cascade defined on itself has higher priority than inherited ones.
 	allCascades := hiter.Concat(ps.m.cascadeCompiled.All(), cascades.All())
@@ -565,6 +588,7 @@ func (ps *pageState) setMetaPost(cascades *page.PageMatcherParamsConfigs) error 
 		for kk, vv := range v.Params {
 			if _, found := ps.m.pageConfig.Params[kk]; !found {
 				ps.m.pageConfig.Params[kk] = vv
+				ps.m.userParamKeys[kk] = true
 			}
 		}
 		for kk, vv := range v.Fields {
@@ -838,7 +862,9 @@ params:
 	}
 
 	for k, v := range userParams {
-		pcfg.Params[strings.ToLower(k)] = v
+		k = strings.ToLower(k)
+		pcfg.Params[k] = v
+		pm.userParamKeys[k] = true
 	}
 
 	if !sitemapSet {

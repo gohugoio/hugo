@@ -657,7 +657,7 @@ func (s *state) evalVariableNode(dot reflect.Value, variable *parse.VariableNode
 // evalFieldChain evaluates .X.Y.Z possibly followed by arguments.
 // dot is the environment in which to evaluate arguments, while
 // receiver is the value being walked along the chain.
-func (s *state) evalFieldChain(dot, receiver reflect.Value, node parse.Node, ident []string, args []parse.Node, final reflect.Value) reflect.Value {
+func (s *state) evalFieldChainOld(dot, receiver reflect.Value, node parse.Node, ident []string, args []parse.Node, final reflect.Value) reflect.Value {
 	n := len(ident)
 	for i := 0; i < n-1; i++ {
 		receiver = s.evalField(dot, ident[i], node, nil, missingVal, receiver)

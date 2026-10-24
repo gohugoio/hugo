@@ -172,6 +172,14 @@ func (p *testPage) Description() string {
 	return ""
 }
 
+func (p *testPage) RawSummary() string {
+	return ""
+}
+
+func (p *testPage) IsRootParam(key string) bool {
+	return false
+}
+
 func (p *testPage) ContentWithoutSummary(ctx context.Context) (template.HTML, error) {
 	return "", nil
 }

@@ -192,6 +192,10 @@ func (p Pages) GroupByParam(key string, order ...string) (PagesGroup, error) {
 		direction = "desc"
 	}
 
+	p.deprecateReservedParam(fmt.Sprintf("GroupByParam %q", key), key, func(method string) string {
+		return fmt.Sprintf("GroupBy %q", method)
+	})
+
 	var tmp reflect.Value
 	var keyt reflect.Type
 	for _, e := range p {

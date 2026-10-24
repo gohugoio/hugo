@@ -112,6 +112,9 @@ type HugoSites struct {
 	printSiteBuildDraftsDeprecationInit sync.Once
 	printSiteLanguagesDeprecationInit   sync.Once
 
+	// Logged deprecations of reserved front matter fields passed to .Param, keyed by field.
+	pageParamDeprecations sync.Map
+
 	// File change events with filename stored in this map will be skipped.
 	skipRebuildForFilenamesMu sync.Mutex
 	skipRebuildForFilenames   map[string]bool
