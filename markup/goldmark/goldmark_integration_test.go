@@ -156,7 +156,8 @@ title: "p1"
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html",
+	b.AssertFileContent(
+		"public/p1/index.html",
 		"<h2 id=\"hello-test\">\n  Hello <a href=\"https://example.com\">Test</a>\n\n  <a class=\"anchor\" href=\"#hello-test\">#</a>\n</h2>",
 	)
 }
@@ -171,13 +172,13 @@ func TestHeadingIDLinkTextStartingWithBracket(t *testing.T) {
 ---
 title: "p1"
 ---
-## [[2603.24477] Composer 2 Technical Report](https://arxiv.org/abs/2603.24477)
+## [[2603.24477] Composer 2 Technical Report](https://example.com/1)
 
 ## [Plain link heading](https://example.com)
 
 ## [2603.24477] Bracketed text, no link
 
-## [[2504.18425] Kimi-Audio Technical Report](https://arxiv.org/abs/2504.18425)
+## [[2504.18425] Kimi-Audio Technical Report](https://example.com/2)
 
 ## [Link with *emphasis* inside](https://example.com)
 -- layouts/page.html --
@@ -188,7 +189,8 @@ title: "p1"
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html",
+	b.AssertFileContent(
+		"public/p1/index.html",
 		`<h2 id="260324477-composer-2-technical-report">[2603.24477] Composer 2 Technical Report</h2>`,
 		`<h2 id="plain-link-heading">Plain link heading</h2>`,
 		`<h2 id="260324477-bracketed-text-no-link">[2603.24477] Bracketed text, no link</h2>`,
@@ -260,7 +262,8 @@ LINE8
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html",
+	b.AssertFileContent(
+		"public/p1/index.html",
 		"<div class=\"highlight\"><pre tabindex=\"0\" class=\"chroma\"><code class=\"language-bash\" data-lang=\"bash\"><span class=\"line\"><span class=\"cl\">LINE1\n</span></span></code></pre></div>",
 		"Code Fences No Lexer</h2>\n<pre tabindex=\"0\"><code class=\"language-moo\" data-lang=\"moo\">LINE1\n</code></pre>",
 		"lnt",
@@ -487,7 +490,8 @@ Link https procol: https://www.example.org
 
 		b := runTest("https", withHook)
 
-		b.AssertFileContent("public/p1/index.html",
+		b.AssertFileContent(
+			"public/p1/index.html",
 			"Link no procol: <a href=\"https://www.example.org\">www.example.org</a>",
 			"Link http procol: <a href=\"http://www.example.org\">http://www.example.org</a>",
 			"Link https procol: <a href=\"https://www.example.org\">https://www.example.org</a></p>",
@@ -495,7 +499,8 @@ Link https procol: https://www.example.org
 
 		b = runTest("http", withHook)
 
-		b.AssertFileContent("public/p1/index.html",
+		b.AssertFileContent(
+			"public/p1/index.html",
 			"Link no procol: <a href=\"http://www.example.org\">www.example.org</a>",
 			"Link http procol: <a href=\"http://www.example.org\">http://www.example.org</a>",
 			"Link https procol: <a href=\"https://www.example.org\">https://www.example.org</a></p>",
@@ -503,7 +508,8 @@ Link https procol: https://www.example.org
 
 		b = runTest("gopher", withHook)
 
-		b.AssertFileContent("public/p1/index.html",
+		b.AssertFileContent(
+			"public/p1/index.html",
 			"Link no procol: <a href=\"gopher://www.example.org\">www.example.org</a>",
 			"Link http procol: <a href=\"http://www.example.org\">http://www.example.org</a>",
 			"Link https procol: <a href=\"https://www.example.org\">https://www.example.org</a></p>",
@@ -539,7 +545,8 @@ a <!-- b --> c
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContentExact("public/p1/index.html",
+	b.AssertFileContentExact(
+		"public/p1/index.html",
 		// Issue 9650
 		"<p>a <!-- b --> c</p>",
 		// Issue 9658 (crash)
@@ -573,7 +580,8 @@ title: "p1"
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContentExact("public/p1/index.html",
+	b.AssertFileContentExact(
+		"public/p1/index.html",
 		// Note that this markup is slightly different than the one produced by the default Goldmark renderer,
 		// see issue 13292.
 		"alt=\"A’s is &gt; than B’s\">",
@@ -624,7 +632,8 @@ sc3_begin|{{ .Inner }}|sc3_end
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContentExact("public/p1/index.html",
+	b.AssertFileContentExact(
+		"public/p1/index.html",
 		// Issue #7332
 		"<span>:x:\n</span>",
 		// Issue #11587
@@ -835,7 +844,8 @@ H~2~0
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		"<p>~~delete~~</p>",
 		"<p>++insert++</p>",
 		"<p>==mark==</p>",
@@ -847,7 +857,8 @@ H~2~0
 
 	b = hugolib.Test(t, files)
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		"<p><del>delete</del></p>",
 		"<p><ins>insert</ins></p>",
 		"<p><mark>mark</mark></p>",
@@ -965,7 +976,8 @@ hidden
 
 	b := hugolib.Test(t, files, hugolib.TestOptWarn())
 
-	b.AssertFileContent("public/p1/index.html",
+	b.AssertFileContent(
+		"public/p1/index.html",
 		"! <!-- raw HTML omitted -->",
 		"! <!-- hidden -->",
 		"! <!-- This is a comment -->",
@@ -974,7 +986,8 @@ hidden
 	b.AssertLogContains("! WARN")
 
 	b = hugolib.Test(t, strings.ReplaceAll(files, "markup.goldmark.renderer.unsafe = false", "markup.goldmark.renderer.unsafe = true"), hugolib.TestOptWarn())
-	b.AssertFileContent("public/p1/index.html",
+	b.AssertFileContent(
+		"public/p1/index.html",
 		"! <!-- raw HTML omitted -->",
 		"<!-- hidden -->",
 		"<!-- This is a comment -->",
@@ -1040,16 +1053,20 @@ foo[^1] and bar[^2]
 
 	files = strings.ReplaceAll(files, "enableAutoIDPrefix = false", "enableAutoIDPrefix = true")
 	b = hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html",
+	b.AssertFileContent(
+		"public/p1/index.html",
 		"<p>foo<sup id=\"hb5cdcabc9e678612fnref:1\"><a href=\"#hb5cdcabc9e678612fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"hb5cdcabc9e678612fnref:2\"><a href=\"#hb5cdcabc9e678612fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"hb5cdcabc9e678612fn:1\">\n<p>footnote one&#160;<a href=\"#hb5cdcabc9e678612fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"hb5cdcabc9e678612fn:2\">\n<p>footnote two&#160;<a href=\"#hb5cdcabc9e678612fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
 	)
-	b.AssertFileContent("public/p2/index.html",
+	b.AssertFileContent(
+		"public/p2/index.html",
 		"<p>foo<sup id=\"h58e8265a0c07b195fnref:1\"><a href=\"#h58e8265a0c07b195fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"h58e8265a0c07b195fnref:2\"><a href=\"#h58e8265a0c07b195fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"h58e8265a0c07b195fn:1\">\n<p>footnote one&#160;<a href=\"#h58e8265a0c07b195fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"h58e8265a0c07b195fn:2\">\n<p>footnote two&#160;<a href=\"#h58e8265a0c07b195fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
 	)
-	b.AssertFileContent("public/p3/index.html",
+	b.AssertFileContent(
+		"public/p3/index.html",
 		"<p>foo<sup id=\"h0aab769290d7e233fnref:1\"><a href=\"#h0aab769290d7e233fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"h0aab769290d7e233fnref:2\"><a href=\"#h0aab769290d7e233fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"h0aab769290d7e233fn:1\">\n<p>footnote one&#160;<a href=\"#h0aab769290d7e233fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"h0aab769290d7e233fn:2\">\n<p>footnote two&#160;<a href=\"#h0aab769290d7e233fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
 	)
-	b.AssertFileContent("public/p4/index.html",
+	b.AssertFileContent(
+		"public/p4/index.html",
 		"<p>foo<sup id=\"ha35b794ad6e8626cfnref:1\"><a href=\"#ha35b794ad6e8626cfn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"ha35b794ad6e8626cfnref:2\"><a href=\"#ha35b794ad6e8626cfn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"ha35b794ad6e8626cfn:1\">\n<p>footnote one&#160;<a href=\"#ha35b794ad6e8626cfnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n<li id=\"ha35b794ad6e8626cfn:2\">\n<p>footnote two&#160;<a href=\"#ha35b794ad6e8626cfnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">&#x21a9;&#xfe0e;</a></p>\n</li>\n</ol>\n</div>",
 	)
 
@@ -1057,7 +1074,8 @@ foo[^1] and bar[^2]
 
 	files = strings.ReplaceAll(files, "TBD", "backlinkHTML")
 	b = hugolib.Test(t, files)
-	b.AssertFileContent("public/p1/index.html",
+	b.AssertFileContent(
+		"public/p1/index.html",
 		"<p>foo<sup id=\"hb5cdcabc9e678612fnref:1\"><a href=\"#hb5cdcabc9e678612fn:1\" class=\"footnote-ref\" role=\"doc-noteref\">1</a></sup> and bar<sup id=\"hb5cdcabc9e678612fnref:2\"><a href=\"#hb5cdcabc9e678612fn:2\" class=\"footnote-ref\" role=\"doc-noteref\">2</a></sup></p>\n<div class=\"footnotes\" role=\"doc-endnotes\">\n<hr>\n<ol>\n<li id=\"hb5cdcabc9e678612fn:1\">\n<p>footnote one&#160;<a href=\"#hb5cdcabc9e678612fnref:1\" class=\"footnote-backref\" role=\"doc-backlink\">back</a></p>\n</li>\n<li id=\"hb5cdcabc9e678612fn:2\">\n<p>footnote two&#160;<a href=\"#hb5cdcabc9e678612fnref:2\" class=\"footnote-backref\" role=\"doc-backlink\">back</a></p>\n</li>\n</ol>\n</div>",
 	)
 }
@@ -1078,7 +1096,8 @@ Content: {{ .Content }}
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/p1/index.html",
+	b.AssertFileContent(
+		"public/p1/index.html",
 		`! alert(1)"`,
 		`! alert(2)"`,
 	)
@@ -1100,7 +1119,8 @@ title: "Home"
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		`<a href="https://a.com/?a=1&amp;b=2">foo</a>`,
 	)
 }
