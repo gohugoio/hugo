@@ -14,6 +14,7 @@
 package hexec
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"os"
@@ -44,9 +45,12 @@ func (e *Exec) checkNodeSymlinks(kind string, roots []string) error {
 	return nil
 }
 
+var errReadPathNotExist = errors.New("read path does not exist")
+
 // CheckReadPath fails if filename resolves outside the allowRead roots.
 // Used by in-process tools (e.g. ESBuild) that read files on their own,
 // so they get the same boundary as the Node.js tools.
+// A filename that does not exist passes, as there is nothing to read.
 func (e *Exec) CheckReadPath(filename string) error {
 	_, err := e.readPathChecks.GetOrCreate(filename, func() (bool, error) {
 		roots := e.nodeReadRoots("")
@@ -55,6 +59,10 @@ func (e *Exec) CheckReadPath(filename string) error {
 		}
 		target, err := filepath.EvalSymlinks(filename)
 		if err != nil {
+			if os.IsNotExist(err) {
+				// Don't cache this; the file may be created later.
+				return false, errReadPathNotExist
+			}
 			return false, err
 		}
 		if !isBelowAny(target, evalSymlinks(roots)) {
@@ -62,6 +70,9 @@ func (e *Exec) CheckReadPath(filename string) error {
 		}
 		return true, nil
 	})
+	if err == errReadPathNotExist {
+		return nil
+	}
 	return err
 }
 
