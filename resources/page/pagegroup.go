@@ -335,7 +335,12 @@ func (p Pages) GroupByLastmod(format string, order ...string) (PagesGroup, error
 // For valid format strings, see https://golang.org/pkg/time/#Time.Format
 func (p Pages) GroupByParamDate(key string, format string, order ...string) (PagesGroup, error) {
 	p.deprecateReservedParam(fmt.Sprintf("GroupByParamDate %q", key), key, func(method string) string {
-		return "GroupBy" + method
+		switch method {
+		case "Date", "Lastmod", "PublishDate", "ExpiryDate":
+			return "GroupBy" + method
+		default:
+			return fmt.Sprintf("GroupByParamDate %q with the value explicitly set under params", key)
+		}
 	})
 
 	// Cache the dates.
