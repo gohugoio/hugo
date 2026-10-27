@@ -912,3 +912,76 @@ aliases: [a, b.foo, c.html, d.htm, e.foo.html, f.foo.htm]
 	b.AssertFileContent("public/s1/e.foo.html", "url=/s1/p1.htm")
 	b.AssertFileContent("public/s1/f.foo.htm", "url=/s1/p1.htm")
 }
+
+// See issue 13346.
+func TestAliasRelativeHomePage(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["rss", "sitemap", "taxonomy", "term"]
+-- content/_index.md --
+---
+title: Home
+aliases:
+  - welcome
+---
+Home.
+-- layouts/all.html --
+{{ .Title }}
+`
+	b := Test(t, files)
+
+	b.AssertFileContent(
+		"public/welcome/index.html",
+		`<title>https://example.org/</title>`,
+		`<link rel="canonical" href="https://example.org/">`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/">`,
+	)
+}
+
+// See issue 13346.
+func TestAliasRelativeHomePageMultilingual(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = false
+disableKinds = ["rss", "sitemap", "taxonomy", "term"]
+[languages.en]
+weight = 1
+[languages.de]
+weight = 2
+-- content/_index.md --
+---
+title: Home
+aliases:
+  - welcome
+---
+Home.
+-- content/_index.de.md --
+---
+title: Startseite
+aliases:
+  - willkommen
+---
+Startseite.
+-- layouts/all.html --
+{{ .Title }}
+`
+	b := Test(t, files)
+
+	b.AssertFileContent(
+		"public/welcome/index.html",
+		`<title>https://example.org/</title>`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/">`,
+	)
+	b.AssertFileContent(
+		"public/willkommen/index.html",
+		`<title>https://example.org/de/</title>`,
+		`<meta http-equiv="refresh" content="0; url=https://example.org/de/">`,
+	)
+}

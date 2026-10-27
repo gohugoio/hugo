@@ -130,6 +130,9 @@ func (po *pageOutput) Aliases() []string {
 			// Form the baseDir by taking the resource's base target
 			// and moving up one level to the parent.
 			parentContext := path.Join(p.targetPaths().SubResourceBaseTarget, "..")
+			if parentContext == ".." {
+				parentContext = "/"
+			}
 			baseDir = parentContext
 
 		} else {
