@@ -669,6 +669,36 @@ Single: {{ .Title }}|{{ .Content }}|
 	b.AssertFileContent("public/p1/index.html", "Baseof Edited")
 }
 
+// Issue 15484.
+func TestRebuildBaseofAtomicSaveViaTempFile(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["term", "taxonomy", "rss", "sitemap"]
+disableLiveReload = true
+-- content/p1.md --
+---
+title: "P1"
+---
+-- layouts/baseof.html --
+Baseof: {{ block "main" . }}{{ end }}
+-- layouts/home.html --
+{{ define "main" }}Home.{{ end }}
+-- layouts/single.html --
+{{ define "main" }}Single: {{ .Title }}{{ end }}
+`
+	b := Test(t, files, TestOptRunning())
+	b.AssertFileContent("public/p1/index.html", "Baseof: Single: P1")
+
+	// Some editors save by writing to a temp file and renaming it into place.
+	b.AddFiles("layouts/baseof.html.tmp.1234", `Baseof Edited: {{ block "main" . }}{{ end }}`).
+		RenameFile("layouts/baseof.html.tmp.1234", "layouts/baseof.html").Build()
+	b.AssertFileContent("public/p1/index.html", "Baseof Edited: Single: P1")
+	b.AssertFileContent("public/index.html", "Baseof Edited: Home.")
+}
+
 func TestRebuildWithDeferEditRenderHook(t *testing.T) {
 	t.Parallel()
 
