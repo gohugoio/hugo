@@ -2542,3 +2542,33 @@ isCJKLanguage: true
 	b.AssertFileContent("public/p500/index.html", "500|500|1")
 	b.AssertFileContent("public/p501/index.html", "501|600|2")
 }
+
+// See issue 10031.
+func TestReadingTimeMixedCJK(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+hasCJKLanguage = true
+disableKinds = ["home", "section", "taxonomy", "term", "rss", "sitemap"]
+-- content/mixed.md --
+---
+title: mixed
+---
+` + strings.Repeat("word ", 1000) + `你
+-- content/english.md --
+---
+title: english
+isCJKLanguage: false
+---
+` + strings.Repeat("word ", 1000) + `
+-- layouts/page.html --
+{{ .WordCount }}|{{ .ReadingTime }}
+`
+	b := Test(t, files)
+
+	// 1000 English words is 5 minutes at 212 wpm. A single CJK rune must not
+	// switch the whole page to the 500 cpm CJK rate (which would be ~2 min).
+	b.AssertFileContent("public/english/index.html", "1000|5")
+	b.AssertFileContent("public/mixed/index.html", "1001|5")
+}
