@@ -879,7 +879,6 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 	logger := h.Log
 
 	var (
-		tmplAdded          bool
 		tmplChanged        bool
 		i18nChanged        bool
 		needsPagesAssemble bool
@@ -1033,10 +1032,6 @@ func (h *HugoSites) processPartialFileEvents(ctx context.Context, l logg.LevelLo
 			tmplChanged = true
 			templatePath := pathInfo.Unnormalized().TrimLeadingSlash().PathNoLang()
 			if !h.GetTemplateStore().HasTemplate(templatePath) {
-				tmplAdded = true
-			}
-
-			if tmplAdded {
 				logger.Println("Template added", pathInfo.Path())
 				// A new template may require a more coarse grained build.
 				base := pathInfo.Base()
