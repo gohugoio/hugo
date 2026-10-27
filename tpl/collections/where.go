@@ -24,6 +24,7 @@ import (
 	"github.com/gohugoio/hugo/common/hreflect"
 	"github.com/gohugoio/hugo/common/hstrings"
 	"github.com/gohugoio/hugo/compare"
+	"github.com/gohugoio/hugo/resources/page"
 )
 
 // Where returns a filtered subset of collection c.
@@ -555,6 +556,10 @@ func (ns *Namespace) checkWhereArray(ctxv, seqv, kv, mv reflect.Value, path []st
 		resolve = ns.newElemResolver(ctxv, seqv.Type().Elem(), path)
 	}
 
+	if kv.Kind() == reflect.String && len(path) == 2 && strings.EqualFold(path[0], "params") {
+		deprecateReservedParam(seqv, kv.String(), path[1])
+	}
+
 	for i := range seqv.Len() {
 		var vvv reflect.Value
 		rvv := seqv.Index(i)
@@ -673,4 +678,20 @@ func (ns *Namespace) toTimeUnix(v reflect.Value) int64 {
 		panic("coding error: argument must be time.Time type reflect Value")
 	}
 	return t.Unix()
+}
+
+// deprecateReservedParam logs a deprecation if key, e.g. Params.title,
+// gets a reserved front matter field from the Params of a page in seqv.
+func deprecateReservedParam(seqv reflect.Value, key, paramKey string) {
+	seq := func(yield func(any) bool) {
+		for i := range seqv.Len() {
+			v := seqv.Index(i)
+			if !v.CanInterface() || !yield(v.Interface()) {
+				return
+			}
+		}
+	}
+	if p, method, ok := page.FindReservedParam(paramKey, seq); ok {
+		page.DeprecateReservedParam(p.Language().Logger(), fmt.Sprintf("where with %q", key), paramKey, fmt.Sprintf("where with %q", method))
+	}
 }

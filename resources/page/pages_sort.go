@@ -15,6 +15,7 @@ package page
 
 import (
 	"context"
+	"fmt"
 	"sort"
 
 	"github.com/gohugoio/hugo/common/collections"
@@ -406,6 +407,10 @@ func (p Pages) ByParam(paramsKey any) Pages {
 	}
 	paramsKeyStr := cast.ToString(paramsKey)
 	key := "pageSort.ByParam." + paramsKeyStr
+
+	p.deprecateReservedParam(fmt.Sprintf("ByParam %q", paramsKeyStr), paramsKeyStr, func(method string) string {
+		return fmt.Sprintf("sort with %q", method)
+	})
 
 	stringLess, close := collatorStringLess(p[0])
 	defer close()
