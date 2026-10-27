@@ -80,6 +80,24 @@ func TestShouldImportExcludes(t *testing.T) {
 	c.Assert(imp.shouldImport(`@import "tailwindcss/preflight";`), qt.Equals, false)
 }
 
+func TestAbsRelativeImports(t *testing.T) {
+	c := qt.New(t)
+
+	css := `@import "tailwindcss";
+@import "./a.css";
+  @import '../b.css' layer(base);
+@import "c.css";
+@import url("./d.css");
+@source "../e";`
+
+	c.Assert(absRelativeImports(css, "/p/assets/css"), qt.Equals, `@import "tailwindcss";
+@import "/p/assets/css/a.css";
+  @import '/p/assets/b.css' layer(base);
+@import "c.css";
+@import url("./d.css");
+@source "../e";`)
+}
+
 func TestImportResolver(t *testing.T) {
 	c := qt.New(t)
 	fs := afero.NewMemMapFs()

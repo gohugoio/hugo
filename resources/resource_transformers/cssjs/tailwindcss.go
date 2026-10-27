@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -36,6 +37,7 @@ var (
 	tailwindImportExclude = func(s string) bool {
 		return tailwindcssImportRe.MatchString(s) && !strings.Contains(s, ".")
 	}
+	relativeImportRe = regexp.MustCompile(`(?m)^([ \t]*@import\s+["'])(\.{1,2}/[^"']*)`)
 )
 
 // NewTailwindCSSClient creates a new TailwindCSSClient with the given specification.
@@ -149,6 +151,14 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 		if err != nil {
 			return err
 		}
+	} else if filename := t.rs.Assets.RealFilename(ctx.SourcePath); filepath.IsAbs(filename) {
+		// We pass the CSS on stdin, so Tailwind would resolve relative imports
+		// against the working directory and not the source file.
+		b, err := io.ReadAll(src)
+		if err != nil {
+			return err
+		}
+		src = strings.NewReader(absRelativeImports(string(b), filepath.Dir(filename)))
 	}
 
 	go func() {
@@ -171,6 +181,14 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 	}
 
 	return nil
+}
+
+// absRelativeImports makes the paths in @import "./foo.css" and @import "../foo.css" absolute, relative to dir.
+func absRelativeImports(css, dir string) string {
+	return relativeImportRe.ReplaceAllStringFunc(css, func(s string) string {
+		m := relativeImportRe.FindStringSubmatch(s)
+		return m[1] + filepath.ToSlash(filepath.Join(dir, m[2]))
+	})
 }
 
 func decodeTailwindCSSOptions(m map[string]any) (opts TailwindCSSOptions, err error) {

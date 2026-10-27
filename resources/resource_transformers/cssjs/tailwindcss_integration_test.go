@@ -165,6 +165,52 @@ target = 'assets/css'
 	b.Assert(err.Error(), qt.Contains, "You may want to set the 'disableInlineImports' option to false")
 }
 
+// See issue 13738.
+func TestTailwindCSSNoInlineImportsRelativePaths(t *testing.T) {
+	htesting.SkipSlowTestUnlessCI(t)
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+security.exec.allow = ['^go$', '^git$', '^node$', '^tailwindcss$']
+-- hugo_stats.json --
+{"htmlElements":{"classes":["underline"]}}
+-- assets/css/main.css --
+@import "tailwindcss" source(none);
+@import "./components/button.css";
+@import '../shared/reset.css' layer(base);
+@source "hugo_stats.json";
+-- assets/css/components/button.css --
+@import "./button-base.css";
+.button {color: teal;}
+-- assets/css/components/button-base.css --
+.button-base {color: navy;}
+-- assets/shared/reset.css --
+.reset {color: olive;}
+-- layouts/home.html --
+{{ $opts := dict "disableInlineImports" true }}
+{{ $css := resources.Get "css/main.css" | css.TailwindCSS $opts }}
+CSS: {{ $css.Content | safeCSS }}|
+-- package.json --
+{
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.7",
+    "tailwindcss": "^4.1.7"
+  }
+}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptOsFs(), hugolib.TestOptWithNpmInstall(), hugolib.TestOptInfo())
+
+	b.AssertFileContent("public/index.html",
+		"color: teal;",
+		"color: navy;",
+		"@layer base {\n  .reset {\n    color: olive;",
+		// @source is still resolved relative to the project root.
+		".underline {",
+	)
+}
+
 // This tests an internal feature used in the Hugo themes sites building to allow us to build with
 // default security policy and still get a partial build even for themes using TailwindCSS.
 func TestTailwindCSSIgnoreSecError(t *testing.T) {
