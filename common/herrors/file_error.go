@@ -21,7 +21,6 @@ import (
 	"path/filepath"
 
 	"github.com/bep/godartsass/v2"
-	"github.com/bep/golibsass/libsass/libsasserrors"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/pelletier/go-toml/v2"
@@ -150,8 +149,6 @@ func (e *fileError) causeString() string {
 	switch v := e.cause.(type) {
 	// Avoid repeating the file info in the error message.
 	case godartsass.SassError:
-		return v.Message
-	case libsasserrors.Error:
 		return v.Message
 	default:
 		return v.Error()
@@ -337,7 +334,7 @@ func extractFileTypePos(err error) (string, text.Position) {
 
 	var fileType string
 
-	// LibSass, DartSass
+	// DartSass
 	if pos := extractPosition(err); pos.LineNumber > 0 || pos.Offset > 0 {
 		_, fileType = paths.FileAndExtNoDelimiter(pos.Filename)
 		return fileType, pos
@@ -426,10 +423,6 @@ func extractPosition(e error) (pos text.Position) {
 		pos.Filename = filename
 		pos.Offset = start.Offset
 		pos.ColumnNumber = start.Column
-	case libsasserrors.Error:
-		pos.Filename = v.File
-		pos.LineNumber = v.Line
-		pos.ColumnNumber = v.Column
 	}
 	return
 }

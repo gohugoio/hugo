@@ -13,7 +13,6 @@ import (
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/markup/asciidocext"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
-	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 )
 
 const rebuildFilesSimple = `
@@ -1811,10 +1810,6 @@ Home.
 
 			b.AssertFileContent("public/index.html", "Home.", "background: blue")
 		})
-	}
-
-	if scss.Supports() {
-		runTest("libsass")
 	}
 
 	if dartsass.Supports() {

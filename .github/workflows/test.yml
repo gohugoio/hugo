@@ -133,7 +133,7 @@ jobs:
           sass --version;
           mage -v check;
         env:
-          HUGO_BUILD_TAGS: extended,withdeploy
+          HUGO_BUILD_TAGS: withdeploy
       - if: matrix.os == 'windows-latest'
         # See issue #11052. We limit the build to regular test (no -race flag) on Windows for now.
         # The withdeploy tag (cloud SDKs) is tested on Linux.

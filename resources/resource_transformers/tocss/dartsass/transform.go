@@ -253,7 +253,7 @@ func (t importResolver) resolveInImportContext(url string) resource.Resource {
 func (t importResolver) Load(url string) (godartsass.Import, error) {
 	if subPath, ok := sass.HugoVarsSubPath(url); ok {
 		return godartsass.Import{
-			Content: sass.CreateVarsStyleSheet(sass.TranspilerDart, sass.ResolveVars(t.vars, subPath)),
+			Content: sass.CreateVarsStyleSheet(sass.ResolveVars(t.vars, subPath)),
 		}, nil
 	}
 
