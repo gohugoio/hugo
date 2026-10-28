@@ -170,7 +170,6 @@ func CleanTest() error {
 }
 
 // Run tests in 32-bit mode
-// Note that we don't run with the extended tag. Currently not supported in 32 bit.
 func Test386() error {
 	env := map[string]string{"GOARCH": "386", "GOFLAGS": testGoFlags()}
 	return runCmd(env, goexe, "test", "-p", "2", "./...")
@@ -317,8 +316,6 @@ func buildFlags() []string {
 }
 
 func buildTags() string {
-	// To build the extended Hugo SCSS/SASS enabled version, build with
-	// HUGO_BUILD_TAGS=extended mage install etc.
 	// To build with `hugo deploy`, use HUGO_BUILD_TAGS=withdeploy
 	if envtags := os.Getenv("HUGO_BUILD_TAGS"); envtags != "" {
 		return envtags

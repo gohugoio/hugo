@@ -19,7 +19,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/version"
 
@@ -91,9 +90,7 @@ languages="en"
 		c.Assert(v056.Compare(hv.Max), qt.Equals, 1)
 		c.Assert(hv.Extended, qt.Equals, true)
 
-		if hugo.IsExtended {
-			c.Assert(hv.IsValid(), qt.Equals, true)
-		}
+		c.Assert(hv.IsValid(), qt.Equals, true)
 
 		c.Assert(mcfg.Workspace, qt.Equals, hugoWorkFilename)
 

@@ -81,9 +81,10 @@ func (i HugoInfo) IsServer() bool {
 	return i.opts.Conf.Running()
 }
 
-// IsExtended reports whether the Hugo binary is the extended version.
+// IsExtended always returns false.
+// The extended edition of Hugo was removed in v0.170.0.
 func (i HugoInfo) IsExtended() bool {
-	return hugo.IsExtended
+	return false
 }
 
 // WorkingDir returns the project working directory.

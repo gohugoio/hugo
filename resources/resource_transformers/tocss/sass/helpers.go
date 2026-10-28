@@ -33,8 +33,8 @@ const (
 	HugoVarsNamespace = "hugo:vars"
 	// Transpiler implementation can be controlled from the client by
 	// setting the 'transpiler' option.
-	// Default is currently 'libsass', but that may change.
-	TranspilerDart    = "dartsass"
+	TranspilerDart = "dartsass"
+	// TranspilerLibSass was removed in Hugo v0.170.0.
 	TranspilerLibSass = "libsass"
 )
 
@@ -104,11 +104,10 @@ func removeMaps(m map[string]any) map[string]any {
 	return res
 }
 
-func CreateVarsStyleSheet(transpiler string, vars map[string]any) string {
+func CreateVarsStyleSheet(vars map[string]any) string {
 	if vars == nil {
 		return ""
 	}
-	var varsStylesheet string
 
 	var varsSlice []string
 	for k, v := range vars {
@@ -131,23 +130,13 @@ func CreateVarsStyleSheet(transpiler string, vars map[string]any) string {
 				varsSlice = append(varsSlice, fmt.Sprintf("%s%s: %v;", prefix, k, v))
 			} else {
 				// unquote will preserve quotes around URLs etc. if needed.
-				if transpiler == TranspilerDart {
-					varsSlice = append(varsSlice, fmt.Sprintf("%s%s: string.unquote(%q);", prefix, k, v))
-				} else {
-					varsSlice = append(varsSlice, fmt.Sprintf("%s%s: unquote(%q);", prefix, k, v))
-				}
+				varsSlice = append(varsSlice, fmt.Sprintf("%s%s: string.unquote(%q);", prefix, k, v))
 			}
 		}
 	}
 	sort.Strings(varsSlice)
 
-	if transpiler == TranspilerDart {
-		varsStylesheet = `@use "sass:string";` + "\n" + strings.Join(varsSlice, "\n")
-	} else {
-		varsStylesheet = strings.Join(varsSlice, "\n")
-	}
-
-	return varsStylesheet
+	return `@use "sass:string";` + "\n" + strings.Join(varsSlice, "\n")
 }
 
 var (

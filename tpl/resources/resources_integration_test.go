@@ -19,7 +19,6 @@ import (
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/dartsass"
-	"github.com/gohugoio/hugo/resources/resource_transformers/tocss/scss"
 )
 
 func TestCopy(t *testing.T) {
@@ -240,7 +239,7 @@ match /files/C*: 2|
 func TestDartSassVars(t *testing.T) {
 	t.Parallel()
 
-	if !scss.Supports() || !dartsass.Supports() {
+	if !dartsass.Supports() {
 		t.Skip()
 	}
 
@@ -253,19 +252,10 @@ disableKinds = ['page','section','rss','sitemap','taxonomy','term']
   {{ .Content }}
 {{ end }}
 
-{{ $opts := dict "transpiler" "libsass" "outputStyle" "compressed" "vars" (dict "color" "blue") }}
-{{ with resources.Get "libsass.scss" | css.Sass $opts }}
-  {{ .Content }}
-{{ end }}
 -- assets/dartsass.scss --
 @use "hugo:vars" as v;
 .dartsass {
   color: v.$color;
-}
--- assets/libsass.scss --
-@import "hugo:vars";
-.libsass {
-  color: $color;
 }
 `
 
@@ -274,7 +264,6 @@ disableKinds = ['page','section','rss','sitemap','taxonomy','term']
 	b.AssertFileContent(
 		"public/index.html",
 		".dartsass{color:red}",
-		".libsass{color:blue}",
 	)
 	b.AssertLogContains("! WARN  Dart Sass: hugo:vars")
 }

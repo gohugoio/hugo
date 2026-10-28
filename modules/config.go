@@ -341,6 +341,7 @@ type HugoVersion struct {
 	Max version.VersionString
 
 	// Set if the extended version is needed.
+	// Deprecated: The extended edition of Hugo was removed in v0.170.0, and this setting has no effect.
 	Extended bool
 }
 

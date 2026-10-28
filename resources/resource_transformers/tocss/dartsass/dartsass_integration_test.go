@@ -835,3 +835,43 @@ allowRead = [".", ".."]
 		b.AssertFileContent("public/index.html", "PWN-SECRET")
 	})
 }
+
+// Issue 15405.
+func TestLibSassRemoved(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','rss','sitemap','taxonomy','term']
+-- assets/scss/main.scss --
+body { color: red; }
+-- layouts/home.html --
+{{ $r := resources.Get "scss/main.scss" | css.Sass (dict "transpiler" "libsass") }}
+T1: {{ $r.Content }}
+`
+
+	_, err := hugolib.TestE(t, files)
+	qt.Assert(t, err, qt.ErrorMatches, `(?s).*the libsass transpiler was removed in Hugo v0.170.0.*`)
+}
+
+// Issue 15405.
+func TestDefaultTranspiler(t *testing.T) {
+	t.Parallel()
+	if !dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','section','rss','sitemap','taxonomy','term']
+-- assets/scss/main.scss --
+@use "sass:math";
+body { width: math.div(10px, 2); }
+-- layouts/home.html --
+{{ $r := resources.Get "scss/main.scss" | css.Sass (dict "outputStyle" "compressed") }}
+T1: {{ $r.Content }}|{{ hugo.IsExtended }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "T1: body{width:5px}|false")
+}

@@ -217,13 +217,6 @@ func GetDependencyListNonGo() []string {
 		deps = append(deps, formatDep(dep[0], dep[1]))
 	}
 
-	if IsExtended {
-		deps = append(
-			deps,
-			formatDep("github.com/sass/libsass", "3.6.6"),
-		)
-	}
-
 	if dartSass := dartSassVersion(); dartSass.ProtocolVersion != "" {
 		dartSassPath := "github.com/sass/dart-sass-embedded"
 		if IsDartSassGeV2() {
@@ -395,9 +388,6 @@ func BuildVersionString() string {
 	}
 	if bi.Revision != "" {
 		version += "-" + bi.Revision
-	}
-	if IsExtended {
-		version += "+extended"
 	}
 	if IsWithdeploy {
 		version += "+withdeploy"
