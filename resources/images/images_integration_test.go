@@ -46,7 +46,7 @@ func TestOrientationEq(t *testing.T) {
 sourcefilename: ../testdata/exif/orientation6.jpg
 -- layouts/home.html --
 {{ $img := resources.Get "rotate270.jpg" }}
-{{ $orientation := $img.Exif.Tags.Orientation }}
+{{ $orientation := $img.Meta.Orientation }}
 Orientation: {{ $orientation }}|eq 6: {{ eq $orientation 6 }}|Type: {{ printf "%T" $orientation }}|
 `
 

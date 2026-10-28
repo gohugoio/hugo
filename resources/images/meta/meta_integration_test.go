@@ -206,9 +206,9 @@ Home.
 {{ $img := resources.Get "sunset.jpg" }}
 {{ $exif := $img.Exif }}
 `
-	b := hugolib.Test(t, files, hugolib.TestOptInfo())
-
-	b.AssertLogContains("deprecated: Image.Exif")
+	b, err := hugolib.TestE(t, files, hugolib.TestOptInfo())
+	b.Assert(err, qt.IsNotNil)
+	b.AssertLogContains("ERROR deprecated: Image.Exif")
 }
 
 func TestMetaInvalidSource(t *testing.T) {
