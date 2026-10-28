@@ -100,7 +100,8 @@ func (ns *Namespace) Truncate(s any, options ...any) (template.HTML, error) {
 				tagname := strings.Fields(slice[m[4]:m[5]])[0]
 				lastWordIndex = lastNonSpace
 				_, singlet := htmlSinglets[tagname]
-				if !singlet && m[6] == -1 {
+				// Comments and doctypes have no end tag.
+				if !singlet && m[6] == -1 && !strings.HasPrefix(tagname, "!") {
 					tags = append(tags, htmlTag{name: tagname, pos: i, openTag: m[2] == -1})
 				}
 
