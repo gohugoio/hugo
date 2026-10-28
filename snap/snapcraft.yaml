@@ -210,10 +210,9 @@ parts:
       set -ex
       export GOPATH=$(realpath ../go)
       export PATH=$GOPATH/bin:$PATH
-      HUGO_BUILD_TAGS="extended"
 
-      echo "Building Hugo (extended)..."
-      go build -v -ldflags "-s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap:$(craftctl get version)" -tags "$HUGO_BUILD_TAGS"
+      echo "Building Hugo..."
+      CGO_ENABLED=0 go build -v -ldflags "-s -w -X github.com/gohugoio/hugo/common/hugo.vendorInfo=snap:$(craftctl get version)"
 
       echo "Generating Shell Completion..."
       ./hugo completion bash > hugo-completion

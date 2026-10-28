@@ -54,7 +54,6 @@ If it is of some complexity, the contributor is expected to maintain and support
 Any non-trivial code change needs to update an open [issue](https://github.com/gohugoio/hugo/issues). A non-trivial code change without an issue reference with one of the labels `bug` or `enhancement` will not be merged.
 
 Note that we do not accept new features that require [CGO](https://go.dev/wiki/cgo).
-We have one exception to this rule which is LibSASS.
 
 **Bug fixes are, of course, always welcome.**
 
@@ -205,8 +204,3 @@ To list all available commands along with descriptions:
 mage -l
 ```
 
-**Note:** From Hugo 0.43 we have added a build tag, `extended` that adds **SCSS support**. This needs a C compiler installed to build. You can enable this when building by:
-
-```bash
-HUGO_BUILD_TAGS=extended mage install
-````
