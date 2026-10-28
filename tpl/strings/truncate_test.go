@@ -55,6 +55,8 @@ func TestTruncate(t *testing.T) {
 		{4, "", "日本語でHugoを使います", template.HTML("日本語で"), false},
 		{4, "", "日本語で Hugo を使います", template.HTML("日本語で"), false},
 		{15, "", template.HTML("A <br> tag that's not closed"), template.HTML("A <br> tag that's"), false},
+		{3, template.HTML("<p>a<wbr>b c d</p>"), nil, template.HTML("<p>a<wbr>b …</p>"), false},
+		{8, template.HTML(`<video><source src="v.mp4"><track src="v.vtt">No video support.</video>`), nil, template.HTML(`<video><source src="v.mp4"><track src="v.vtt">No video …</video>`), false},
 		{14, template.HTML("<p>Hello中国 Good 好的</p>"), nil, template.HTML("<p>Hello中国 Good 好 …</p>"), false},
 		{2, template.HTML("<p>P1</p><p>P2</p>"), nil, template.HTML("<p>P1 …</p>"), false},
 		{3, template.HTML(strings.Repeat("<p>P</p>", 20)), nil, template.HTML("<p>P</p><p>P</p><p>P …</p>"), false},

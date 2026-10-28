@@ -32,6 +32,8 @@ var (
 		"br": true, "col": true, "link": true,
 		"base": true, "img": true, "param": true,
 		"area": true, "hr": true, "input": true,
+		"embed": true, "meta": true, "source": true,
+		"track": true, "wbr": true,
 	}
 )
 
