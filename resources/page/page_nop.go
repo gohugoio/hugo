@@ -603,3 +603,11 @@ func (c *nopMarkup) FragmentsHTML(context.Context) template.HTML {
 func (c *nopContent) Summary(context.Context) (Summary, error) {
 	return Summary{}, nil
 }
+
+func (c *nopContent) RawSummary() string {
+	return ""
+}
+
+func (c *nopContent) RawContent() string {
+	return ""
+}

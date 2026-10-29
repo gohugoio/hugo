@@ -32,6 +32,8 @@ type Content interface {
 	Content(context.Context) (template.HTML, error)
 	ContentWithoutSummary(context.Context) (template.HTML, error)
 	Summary(context.Context) (Summary, error)
+	RawSummary() string
+	RawContent() string
 	Plain(context.Context) string
 	PlainWords(context.Context) []string
 	WordCount(context.Context) int

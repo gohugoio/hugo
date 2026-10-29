@@ -874,6 +874,14 @@ func (c *cachedContentScope) Summary(ctx context.Context) (page.Summary, error) 
 	return rendered.summary, err
 }
 
+func (c *cachedContentScope) RawSummary() string {
+	return c.pco.po.p.RawSummary()
+}
+
+func (c *cachedContentScope) RawContent() string {
+	return c.pco.po.p.RawContent()
+}
+
 func (c *cachedContentScope) RenderString(ctx context.Context, args ...any) (template.HTML, error) {
 	ctx = c.prepareContext(ctx)
 

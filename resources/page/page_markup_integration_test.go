@@ -245,6 +245,48 @@ Summary Truncated: {{ .Truncated }}|
 	)
 }
 
+func TestPageMarkupRawMethods(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/p1.md --
+---
+title: p1
+summary: "A *front matter* summary."
+---
+Some {{< sc >}} content.
+-- content/p2.md --
+---
+title: p2
+---
+No summary.
+-- layouts/_shortcodes/sc.html --
+SHORTCODE
+-- layouts/page.html --
+Markup.RawSummary: {{ .Markup.RawSummary }}|
+Markup.RawContent: {{ .Markup.RawContent }}|
+{{ with .Markup.Render }}
+Render.RawSummary: {{ .RawSummary }}|
+Render.RawContent: {{ .RawContent }}|
+{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		"Markup.RawSummary: A *front matter* summary.|",
+		"Markup.RawContent: Some {{&lt; sc &gt;}} content.\n|",
+		"Render.RawSummary: A *front matter* summary.|",
+		"Render.RawContent: Some {{&lt; sc &gt;}} content.\n|",
+	)
+	b.AssertFileContent("public/p2/index.html",
+		"Markup.RawSummary: |",
+		"Markup.RawContent: No summary.\n|",
+	)
+}
+
 func TestPageMarkupWithoutSummaryRST(t *testing.T) {
 	t.Parallel()
 	if !rst.Supports() {
