@@ -1,12 +1,9 @@
-[Clang]: https://clang.llvm.org/
-[GCC]: https://gcc.gnu.org/
 [Git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 [Go]: https://go.dev/doc/install
 [bep]: https://github.com/bep
 [bugs]: https://github.com/gohugoio/hugo/issues?q=is%3Aopen+is%3Aissue+label%3ABug
 [contributing]: CONTRIBUTING.md
 [create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
-[dart sass]: https://gohugo.io/functions/css/sass/#dart-sass
 [details]: https://gohugo.io/host-and-deploy/deploy-with-hugo-deploy/
 [documentation repository]: https://github.com/gohugoio/hugoDocs
 [documentation]: https://gohugo.io/documentation
@@ -25,7 +22,6 @@
 [static site generator]: https://en.wikipedia.org/wiki/Static_site_generator
 [support]: https://discourse.gohugo.io
 [themes]: https://themes.gohugo.io/
-[transpile sass to css]: https://gohugo.io/functions/css/sass/
 [website]: https://gohugo.io
 [windows]: https://gohugo.io/installation/windows
 
@@ -78,17 +74,14 @@ See the [features][] section of the documentation for a comprehensive summary of
 
 ## Editions
 
-Hugo is available in several editions. Use the standard edition unless you need additional features.
+Hugo is available in two editions. Use the standard edition unless you need additional features.
 
-Feature|standard|deploy|extended|extended/deploy
-:--|:-:|:-:|:-:|:-:
-Core features|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:|:heavy_check_mark:
-Direct cloud deployment (1)|:x:|:heavy_check_mark:|:x:|:heavy_check_mark:
-LibSass support (2)|:x:|:x:|:heavy_check_mark:|:heavy_check_mark:
+Feature|standard|deploy
+:--|:-:|:-:
+Core features|:heavy_check_mark:|:heavy_check_mark:
+Direct cloud deployment (1)|:x:|:heavy_check_mark:
 
 (1) Deploy your site directly to a Google Cloud Storage bucket, an AWS S3 bucket, or an Azure Storage container. See&nbsp;[details][].
-
-(2) [Transpile Sass to CSS][] via embedded LibSass. Note that embedded LibSass was deprecated in v0.153.0 and will be removed in a future release. Use the [Dart Sass][] transpiler instead, which is compatible with any edition.
 
 ## Installation
 
@@ -120,22 +113,6 @@ To build and install the deploy edition:
 
 ```sh
 CGO_ENABLED=0 go install -tags withdeploy github.com/gohugoio/hugo@latest
-```
-
-### Extended edition
-
-To build and install the extended edition, first install a C compiler such as [GCC][] or [Clang][] and then run the following command.
-
-```sh
-CGO_ENABLED=1 go install -tags extended github.com/gohugoio/hugo@latest
-```
-
-### Extended/deploy edition
-
-To build and install the extended/deploy edition, first install a C compiler such as [GCC][] or [Clang][] and then run the following command.
-
-```sh
-CGO_ENABLED=1 go install -tags extended,withdeploy github.com/gohugoio/hugo@latest
 ```
 
 ## Documentation
@@ -238,7 +215,6 @@ github.com/bep/debounce="v1.2.0"
 github.com/bep/gitmap="v1.9.0"
 github.com/bep/goat="v0.5.0"
 github.com/bep/godartsass/v2="v2.5.0"
-github.com/bep/golibsass="v1.2.0"
 github.com/bep/golocales="v0.2.0"
 github.com/bep/goportabletext="v0.2.0"
 github.com/bep/helpers="v0.12.0"
