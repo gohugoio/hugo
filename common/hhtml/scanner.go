@@ -157,6 +157,29 @@ func (sc *Scanner) skipPast(limit int, sep string) {
 	}
 }
 
+// UpdateElementStack updates stack, the names of the currently open elements,
+// with t and returns it.
+// The content of raw text elements is skipped.
+func UpdateElementStack(sc *Scanner, stack []string, t Token, limit int) []string {
+	switch t.Type {
+	case EndTag:
+		for i := len(stack) - 1; i >= 0; i-- {
+			if stack[i] == t.Name {
+				return stack[:i]
+			}
+		}
+	case StartTag:
+		if t.SelfClosing || IsVoidElement(t.Name) {
+			return stack
+		}
+		if IsRawTextElement(t.Name) {
+			sc.SkipRawText(limit, t.Name)
+		}
+		return append(stack, t.Name)
+	}
+	return stack
+}
+
 // IsRawTextElement reports whether the element with the given lowercased name
 // contains raw text, i.e. no tags.
 func IsRawTextElement(name string) bool {
@@ -171,7 +194,7 @@ func IsRawTextElement(name string) bool {
 // has no end tag.
 func IsVoidElement(name string) bool {
 	switch name {
-	case "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr":
+	case "area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr":
 		return true
 	}
 	return false

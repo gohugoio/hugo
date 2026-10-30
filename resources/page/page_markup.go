@@ -273,7 +273,7 @@ func expandSummaryHighToBalancedHTML(input string, low, high, maxHigh int) int {
 		if !ok {
 			break
 		}
-		stack = pushOrPopHTMLStack(&sc, stack, t, high)
+		stack = hhtml.UpdateElementStack(&sc, stack, t, high)
 	}
 
 	if len(stack) == 0 {
@@ -285,31 +285,11 @@ func expandSummaryHighToBalancedHTML(input string, low, high, maxHigh int) int {
 		if !ok {
 			return high
 		}
-		stack = pushOrPopHTMLStack(&sc, stack, t, maxHigh)
+		stack = hhtml.UpdateElementStack(&sc, stack, t, maxHigh)
 		if len(stack) == 0 {
 			return sc.Pos()
 		}
 	}
-}
-
-func pushOrPopHTMLStack(sc *hhtml.Scanner, stack []string, t hhtml.Token, limit int) []string {
-	switch t.Type {
-	case hhtml.EndTag:
-		for i := len(stack) - 1; i >= 0; i-- {
-			if stack[i] == t.Name {
-				return stack[:i]
-			}
-		}
-	case hhtml.StartTag:
-		if t.SelfClosing || hhtml.IsVoidElement(t.Name) {
-			return stack
-		}
-		if hhtml.IsRawTextElement(t.Name) {
-			sc.SkipRawText(limit, t.Name)
-		}
-		return append(stack, t.Name)
-	}
-	return stack
 }
 
 // ExtractSummaryFromHTMLWithDivider extracts a summary from the given HTML content with

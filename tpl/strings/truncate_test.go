@@ -60,6 +60,12 @@ func TestTruncate(t *testing.T) {
 		{3, template.HTML(strings.Repeat("<p>P</p>", 20)), nil, template.HTML("<p>P</p><p>P</p><p>P …</p>"), false},
 		{18, template.HTML("<p>test <b>hello</b> test something</p>"), nil, template.HTML("<p>test <b>hello</b> test …</p>"), false},
 		{4, template.HTML("<p>a<b><i>b</b>c d e</p>"), nil, template.HTML("<p>a<b><i>b</b>c …</p>"), false},
+		{3, template.HTML("<p>a<wbr>b c d</p>"), nil, template.HTML("<p>a<wbr>b …</p>"), false},
+		{3, template.HTML("<p><source src=a>b <track src=a>c <embed src=a>d e</p>"), nil, template.HTML("<p><source src=a>b <track src=a>c …</p>"), false},
+		{3, template.HTML("<p>a <!-- raw HTML omitted -->b c d</p>"), nil, template.HTML("<p>a <!-- raw HTML omitted -->b …</p>"), false},
+		{3, template.HTML("<p>a <span title='x > y'>b</span> c d</p>"), nil, template.HTML("<p>a <span title='x > y'>b …</span></p>"), false},
+		{3, template.HTML("<p>a <script>var b = '<i>';</script>b c d</p>"), nil, template.HTML("<p>a <script>var b = '<i>';</script>b …</p>"), false},
+		{9, template.HTML("<P>I <3 Hugo very much</P>"), nil, template.HTML("<P>I <3 Hugo …</p>"), false},
 		{
 			42,
 			template.HTML(`With strangely formatted
