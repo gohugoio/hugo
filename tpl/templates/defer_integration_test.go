@@ -391,3 +391,30 @@ Home.
 	b.Assert(err, qt.Not(qt.IsNil))
 	b.Assert(err.Error(), qt.Contains, "templates.Defer cannot be used inside a partialCached partial")
 }
+
+// See issue 15413.
+func TestDeferTransformers(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "robotsTXT", "404", "section"]
+canonifyURLs = true
+[minify]
+minifyOutput = true
+-- layouts/home.html --
+<html>
+<body>
+<div    class="outside">Outside</div>
+{{ with (templates.Defer (dict "key" "k")) }}
+<div    class="inside"><a href="/foo/">Foo</a></div>
+{{ end }}
+</body>
+</html>
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", `<div class=outside>Outside</div><div class=inside><a href=https://example.org/foo/>Foo</a></div>`)
+}

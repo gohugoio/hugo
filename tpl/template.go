@@ -56,6 +56,7 @@ const (
 	cntextKeyCurrentTemplateInfo
 	contextKeyPartialDecoratorIDStack
 	contextKeyIsInPartialCached
+	contextKeyHasDeferred
 )
 
 // Context manages values passed in the context to templates.
@@ -68,6 +69,7 @@ var Context = struct {
 	CurrentTemplate                    contexthelpers.ContextDispatcher[*CurrentTemplateInfo]
 	PartialDecoratorIDStack            contexthelpers.ContextDispatcher[*collections.Stack[*StringBool]]
 	IsInPartialCached                  contexthelpers.ContextDispatcher[bool]
+	HasDeferred                        contexthelpers.ContextDispatcher[*bool]
 }{
 	DependencyManagerScopedProvider: contexthelpers.NewContextDispatcher[identity.DependencyManagerScopedProvider](contextKeyDependencyManagerScopedProvider),
 	DependencyScope:                 contexthelpers.NewContextDispatcher[int](contextKeyDependencyScope),
@@ -76,6 +78,7 @@ var Context = struct {
 	CurrentTemplate:                 contexthelpers.NewContextDispatcher[*CurrentTemplateInfo](cntextKeyCurrentTemplateInfo),
 	PartialDecoratorIDStack:         contexthelpers.NewContextDispatcher[*collections.Stack[*StringBool]](contextKeyPartialDecoratorIDStack),
 	IsInPartialCached:               contexthelpers.NewContextDispatcher[bool](contextKeyIsInPartialCached),
+	HasDeferred:                     contexthelpers.NewContextDispatcher[*bool](contextKeyHasDeferred),
 }
 
 func init() {
