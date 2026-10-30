@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gohugoio/hugo/compare"
 	"github.com/spf13/cast"
 )
 
@@ -66,6 +67,29 @@ func setParams(dst, src Params, depth int) {
 			}
 		}
 	}
+}
+
+// Equal returns true if the two Params maps are considered equal.
+// It uses the compare.Eq function for value comparisons.
+func (p Params) Equal(other Params) bool {
+	if len(p) != len(other) {
+		return false
+	}
+	for k, v := range p {
+		ov, found := other[k]
+		if !found {
+			return false
+		}
+		if vp, ok := v.(Params); ok {
+			if op, ok := ov.(Params); ok {
+				return vp.Equal(op)
+			}
+		}
+		if !compare.Eq(v, ov) {
+			return false
+		}
+	}
+	return true
 }
 
 // IsZero returns true if p is considered empty.

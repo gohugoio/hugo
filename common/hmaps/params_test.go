@@ -199,3 +199,24 @@ func TestSetNestedParamIfNotSet(t *testing.T) {
 		},
 	})
 }
+
+func TestParamsEqual(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		a, b   Params
+		expect bool
+	}{
+		{Params{"a": 1}, Params{"a": 1}, true},
+		{Params{"a": 1}, Params{"a": 1.0}, true},
+		{Params{"a": 1, "params": Params{"b": 3.0}}, Params{"a": 2, "params": Params{"b": 3.0}}, false},
+		{Params{"a": 2.0, "params": Params{"b": 3.0}}, Params{"a": 2, "params": Params{"b": 3}}, true},
+		{Params{"a": 1}, Params{"b": 1}, false},
+		{Params{"a": 1, "b": 2}, Params{"b": 2, "a": 1}, true},
+		{Params{"a": 1}, Params{"a": 1, "b": 2}, false},
+	} {
+		got := test.a.Equal(test.b)
+		c.Assert(got, qt.Equals, test.expect, qt.Commentf("%v vs %v", test.a, test.b))
+	}
+}

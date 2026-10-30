@@ -601,6 +601,47 @@ slug: book-one
 	b.AssertPublishDir("prod", "! testing")
 }
 
+// See issue 10936.
+func TestPermalinksNewSliceFormatParams(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- layouts/single.html --
+Single|{{ .RelPermalink }}|
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[[permalinks]]
+pattern = "/featured/:slug/"
+[permalinks.target]
+kind = "page"
+[permalinks.target.params]
+Magic = 42
+shape = "round"
+[[permalinks]]
+pattern = "/other/:slug/"
+[permalinks.target]
+kind = "page"
+-- content/p1.md --
+---
+title: p1
+magic: 42.0
+params:
+  shape: round
+---
+-- content/p2.md --
+---
+title: p2
+params:
+  magic: 42
+---
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/featured/p1/index.html", "Single|/featured/p1/|")
+	b.AssertFileContent("public/other/p2/index.html", "Single|/other/p2/|")
+}
+
 func TestPermalinksNewSliceFormatSitesMatrix(t *testing.T) {
 	t.Parallel()
 
