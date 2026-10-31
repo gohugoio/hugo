@@ -129,6 +129,16 @@ func TestMerge(t *testing.T) {
 			map[string]any{"k": map[string]any{"k2": "v2"}},
 			false,
 		},
+		{
+			// https://github.com/gohugoio/hugo/issues/15499
+			"nested, non-interface values",
+			[]any{
+				map[string]map[string]string{"b": {"d": "55", "f": "3"}},
+				map[string]map[string]string{"b": {"d": "1"}},
+			},
+			map[string]map[string]string{"b": {"d": "1", "f": "3"}},
+			false,
+		},
 		{"src nil", []any{nil, simpleMap}, simpleMap, false},
 		// Error cases.
 		{"dst not a map", []any{nil, "not a map"}, nil, true},
