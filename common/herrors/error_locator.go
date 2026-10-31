@@ -86,7 +86,7 @@ type ErrorContext struct {
 	Position text.Position
 
 	// The lexer to use for syntax highlighting.
-	// https://gohugo.io/content-management/syntax-highlighting/#list-of-chroma-highlighting-languages
+	// https://gohugo.io/docs/concepts/syntax-highlighting/#languages
 	ChromaLexer string
 }
 
