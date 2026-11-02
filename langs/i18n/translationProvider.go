@@ -80,10 +80,10 @@ func (tp *TranslationProvider) NewResource(dst *deps.Deps) error {
 		return err
 	}
 
-	// Sort translation files so that base tags (e.g. "de") are always registered
-	// before their subtag variants (e.g. "de-DE"); without this ordering the
-	// fallback chain breaks. See https://github.com/gohugoio/hugo/issues/7982.
-	sort.Slice(files, func(i, j int) bool {
+	// Register base tags (e.g. "de") before their subtag variants (e.g. "de-DE"),
+	// or the fallback chain breaks. The sort must be stable to keep the
+	// project/module precedence from the walk. See issues #7982 and #15518.
+	sort.SliceStable(files, func(i, j int) bool {
 		si := files[i].Meta().PathInfo.NameNoExt()
 		sj := files[j].Meta().PathInfo.NameNoExt()
 		return strings.Count(si, "-") < strings.Count(sj, "-")
