@@ -14,6 +14,7 @@
 package i18n_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -51,6 +52,33 @@ l1: {{ i18n "l1"  }}|l2: {{ i18n "l2"  }}|l3: {{ i18n "l3"  }}
 	b.AssertFileContent("public/index.html", `
 l1: l1main|l2: l2main|l3: l3theme
 	`)
+}
+
+// See issue 15518.
+func TestI18nProjectWinsOverManyModules(t *testing.T) {
+	t.Parallel()
+
+	for n := 1; n <= 20; n++ {
+		var themes []string
+		var sb strings.Builder
+		for i := 1; i <= n; i++ {
+			themes = append(themes, fmt.Sprintf("'m%d'", i))
+			fmt.Fprintf(&sb, "-- themes/m%d/i18n/en.yaml --\nhello: m%d\n", i, i)
+			fmt.Fprintf(&sb, "-- themes/m%d/i18n/pt-br.yaml --\nhello: m%d\n", i, i)
+		}
+		files := fmt.Sprintf(`
+-- hugo.toml --
+theme = [%s]
+-- i18n/en.yaml --
+hello: project
+-- layouts/home.html --
+{{ T "hello" }}|
+%s`, strings.Join(themes, ","), sb.String())
+
+		b := hugolib.Test(t, files)
+
+		b.AssertFileContent("public/index.html", "project|")
+	}
 }
 
 func TestPassPageToI18n(t *testing.T) {
