@@ -81,7 +81,7 @@ func newImageResource(img *images.Image, base baseResource) *imageResource {
 
 func (i *imageResource) newExifInfoFn() func() (*meta.ExifInfo, error) {
 	return sync.OnceValues(func() (*meta.ExifInfo, error) {
-		hugo.Deprecate("Image.Exif", "Use Image.Meta, see https://gohugo.io/content-management/image-processing/#meta", "v0.155.0")
+		hugo.Deprecate("Image.Exif", "Use Image.Meta, see https://gohugo.io/docs/reference/methods/resource/meta/", "v0.155.0")
 		mf := i.Format.ToImageMetaImageFormatFormat()
 		if mf == -1 {
 			return nil, nil
