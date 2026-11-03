@@ -718,3 +718,23 @@ uniq: {{ uniq (slice 9007199254740993 9007199254740992 9007199254740992.0) }}|
 		"uniq: [9007199254740993 9007199254740992]|",
 	)
 }
+
+// See issue 15499.
+func TestMergeMapsWithStringValues(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+{{ $rows := transform.Unmarshal (dict "targetType" "map") "a,b\n1,2\n3,4\n" }}
+top: {{ jsonify (merge (index $rows 0) (index $rows 1)) }}|
+nested: {{ jsonify (merge (dict "x" (index $rows 0)) (dict "x" (index $rows 1))) }}|
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`top: {"a":"3","b":"4"}|`,
+		`nested: {"x":{"a":"3","b":"4"}}|`,
+	)
+}
