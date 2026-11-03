@@ -57,6 +57,9 @@ var Default = Config{
 			EastAsianLineBreaksStyle: "simple",
 			EscapedSpace:             false,
 		},
+		CJKFriendly: CJKFriendly{
+			Emphasis: false,
+		},
 		Extras: Extras{
 			Delete: Delete{
 				Enable: false,
@@ -168,6 +171,7 @@ type Extensions struct {
 	LinkifyProtocol string
 	TaskList        bool
 	CJK             CJK
+	CJKFriendly     CJKFriendly `json:"cjkFriendly"`
 }
 
 // Footnote holds footnote configuration.
@@ -268,6 +272,11 @@ type CJK struct {
 
 	// Whether a '\' escaped half-space(0x20) should not be rendered.
 	EscapedSpace bool
+}
+
+type CJKFriendly struct {
+	// Emphasis adds support for CJK-friendly 'emphasis'. If "strikethrough" goldmark extension is enabled as well, CJK-friendly 'emphasis and strikethrough' will be used.
+	Emphasis bool
 }
 
 type Renderer struct {
