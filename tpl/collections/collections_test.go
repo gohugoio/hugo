@@ -51,6 +51,8 @@ func TestAfter(t *testing.T) {
 		{"1", []int{100, 200, 300}, []int{200, 300}},
 		{0, []int{100, 200, 300, 400, 500}, []int{100, 200, 300, 400, 500}},
 		{0, []string{"a", "b", "c", "d", "e"}, []string{"a", "b", "c", "d", "e"}},
+		{int(2), [4]string{"a", "b", "c", "d"}, []string{"c", "d"}},
+		{100, [2]int{100, 200}, []int{}},
 		{int64(-1), []int{100, 200, 300}, false},
 		{"noint", []int{100, 200, 300}, false},
 		{2, []string{}, []string{}},
@@ -228,6 +230,11 @@ func TestReverse(t *testing.T) {
 	reversed, err = ns.Reverse(nil)
 	c.Assert(err, qt.IsNil)
 	c.Assert(reversed, qt.IsNil)
+
+	reversed, err = ns.Reverse([3]string{"a", "b", "c"})
+	c.Assert(err, qt.IsNil)
+	c.Assert(reversed, qt.DeepEquals, []string{"c", "b", "a"})
+
 	_, err = ns.Reverse(43)
 	c.Assert(err, qt.Not(qt.IsNil))
 }
@@ -249,6 +256,7 @@ func TestFirst(t *testing.T) {
 		{100, []int{100, 200}, []int{100, 200}},
 		{"1", []int{100, 200, 300}, []int{100}},
 		{0, []string{"h", "u", "g", "o"}, []string{}},
+		{int(2), [3]string{"a", "b", "c"}, []string{"a", "b"}},
 		{int64(-1), []int{100, 200, 300}, false},
 		{"noint", []int{100, 200, 300}, false},
 		{1, nil, false},
@@ -356,6 +364,7 @@ func TestIntersect(t *testing.T) {
 		expect any
 	}{
 		{[]string{"a", "b", "c", "c"}, []string{"a", "b", "b"}, []string{"a", "b"}},
+		{[4]string{"a", "b", "c", "c"}, [2]string{"a", "b"}, []string{"a", "b"}},
 		{[]string{"a", "b"}, []string{"a", "b", "c"}, []string{"a", "b"}},
 		{[]string{"a", "b", "c"}, []string{"d", "e"}, []string{}},
 		{[]string{}, []string{}, []string{}},
@@ -490,6 +499,7 @@ func TestLast(t *testing.T) {
 		{"1", []int{100, 200, 300}, []int{300}},
 		{"0", []int{100, 200, 300}, []int{}},
 		{"0", []string{"a", "b", "c"}, []string{}},
+		{int(2), [3]string{"a", "b", "c"}, []string{"b", "c"}},
 		// errors
 		{int64(-1), []int{100, 200, 300}, false},
 		{"noint", []int{100, 200, 300}, false},
@@ -573,6 +583,7 @@ func TestShuffle(t *testing.T) {
 		{[]int{100, 200, 300}, true},
 		{[]int{100, 200, 300}, true},
 		{[]int{100}, true},
+		{[4]string{"a", "b", "c", "d"}, true},
 		// errors
 		{nil, false},
 		{t, false},
@@ -667,6 +678,7 @@ func TestUnion(t *testing.T) {
 
 		// []A ∪ []B
 		{[]string{"1", "2"}, []int{3}, []string{}, false},
+		{[2]string{"a", "b"}, [2]string{"b", "c"}, []string{"a", "b", "c"}, false},
 		{[]int{1, 2}, []string{"1", "2"}, []int{}, false},
 
 		// numeric []A ∪ []B unify. See issue 15323.

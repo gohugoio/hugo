@@ -549,7 +549,7 @@ func (ns *Namespace) newInterfaceMethodResolver(ctxv reflect.Value, ifaceType re
 // checkWhereArray handles the where-matching logic when the seqv value is an
 // Array or Slice.
 func (ns *Namespace) checkWhereArray(ctxv, seqv, kv, mv reflect.Value, path []string, op string) (any, error) {
-	rv := reflect.MakeSlice(seqv.Type(), 0, 0)
+	rv := reflect.MakeSlice(sliceTypeOf(seqv.Type()), 0, 0)
 
 	var resolve elemResolver
 	if kv.Kind() == reflect.String && len(path) > 0 {

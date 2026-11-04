@@ -45,7 +45,7 @@ func (ns *Namespace) Complement(ls ...any) (any, error) {
 	v := reflect.ValueOf(universe)
 	switch v.Kind() {
 	case reflect.Array, reflect.Slice:
-		sl := reflect.MakeSlice(v.Type(), 0, 0)
+		sl := reflect.MakeSlice(sliceTypeOf(v.Type()), 0, 0)
 		for i := range v.Len() {
 			ev, _ := hreflect.Indirect(v.Index(i))
 			if _, found := aset[normalize(ev)]; !found {

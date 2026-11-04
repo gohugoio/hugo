@@ -41,9 +41,8 @@ func (ns *Namespace) SymDiff(s2, s1 any) (any, error) {
 		switch v.Kind() {
 		case reflect.Array, reflect.Slice:
 			if i == 0 {
-				sliceType := v.Type()
-				sliceElemType = sliceType.Elem()
-				slice = reflect.MakeSlice(sliceType, 0, 0)
+				sliceElemType = v.Type().Elem()
+				slice = reflect.MakeSlice(sliceTypeOf(v.Type()), 0, 0)
 			}
 
 			for i := range v.Len() {
