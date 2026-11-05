@@ -326,6 +326,13 @@ func (c *Client) FromRemote(uri string, optionsm map[string]any) (resource.Resou
 			// just use ".txt".
 			if strings.HasPrefix(contentType, "text/plain") {
 				extensionHints = []string{".txt"}
+			} else if mt, found := c.rs.MediaTypes().GetByType(baseContentType(contentType)); found && len(mt.Suffixes()) > 0 {
+				// Prefer Hugo's own media types, as the mime package's
+				// table depends on the OS and on whether the Hugo server
+				// has registered Hugo's media types.
+				for _, suffix := range mt.Suffixes() {
+					extensionHints = append(extensionHints, "."+suffix)
+				}
 			} else {
 				exts, _ := mime.ExtensionsByType(contentType)
 				if exts != nil {
@@ -538,4 +545,14 @@ func shouldCache(statusCode int) bool {
 		return false
 	}
 	return true
+}
+
+// baseContentType returns the media type part of a Content-Type header value,
+// e.g. "application/rss+xml" for "application/rss+xml; charset=UTF-8".
+func baseContentType(contentType string) string {
+	if mt, _, err := mime.ParseMediaType(contentType); err == nil {
+		return mt
+	}
+	mt, _, _ := strings.Cut(contentType, ";")
+	return strings.TrimSpace(mt)
 }
