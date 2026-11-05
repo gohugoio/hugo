@@ -357,3 +357,85 @@ mediaTypes = ['text/plain']
 
 	b.AssertFileContent("public/index.html", "Content: Hello from remote.")
 }
+
+// Issue 11601: resources.GetRemote must not rely on the OS mime table (or on
+// the Hugo server registering Hugo's media types in it) to resolve the media
+// type of a remote resource.
+func TestGetRemoteMediaTypeFromHugoMediaTypesIssue11601(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		// application/rss+xml is not in Go's builtin mime table and is
+		// missing from many OS mime databases (e.g. in the snap sandbox).
+		w.Header().Add("Content-Type", "application/rss+xml; charset=UTF-8")
+		// No XML declaration, so content sniffing alone can't detect XML.
+		w.Write([]byte(`<rss version="2.0"><channel><title>My Blog</title><item><title>First Post</title></item><item><title>Second Post</title></item></channel></rss>`))
+	}
+
+	srv := httptest.NewServer(http.HandlerFunc(handler))
+	t.Cleanup(func() { srv.Close() })
+
+	files := strings.ReplaceAll(`
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "sitemap", "rss"]
+[security]
+[security.http]
+urls = ['.*']
+-- layouts/home.html --
+{{ with try (resources.GetRemote "URL/feed/?t=1698195621") }}
+  {{ with .Err }}
+    {{ errorf "Got Err: %s" . }}
+  {{ else with .Value }}
+    MediaType: {{ .MediaType.SubType }}|
+    {{ with . | transform.Unmarshal }}
+      Channel: {{ .channel.title }}|
+      {{ range .channel.item }}Item: {{ .title }}|{{ end }}
+    {{ end }}
+  {{ else }}
+    {{ errorf "Unable to get remote resource" }}
+  {{ end }}
+{{ end }}
+`, "URL", srv.URL)
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "MediaType: rss|", "Channel: My Blog|", "Item: First Post|", "Item: Second Post|")
+}
+
+// Issue 11601: same as above, but with a custom media type that no OS mime
+// table knows about, so the outcome doesn't depend on the host.
+func TestGetRemoteCustomMediaTypeIssue11601(t *testing.T) {
+	t.Parallel()
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Content-Type", "text/x-hugo11601; charset=UTF-8")
+		w.Write([]byte(`Hello from remote.`))
+	}
+
+	srv := httptest.NewServer(http.HandlerFunc(handler))
+	t.Cleanup(func() { srv.Close() })
+
+	files := strings.ReplaceAll(`
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "sitemap", "rss"]
+[mediaTypes."text/x-hugo11601"]
+suffixes = ["hugo11601"]
+[security]
+[security.http]
+urls = ['.*']
+-- layouts/home.html --
+{{ with try (resources.GetRemote "URL/data") }}
+  {{ with .Err }}
+    {{ errorf "Got Err: %s" . }}
+  {{ else with .Value }}
+    MediaType: {{ .MediaType.Type }}|Content: {{ .Content }}|
+  {{ else }}
+    {{ errorf "Unable to get remote resource" }}
+  {{ end }}
+{{ end }}
+`, "URL", srv.URL)
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "MediaType: text/x-hugo11601|Content: Hello from remote.|")
+}
