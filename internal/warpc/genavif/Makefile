@@ -57,6 +57,7 @@ WASM_CFLAGS := \
     -Wl,--export=malloc \
     -Wl,--export=free \
     -Wl,-z,stack-size=$(WASM_STACK_SIZE) \
+    $(WASM_LDFLAGS_COMMON) \
     -Wall \
 
 all: check-wasi-sdk $(LIBAVIF_SRC) $(LIBAVIF_AOM_SRC) $(LIBAVIF_DAV1D_SRC) $(LIBYUV_SRC) $(LIBAVIF_BUILD)
