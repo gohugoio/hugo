@@ -176,8 +176,19 @@ type dispatcher[Q, R any] struct {
 	inOut   *inOut
 	inGroup *errgroup.Group
 
-	shutdown bool
-	closing  bool
+	shutdown    bool
+	shutdownErr error // Set when the instance stopped because of an error.
+	closing     bool
+}
+
+// errShutdown returns the error to report for calls made after shutdown.
+func (d *dispatcher[Q, R]) errShutdown() error {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	if d.shutdownErr != nil {
+		return d.shutdownErr
+	}
+	return ErrShutdown
 }
 
 type inOut struct {
@@ -187,6 +198,10 @@ type inOut struct {
 	stdoutBinary hugio.ReadWriteCloser
 	dec          *json.Decoder
 	enc          *json.Encoder
+
+	// abort closes the pipes with err, which unblocks any pending
+	// reads and writes on the host side with that error.
+	abort func(err error)
 }
 
 func (p *inOut) Close() error {
@@ -237,7 +252,7 @@ func (p *dispatcherPool[Q, R]) Execute(ctx context.Context, q Message[Q]) (Messa
 		return d.zeroR, err
 	}
 
-	timer := getTimer(30 * time.Second)
+	timer := getTimer(p.opts.Timeout)
 	defer putTimer(timer)
 
 	select {
@@ -247,7 +262,7 @@ func (p *dispatcherPool[Q, R]) Execute(ctx context.Context, q Message[Q]) (Messa
 	case <-ctx.Done():
 		return d.zeroR, ctx.Err()
 	case <-timer.C:
-		return d.zeroR, errors.New("timeout")
+		return d.zeroR, fmt.Errorf("%s: timed out after %s waiting for %q response; see the timeout configuration option", p.opts.Main.Name, p.opts.Timeout, q.Header.Command)
 	}
 
 	if call.err != nil {
@@ -281,7 +296,7 @@ func (d *dispatcher[Q, R]) newCall(q Message[Q]) (*call[Q, R], error) {
 	}
 
 	if d.shutdown || d.closing {
-		call.err = ErrShutdown
+		call.err = d.errShutdown()
 		call.done()
 		return call, nil
 	}
@@ -295,11 +310,11 @@ func (d *dispatcher[Q, R]) newCall(q Message[Q]) (*call[Q, R], error) {
 
 func (d *dispatcher[Q, R]) send(call *call[Q, R]) error {
 	d.mu.Lock()
-	if d.closing || d.shutdown {
-		d.mu.Unlock()
-		return ErrShutdown
-	}
+	stopped := d.closing || d.shutdown
 	d.mu.Unlock()
+	if stopped {
+		return d.errShutdown()
+	}
 
 	d.encodeMu.Lock()
 	defer d.encodeMu.Unlock()
@@ -422,6 +437,9 @@ func (d *dispatcher[Q, R]) inputJSON() error {
 
 	d.mu.Lock()
 	defer d.mu.Unlock()
+	if inputErr != nil && inputErr != ErrShutdown && inputErr != io.ErrUnexpectedEOF {
+		d.shutdownErr = inputErr
+	}
 	for _, call := range d.pending {
 		call.err = inputErr
 		call.done()
@@ -504,6 +522,9 @@ type Options struct {
 
 	// Memory limit in MiB.
 	Memory int
+
+	// Timeout for a single call. Defaults to 30 seconds.
+	Timeout time.Duration
 }
 
 func (o *Options) init() error {
@@ -554,6 +575,10 @@ func Start[Q, R any](opts Options) (Dispatcher[Q, R], error) {
 
 	if opts.PoolSize == 0 {
 		opts.PoolSize = 1
+	}
+
+	if opts.Timeout <= 0 {
+		opts.Timeout = 30 * time.Second
 	}
 
 	d, err := newDispatcher[Q, R](opts)
@@ -640,17 +665,19 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 
 	inOuts := make([]*inOut, opts.PoolSize)
 	for i := range opts.PoolSize {
-		var stdinPipe, stdoutBinary hugio.ReadWriteCloser
+		var stdoutBinary hugio.ReadWriteCloser
 		var stdout io.WriteCloser
 		var jsonr io.Reader
 
-		stdinPipe = hugio.NewPipeReadWriteCloser()
+		stdinPipe := hugio.NewPipeReadWriteCloser()
 		stdoutPipe := hugio.NewPipeReadWriteCloser()
 		stdout = stdoutPipe
 
+		var stdoutBinaryPipe hugio.PipeReadWriteCloser
 		var zero Q
 		if _, ok := any(zero).(DestinationProvider); ok {
-			stdoutBinary = hugio.NewPipeReadWriteCloser()
+			stdoutBinaryPipe = hugio.NewPipeReadWriteCloser()
+			stdoutBinary = stdoutBinaryPipe
 			jsonr = stdoutPipe
 			stdout = textandbinarywriter.NewWriter(stdout, stdoutBinary)
 		} else {
@@ -663,6 +690,13 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 			stdoutBinary: stdoutBinary,
 			dec:          json.NewDecoder(jsonr),
 			enc:          json.NewEncoder(stdinPipe),
+			abort: func(err error) {
+				stdinPipe.PipeReader.CloseWithError(err)
+				stdoutPipe.PipeWriter.CloseWithError(err)
+				if stdoutBinaryPipe.PipeWriter != nil {
+					stdoutBinaryPipe.PipeWriter.CloseWithError(err)
+				}
+			},
 		}
 	}
 
@@ -685,6 +719,9 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 	}
 
 	toErr := func(what string, errBuff bytes.Buffer, err error) error {
+		if errBuff.Len() == 0 {
+			return fmt.Errorf("%s: %w", what, err)
+		}
 		return fmt.Errorf("%s: %s: %w", what, errBuff.String(), err)
 	}
 
@@ -719,7 +756,11 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 					return toErr(opts.Main.Name, errBuff, err)
 				}
 				if _, err := mainInstance.ExportedFunction("_start").Call(ctx); err != nil {
-					return toErr(opts.Main.Name, errBuff, err)
+					err = toErr(opts.Main.Name, errBuff, err)
+					// Fail any pending and future calls to this instance right away
+					// instead of letting them wait for the timeout.
+					c.abort(err)
+					return err
 				}
 
 				// The console.log in the Javy/quickjs WebAssembly module will write to stderr.
@@ -861,6 +902,11 @@ func (d *Dispatchers) Close() error {
 	}
 	if d.webp.started {
 		if err := d.webp.dispatcher.Close(); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	if d.avif.started {
+		if err := d.avif.dispatcher.Close(); err != nil {
 			errs = append(errs, err)
 		}
 	}

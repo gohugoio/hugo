@@ -376,6 +376,9 @@ func (i *imageResource) processActionSpec(action, spec string) (images.ImageReso
 	ir, err := i.processOptions(options)
 	if err != nil {
 		if sourcePath := i.sourcePath(); sourcePath != "" {
+			if action == "" {
+				action = "process"
+			}
 			err = fmt.Errorf("failed to %s image %q: %w", action, sourcePath, err)
 		}
 		return nil, err

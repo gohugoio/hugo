@@ -283,3 +283,42 @@ func newPathsSpec(t *testing.T, fs afero.Fs, configStr string) *helpers.PathSpec
 	c.Assert(err, qt.IsNil)
 	return p
 }
+
+// A failed create must not leave a (partial) entry behind that
+// would be read as valid on the next call. See issue 15522.
+func TestFileCacheReadOrCreateErrorInCreate(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	cache := filecache.NewCache(afero.NewMemMapFs(), filecache.FileCacheConfig{
+		MaxAge: 100 * time.Hour,
+		Dir:    "cache/c",
+	})
+
+	const id = "a32"
+
+	var reads int
+	read := func(info filecache.ItemInfo, r io.ReadSeeker) error {
+		reads++
+		return nil
+	}
+	createErr := errors.New("create failed")
+
+	_, err := cache.ReadOrCreate(id, read, func(info filecache.ItemInfo, w io.WriteCloser) error {
+		defer w.Close()
+		w.Write([]byte("partial"))
+		return createErr
+	})
+	c.Assert(err, qt.Equals, createErr)
+
+	var created bool
+	_, err = cache.ReadOrCreate(id, read, func(info filecache.ItemInfo, w io.WriteCloser) error {
+		defer w.Close()
+		created = true
+		_, err := w.Write([]byte("v1"))
+		return err
+	})
+	c.Assert(err, qt.IsNil)
+	c.Assert(reads, qt.Equals, 0)
+	c.Assert(created, qt.IsTrue)
+}

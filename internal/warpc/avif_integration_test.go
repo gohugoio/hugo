@@ -1,6 +1,7 @@
 package warpc_test
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -121,4 +122,31 @@ SmallAfter: {{ $small.RelPermalink }}|
 		// ... and the dispatcher must still process images afterwards.
 		"SmallAfter: /gopher_",
 	)
+}
+
+// See issue 15522.
+func TestAvifEncodeAllEncoderSpeeds(t *testing.T) {
+	htesting.SkipSlowWasmTestOn32Bit(t)
+
+	for speed := 1; speed <= 10; speed++ {
+		t.Run(fmt.Sprintf("speed%d", speed), func(t *testing.T) {
+			t.Parallel()
+			files := fmt.Sprintf(`
+-- hugo.toml --
+disableKinds = ["page", "section", "taxonomy", "term", "sitemap", "robotsTXT", "404", "rss"]
+[imaging.avif]
+encoderSpeed = %d
+-- assets/sunset.jpg --
+sourcefilename: ../../resources/testdata/sunset.jpg
+-- layouts/home.html --
+{{ $img := resources.Get "sunset.jpg" }}
+{{ $avif := $img.Resize "64x avif" }}
+{{ $avif.Publish }}
+avif:{{ $avif.RelPermalink }}|
+`, speed)
+
+			b := hugolib.Test(t, files)
+			b.AssertFileContent("public/index.html", "avif:/sunset_hu_")
+		})
+	}
 }
