@@ -39,6 +39,13 @@ LD_LIBS := $(LIBAVIF_BUILD)/libavif.a $(LIBAVIF_DAV1D_BUILD)/src/libdav1d.a $(LI
 LIB_SIMD_FLAGS := -msimd128 -mnontrapping-fptoint
 LIB_CFLAGS := $(LIB_SIMD_FLAGS) -mllvm -wasm-enable-sjlj -mllvm -wasm-use-legacy-eh=false
 
+# The wasm-ld default stack is 64 KiB, which is too small for libaom: at
+# encoderSpeed 6 and lower, the CDEF search (av1_cdef_mse_calc_block) alone
+# needs ~40 KiB of stack, and the encode overflowed the stack and trapped with
+# an out of bounds memory access. Peak usage measured at encoderSpeed 1 is
+# between 96 and 128 KiB, so 1 MiB gives plenty of headroom. See issue 15522.
+WASM_STACK_SIZE := 1048576
+
 # Compiler flags for the WASM build
 WASM_CFLAGS := \
     -O3 \
@@ -49,6 +56,7 @@ WASM_CFLAGS := \
     -mllvm -wasm-use-legacy-eh=false \
     -Wl,--export=malloc \
     -Wl,--export=free \
+    -Wl,-z,stack-size=$(WASM_STACK_SIZE) \
     -Wall \
 
 all: check-wasi-sdk $(LIBAVIF_SRC) $(LIBAVIF_AOM_SRC) $(LIBAVIF_DAV1D_SRC) $(LIBYUV_SRC) $(LIBAVIF_BUILD)

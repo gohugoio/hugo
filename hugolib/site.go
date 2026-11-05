@@ -286,6 +286,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 				CompilationCacheDir: compilationCacheDir,
 
 				PoolSize: poolSizeKatex,
+				Timeout:  conf.Timeout(),
 				Infof:    logger.InfoCommand("katex").Logf,
 				Warnf:    logger.WarnCommand("katex").Logf,
 			},
@@ -293,6 +294,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			warpc.Options{
 				CompilationCacheDir: compilationCacheDir,
 				PoolSize:            poolSizeWebP,
+				Timeout:             conf.Timeout(),
 				Memory:              imageWasmMemory,
 				Infof:               logger.InfoCommand("webp").Logf,
 				Warnf:               logger.WarnCommand("webp").Logf,
@@ -301,6 +303,7 @@ func NewHugoSites(cfg deps.DepsCfg) (*HugoSites, error) {
 			warpc.Options{
 				CompilationCacheDir: compilationCacheDir,
 				PoolSize:            poolSizeAvif,
+				Timeout:             conf.Timeout(),
 				Memory:              imageWasmMemory,
 				Infof:               logger.InfoCommand("avif").Logf,
 				Warnf:               logger.WarnCommand("avif").Logf,

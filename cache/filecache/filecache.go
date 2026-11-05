@@ -176,6 +176,12 @@ func (c *Cache) ReadOrCreate(id string,
 	}
 
 	err = create(info, f)
+	if err != nil {
+		// Don't leave a partial or empty file behind, it would be
+		// read as a valid cache entry on the next build.
+		f.Close()
+		c.Fs.Remove(id)
+	}
 
 	return
 }
