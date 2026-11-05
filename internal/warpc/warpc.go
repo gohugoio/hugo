@@ -176,17 +176,14 @@ type dispatcher[Q, R any] struct {
 	inOut   *inOut
 	inGroup *errgroup.Group
 
-	shutdown    bool
-	shutdownErr error // Set when the instance stopped because of an error.
-	closing     bool
+	shutdown atomic.Bool
+	closing  atomic.Bool
 }
 
 // errShutdown returns the error to report for calls made after shutdown.
 func (d *dispatcher[Q, R]) errShutdown() error {
-	d.mu.Lock()
-	defer d.mu.Unlock()
-	if d.shutdownErr != nil {
-		return d.shutdownErr
+	if err := d.inOut.abortErr(); err != nil {
+		return err
 	}
 	return ErrShutdown
 }
@@ -199,9 +196,32 @@ type inOut struct {
 	dec          *json.Decoder
 	enc          *json.Encoder
 
-	// abort closes the pipes with err, which unblocks any pending
-	// reads and writes on the host side with that error.
-	abort func(err error)
+	// closePipes closes the pipes with err, which unblocks any
+	// pending reads and writes on both sides with that error.
+	closePipes func(err error)
+
+	abortMu    sync.Mutex
+	abortedErr error
+}
+
+// abort marks the instance as broken and closes its pipes with err, which
+// fails any pending and future calls to it with that error. The instance
+// itself exits when it next reads or writes; we cannot interrupt a busy guest
+// without WithCloseOnContextDone, which makes encoding several times slower.
+func (p *inOut) abort(err error) {
+	p.abortMu.Lock()
+	if p.abortedErr == nil {
+		p.abortedErr = err
+	}
+	p.abortMu.Unlock()
+	p.closePipes(err)
+}
+
+// abortErr returns the error the instance was aborted with, if any.
+func (p *inOut) abortErr() error {
+	p.abortMu.Lock()
+	defer p.abortMu.Unlock()
+	return p.abortedErr
 }
 
 func (p *inOut) Close() error {
@@ -217,6 +237,19 @@ func (p *inOut) Close() error {
 }
 
 var ErrShutdown = fmt.Errorf("dispatcher is shutting down")
+
+// ErrBroken is wrapped by errors from a WASM instance that has crashed or
+// stopped responding. Such an instance cannot be used anymore; the
+// dispatchers must be closed and recreated to recover.
+var ErrBroken = errors.New("wasm instance is broken")
+
+type brokenError struct {
+	err error
+}
+
+func (e *brokenError) Error() string        { return e.err.Error() }
+func (e *brokenError) Unwrap() error        { return e.err }
+func (e *brokenError) Is(target error) bool { return target == ErrBroken }
 
 var timerPool = sync.Pool{}
 
@@ -262,7 +295,12 @@ func (p *dispatcherPool[Q, R]) Execute(ctx context.Context, q Message[Q]) (Messa
 	case <-ctx.Done():
 		return d.zeroR, ctx.Err()
 	case <-timer.C:
-		return d.zeroR, fmt.Errorf("%s: timed out after %s waiting for %q response; see the timeout configuration option", p.opts.Main.Name, p.opts.Timeout, q.Header.Command)
+		// We don't know the state of the instance, and a late response
+		// would be written to a destination the caller has given up on,
+		// so stop it.
+		err := &brokenError{fmt.Errorf("%s: timed out after %s waiting for %q response; see the timeout configuration option", p.opts.Main.Name, p.opts.Timeout, q.Header.Command)}
+		d.inOut.abort(err)
+		return d.zeroR, err
 	}
 
 	if call.err != nil {
@@ -295,7 +333,7 @@ func (d *dispatcher[Q, R]) newCall(q Message[Q]) (*call[Q, R], error) {
 		responseKinds: responseKinds,
 	}
 
-	if d.shutdown || d.closing {
+	if d.shutdown.Load() || d.closing.Load() {
 		call.err = d.errShutdown()
 		call.done()
 		return call, nil
@@ -309,10 +347,7 @@ func (d *dispatcher[Q, R]) newCall(q Message[Q]) (*call[Q, R], error) {
 }
 
 func (d *dispatcher[Q, R]) send(call *call[Q, R]) error {
-	d.mu.Lock()
-	stopped := d.closing || d.shutdown
-	d.mu.Unlock()
-	if stopped {
+	if d.closing.Load() || d.shutdown.Load() {
 		return d.errShutdown()
 	}
 
@@ -423,11 +458,11 @@ func (d *dispatcher[Q, R]) inputJSON() error {
 	}
 
 	// Terminate pending calls.
-	d.shutdown = true
+	d.shutdown.Store(true)
 	if inputErr != nil {
 		isEOF := inputErr == io.EOF || inputErr == io.ErrClosedPipe || strings.Contains(inputErr.Error(), "already closed")
 		if isEOF {
-			if d.closing {
+			if d.closing.Load() {
 				inputErr = ErrShutdown
 			} else {
 				inputErr = io.ErrUnexpectedEOF
@@ -435,11 +470,12 @@ func (d *dispatcher[Q, R]) inputJSON() error {
 		}
 	}
 
+	if err := d.inOut.abortErr(); err != nil {
+		inputErr = err
+	}
+
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	if inputErr != nil && inputErr != ErrShutdown && inputErr != io.ErrUnexpectedEOF {
-		d.shutdownErr = inputErr
-	}
 	for _, call := range d.pending {
 		call.err = inputErr
 		call.done()
@@ -690,7 +726,7 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 			stdoutBinary: stdoutBinary,
 			dec:          json.NewDecoder(jsonr),
 			enc:          json.NewEncoder(stdinPipe),
-			abort: func(err error) {
+			closePipes: func(err error) {
 				stdinPipe.PipeReader.CloseWithError(err)
 				stdoutPipe.PipeWriter.CloseWithError(err)
 				if stdoutBinaryPipe.PipeWriter != nil {
@@ -726,19 +762,25 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 	}
 
 	run := func() error {
-		g, ctx := errgroup.WithContext(ctx)
+		var g errgroup.Group
 		for _, c := range inOuts {
 			g.Go(func() error {
 				var errBuff bytes.Buffer
 				stderr := io.MultiWriter(&errBuff, os.Stderr)
 				ctx := context.WithoutCancel(ctx)
+				// fail fails any pending and future calls to this instance.
+				fail := func(err error) error {
+					err = &brokenError{err}
+					c.abort(err)
+					return err
+				}
 				// WithStartFunctions allows us to call the _start function manually.
 				configBase := wazero.NewModuleConfig().WithStderr(stderr).WithStdout(c.stdout).WithStdin(c.stdin).WithStartFunctions()
 				if opts.Runtime.Data != nil {
 					// This needs to be anonymous, it will be resolved in the import resolver below.
 					runtimeInstance, err := r.InstantiateModule(ctx, runtimeModule, configBase.WithName(""))
 					if err != nil {
-						return toErr("quickjs", errBuff, err)
+						return fail(toErr("quickjs", errBuff, err))
 					}
 					ctx = experimental.WithImportResolver(
 						ctx,
@@ -753,14 +795,10 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 
 				mainInstance, err := r.InstantiateModule(ctx, mainModule, configBase.WithName(""))
 				if err != nil {
-					return toErr(opts.Main.Name, errBuff, err)
+					return fail(toErr(opts.Main.Name, errBuff, err))
 				}
 				if _, err := mainInstance.ExportedFunction("_start").Call(ctx); err != nil {
-					err = toErr(opts.Main.Name, errBuff, err)
-					// Fail any pending and future calls to this instance right away
-					// instead of letting them wait for the timeout.
-					c.abort(err)
-					return err
+					return fail(toErr(opts.Main.Name, errBuff, err))
 				}
 
 				// The console.log in the Javy/quickjs WebAssembly module will write to stderr.
@@ -811,18 +849,36 @@ func newDispatcher[Q, R any](opts Options) (*dispatcherPool[Q, R], error) {
 
 	dp.close = func() error {
 		for _, d := range dp.dispatchers {
-			d.closing = true
+			d.closing.Store(true)
 			if err := d.inOut.Close(); err != nil {
 				return err
 			}
 		}
 
+		var broken bool
 		for _, d := range dp.dispatchers {
+			err := d.inGroup.Wait()
+			if d.inOut.abortErr() != nil {
+				// Any error here is a consequence of the abort,
+				// which has already been reported to the callers.
+				broken = true
+				continue
+			}
 			// ErrShutdown is expected here; since Go 1.27 (json/v2), Decode
 			// surfaces the read error from the pipes we just closed.
-			if err := d.inGroup.Wait(); err != nil && err != ErrShutdown {
+			if err != nil && err != ErrShutdown {
 				return err
 			}
+		}
+
+		if broken {
+			// An aborted instance may still be busy (e.g. after a timeout)
+			// and will exit on its own; don't block on it.
+			go func() {
+				<-dp.donec
+				r.Close(ctx)
+			}()
+			return nil
 		}
 
 		// We need to wait for the WebAssembly instances to finish executing before we can close the runtime.

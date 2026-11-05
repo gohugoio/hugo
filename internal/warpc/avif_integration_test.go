@@ -1,6 +1,7 @@
 package warpc_test
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -8,6 +9,7 @@ import (
 	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
+	"github.com/gohugoio/hugo/internal/warpc"
 )
 
 func TestAvifBasic(t *testing.T) {
@@ -149,4 +151,27 @@ avif:{{ $avif.RelPermalink }}|
 			b.AssertFileContent("public/index.html", "avif:/sunset_hu_")
 		})
 	}
+}
+
+// The server checks for warpc.ErrBroken to recover, so it must survive
+// the error chain from the template to the build. See issue 15522.
+func TestAvifEncodeTimeoutIsBroken(t *testing.T) {
+	htesting.SkipSlowWasmTestOn32Bit(t)
+
+	files := `
+-- hugo.toml --
+disableKinds = ["page", "section", "taxonomy", "term", "sitemap", "robotsTXT", "404", "rss"]
+timeout = "1ms"
+[imaging.avif]
+encoderSpeed = 1
+-- assets/sunset.jpg --
+sourcefilename: ../../resources/testdata/sunset.jpg
+-- layouts/home.html --
+{{ $img := resources.Get "sunset.jpg" }}
+{{ ($img.Resize "512x avif").RelPermalink }}
+`
+
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.ErrorMatches, `(?s).*failed to resize image.*avif: timed out after 1ms.*`)
+	b.Assert(errors.Is(err, warpc.ErrBroken), qt.IsTrue)
 }

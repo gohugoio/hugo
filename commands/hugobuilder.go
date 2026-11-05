@@ -45,6 +45,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 	"github.com/gohugoio/hugo/hugolib/filesystems"
 	"github.com/gohugoio/hugo/identity"
+	"github.com/gohugoio/hugo/internal/warpc"
 	"github.com/gohugoio/hugo/livereload"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/watcher"
@@ -122,6 +123,25 @@ type hugoBuilderErrState struct {
 	paused   bool
 	builderr error
 	waserr   bool
+
+	// Set when a full rebuild was triggered to recover from a broken WASM instance.
+	recovering bool
+}
+
+// shouldRecover reports whether the result of a rebuild means that we need to
+// recreate the HugoSites object and do a full rebuild, see warpc.ErrBroken.
+// To avoid a rebuild loop when the failure is deterministic, we don't recover
+// if the failing build was itself a recovery rebuild. Any other build result
+// resets this, so we recover again from later, unrelated failures.
+func (e *hugoBuilderErrState) shouldRecover(err error) bool {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	if !errors.Is(err, warpc.ErrBroken) || e.recovering {
+		e.recovering = false
+		return false
+	}
+	e.recovering = true
+	return true
 }
 
 func (e *hugoBuilderErrState) setPaused(p bool) {
@@ -723,6 +743,7 @@ func (c *hugoBuilder) fullRebuild(changeType string) {
 				return
 			}
 			err = c.buildSites(false)
+			c.recoverIfBroken(err)
 			if err != nil {
 				c.r.logger.Errorln(err)
 			} else if c.s != nil && c.s.doLiveReload {
@@ -730,6 +751,18 @@ func (c *hugoBuilder) fullRebuild(changeType string) {
 			}
 		}
 	}()
+}
+
+// recoverIfBroken triggers a full rebuild with a new HugoSites object (and
+// new WASM instances) if a rebuild failed because of a broken WASM instance.
+func (c *hugoBuilder) recoverIfBroken(err error) {
+	if !c.errState.shouldRecover(err) {
+		return
+	}
+	c.r.logger.Warnln("A WebAssembly module crashed or timed out; recreating it and rebuilding.")
+	// This needs to run in its own goroutine, as we may be
+	// holding the full rebuild semaphore.
+	go c.fullRebuild("")
 }
 
 func (c *hugoBuilder) handleBuildErr(err error, msg string) {
@@ -1182,6 +1215,7 @@ func (c *hugoBuilder) printChangeDetected(typ string) {
 func (c *hugoBuilder) rebuildSites(events []fsnotify.Event) (err error) {
 	defer func() {
 		c.errState.setBuildErr(err)
+		c.recoverIfBroken(err)
 	}()
 	if err := c.errState.buildErr(); err != nil {
 		ferrs := herrors.UnwrapFileErrorsWithErrorContext(err)
@@ -1201,6 +1235,7 @@ func (c *hugoBuilder) rebuildSites(events []fsnotify.Event) (err error) {
 func (c *hugoBuilder) rebuildSitesForChanges(ids []identity.Identity) (err error) {
 	defer func() {
 		c.errState.setBuildErr(err)
+		c.recoverIfBroken(err)
 	}()
 
 	var h *hugolib.HugoSites
