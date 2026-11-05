@@ -129,6 +129,36 @@ func TestMerge(t *testing.T) {
 			map[string]any{"k": map[string]any{"k2": "v2"}},
 			false,
 		},
+		{
+			// https://github.com/gohugoio/hugo/issues/15499
+			"map of strings",
+			[]any{
+				map[string]string{"a": "1", "b": "2", "c": "5"},
+				map[string]string{"a": "3", "b": "4"},
+			},
+			map[string]string{"a": "3", "b": "4", "c": "5"},
+			false,
+		},
+		{
+			// https://github.com/gohugoio/hugo/issues/15499
+			"nested map of strings",
+			[]any{
+				map[string]any{"x": map[string]string{"a": "1", "b": "2"}},
+				map[string]any{"x": map[string]string{"a": "3"}},
+			},
+			map[string]any{"x": map[string]string{"a": "3", "b": "2"}},
+			false,
+		},
+		{
+			// https://github.com/gohugoio/hugo/issues/15499
+			"map of maps of strings",
+			[]any{
+				map[string]map[string]string{"x": {"a": "1", "b": "2"}},
+				map[string]map[string]string{"x": {"a": "3"}},
+			},
+			map[string]map[string]string{"x": {"a": "3", "b": "2"}},
+			false,
+		},
 		{"src nil", []any{nil, simpleMap}, simpleMap, false},
 		// Error cases.
 		{"dst not a map", []any{nil, "not a map"}, nil, true},

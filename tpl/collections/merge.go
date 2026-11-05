@@ -119,9 +119,15 @@ func mergeMap(dst, src reflect.Value) reflect.Value {
 
 		if found {
 			// If both are the same map key type, merge.
-			dve := dv.Elem()
+			dve, isNil := hreflect.Indirect(dv)
+			if isNil {
+				continue
+			}
 			if dve.Kind() == reflect.Map {
-				sve := sv.Elem()
+				sve, isNil := hreflect.Indirect(sv)
+				if isNil {
+					continue
+				}
 				if sve.Kind() != reflect.Map {
 					continue
 				}
