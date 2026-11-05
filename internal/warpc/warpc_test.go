@@ -16,10 +16,14 @@ package warpc
 import (
 	"context"
 	_ "embed"
+	"errors"
 	"fmt"
+	"image"
+	"io"
 	"sync"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	qt "github.com/frankban/quicktest"
 )
@@ -471,3 +475,34 @@ var (
 		Data: quickjsWasm,
 	}
 )
+
+// A timed out call must leave the instance in a well defined broken state,
+// and must not block Close. See issue 15522.
+func TestTimeoutIsBroken(t *testing.T) {
+	c := qt.New(t)
+
+	dispatchers := AllDispatchers(Options{}, Options{}, Options{PoolSize: 1, Timeout: time.Millisecond, Memory: 384})
+	codec, err := dispatchers.NewAvifCodec()
+	c.Assert(err, qt.IsNil)
+
+	img := image.NewNRGBA(image.Rect(0, 0, 512, 512))
+	for i := range img.Pix {
+		img.Pix[i] = uint8(i * 7)
+	}
+	opts := map[string]any{"quality": 75, "compression": "lossy", "encoderSpeed": 1, "hint": "photo"}
+
+	err = codec.Encode(io.Discard, img, opts)
+	c.Assert(err, qt.ErrorMatches, `avif: timed out after 1ms .*`)
+	c.Assert(errors.Is(err, ErrBroken), qt.IsTrue)
+
+	// The instance is gone, later calls must fail right away.
+	start := time.Now()
+	err = codec.Encode(io.Discard, img, opts)
+	c.Assert(errors.Is(err, ErrBroken), qt.IsTrue)
+	c.Assert(time.Since(start) < time.Millisecond*500, qt.IsTrue)
+
+	// The guest is still busy encoding; Close must not wait for it.
+	start = time.Now()
+	c.Assert(dispatchers.Close(), qt.IsNil)
+	c.Assert(time.Since(start) < time.Millisecond*500, qt.IsTrue)
+}
