@@ -87,7 +87,11 @@ func (s descriptorHandler) compareDescriptors(category Category, this, other Tem
 				return w
 			}
 
-			w.w1 = 1
+			// Do not let the markup fallback pick a layout-specific render hook
+			// for a page that does not use that layout. See issue #15538.
+			if this.isLayoutCompatible(other) {
+				w.w1 = 1
+			}
 		}
 
 		if category == CategoryShortcode {
@@ -245,6 +249,15 @@ func (this TemplateDescriptor) doCompare(category Category, other TemplateDescri
 	}
 
 	return w
+}
+
+//lint:ignore ST1006 this vs other makes it easier to reason about.
+func (this TemplateDescriptor) isLayoutCompatible(other TemplateDescriptor) bool {
+	switch other.LayoutFromTemplate {
+	case "", layoutAll, this.LayoutFromTemplate, this.LayoutFromUser:
+		return true
+	}
+	return false
 }
 
 func (d TemplateDescriptor) IsZero() bool {

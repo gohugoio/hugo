@@ -1937,7 +1937,16 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path, fi hugofs.File
 			d.Variant2 = v[hyphenIdx+1:]
 		}
 
-		d.LayoutFromTemplate = "" // This allows using page layout as part of the key for lookups.
+		// The path parser keeps the "render-*" base name in Layout so Variant1/2
+		// can be derived above. Any custom layout token (e.g. "contact" in
+		// render-link.contact.html) ends up in IdentifiersUnknown; restore it so
+		// layout-specific render hooks participate in descriptor matching.
+		// See issue #15538.
+		if unknowns := p.IdentifiersUnknown(); len(unknowns) > 0 {
+			d.LayoutFromTemplate = unknowns[len(unknowns)-1]
+		} else {
+			d.LayoutFromTemplate = ""
+		}
 	}
 
 	return k1, k2, category, d, vactorStore, nil
