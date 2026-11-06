@@ -87,13 +87,19 @@ func (s descriptorHandler) compareDescriptors(category Category, this, other Tem
 				return w
 			}
 
-			w.w1 = 1
+			if this.isLayoutCompatible(other) {
+				w.w1 = 1
+			}
 		}
 
 		if category == CategoryShortcode {
 			plainTextOK := this.IsPlainText == other.IsPlainText || !other.IsPlainText || this.AlwaysAllowPlainText
 			if plainTextOK && this.isLayoutCompatible(other) {
 				w.w1 = 1
+				if other.OutputFormat == s.opts.DefaultOutputFormat {
+					// Prefer the default output format when falling back. See issue #15540.
+					w.wfallback = 1
+				}
 			}
 		}
 	}

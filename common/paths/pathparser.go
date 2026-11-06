@@ -333,7 +333,8 @@ func (pp *PathParser) parseIdentifier(component, s string, p *Path, i, lastDot, 
 	mayHaveOutputFormat := component == files.ComponentFolderLayouts
 	mayHaveKind := p.posIdentifierKind == -1 && mayHaveOutputFormat
 	var mayHaveLayout bool
-	if p.pathType == TypeShortcode {
+	if p.pathType == TypeShortcode || p.pathType == TypeMarkup {
+		// The first identifier is the shortcode or render hook name.
 		mayHaveLayout = !isLast && component == files.ComponentFolderLayouts
 	} else {
 		mayHaveLayout = component == files.ComponentFolderLayouts
@@ -487,6 +488,8 @@ func (pp *PathParser) doParse(component, s string, p *Path) (*Path, error) {
 	numDots := strings.Count(s[lastSlashIdx+1:], ".") - len(skipDots)
 	if strings.Contains(s, "/_shortcodes/") {
 		p.pathType = TypeShortcode
+	} else if component == files.ComponentFolderLayouts && strings.Contains(s, "/_markup/") {
+		p.pathType = TypeMarkup
 	}
 
 	for i := len(s) - 1; i >= 0; i-- {
