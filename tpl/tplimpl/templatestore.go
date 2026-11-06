@@ -1925,7 +1925,7 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path, fi hugofs.File
 	if category == CategoryMarkup {
 		// We store all template nodes for a given directory on the same level.
 		k1 = strings.TrimSuffix(k1, "/_markup")
-		v, found := strings.CutPrefix(d.LayoutFromTemplate, "render-")
+		v, found := strings.CutPrefix(nameNoIdentifier, "render-")
 		if !found {
 			return "", "", 0, TemplateDescriptor{}, nil, fmt.Errorf("unrecognized render hook template")
 		}
@@ -1936,8 +1936,6 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path, fi hugofs.File
 			d.Variant1 = v[:hyphenIdx]
 			d.Variant2 = v[hyphenIdx+1:]
 		}
-
-		d.LayoutFromTemplate = "" // This allows using page layout as part of the key for lookups.
 	}
 
 	return k1, k2, category, d, vactorStore, nil
@@ -2156,6 +2154,10 @@ func (best *bestMatch) isBetter(w weight, ti *TemplInfo) bool {
 			return true
 		}
 
+		if w.wfallback != best.w.wfallback {
+			return w.wfallback > best.w.wfallback
+		}
+
 		return ti.PathInfo.Path() < best.templ.PathInfo.Path()
 	}
 
@@ -2203,6 +2205,9 @@ type weight struct {
 	w3       int
 	wsm      int
 	distance int
+
+	// Used as a tie-breaker for fallback matches, e.g. to prefer the default output format.
+	wfallback int
 }
 
 func isLayoutStandard(s string) bool {

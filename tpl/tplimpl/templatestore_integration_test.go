@@ -1569,3 +1569,104 @@ layouts/p1/page.html
 
 	b.AssertFileContent("public/p1/index.html", "layouts/p1/page.html")
 }
+
+// See issue #15538.
+func TestRenderHookCustomLayout(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/p1.md --
+---
+title: p1
+layout: contact
+---
+[a](/b)
+-- content/p2.md --
+---
+title: p2
+---
+[a](/b)
+-- layouts/page.html --
+{{ .Content }}
+-- layouts/contact.html --
+{{ .Content }}
+-- layouts/_markup/render-link.html --
+render-link.html
+-- layouts/_markup/render-link.contact.html --
+render-link.contact.html
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "render-link.contact.html") // fails
+	b.AssertFileContent("public/p2/index.html", "render-link.html", "! render-link.contact.html")
+}
+
+// See issue #15538.
+func TestRenderHookPageKindAndCustomLayout(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- content/p1.md --
+---
+title: p1
+layout: contact
+---
+[a](/b)
+-- content/p2.md --
+---
+title: p2
+---
+[a](/b)
+-- layouts/page.html --
+{{ .Content }}
+-- layouts/contact.html --
+{{ .Content }}
+-- layouts/_markup/render-link.html --
+render-link.html
+-- layouts/_markup/render-link.page.contact.html --
+render-link.page.contact.html
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "render-link.page.contact.html")
+	b.AssertFileContent("public/p2/index.html", "render-link.html", "! render-link.page.contact.html") // fails
+}
+
+// See issue #15540.
+func TestShortcodeOutputFormatFallback(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[outputs]
+page = ['html','calendar','json']
+-- content/p1.md --
+---
+title: p1
+---
+{{< sc >}}
+-- layouts/page.html --
+{{ .Content }}
+-- layouts/page.calendar.ics --
+{{ .Content }}
+-- layouts/page.json.json --
+{{ .Content }}
+-- layouts/_shortcodes/sc.html --
+sc.html
+-- layouts/_shortcodes/sc.calendar.ics --
+sc.calendar.ics
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "sc.html")
+	b.AssertFileContent("public/p1/index.ics", "sc.calendar.ics")
+	b.AssertFileContent("public/p1/index.json", "sc.html", "! sc.calendar.ics") // fail
+}
