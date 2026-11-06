@@ -14,6 +14,8 @@
 package rst_test
 
 import (
+	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
@@ -102,4 +104,46 @@ if true {}
 	b, err := hugolib.TestE(t, files)
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "rst: invalid value for syntaxHighlight: \"foo\"")
+}
+
+func TestRSTNoFileInsertion(t *testing.T) {
+	if !rst.Supports() {
+		t.Skip("rst not installed")
+	}
+
+	execAllow := `'^rst2html(\.py)?$'`
+	if runtime.GOOS == "windows" {
+		execAllow = `'^python(\.exe)?$'`
+	}
+
+	secret := filepath.ToSlash(filepath.Join(t.TempDir(), "secret.txt"))
+	qt.Assert(t, os.WriteFile(secret, []byte("rst-secret-content"), 0o644), qt.IsNil)
+
+	files := strings.NewReplacer("RST_EXEC_ALLOW", execAllow, "SECRET", secret).Replace(`
+-- hugo.toml --
+baseURL = "https://example.org"
+disableKinds = ["home", "section", "taxonomy", "term", "rss", "sitemap"]
+
+[security.exec]
+allow = [RST_EXEC_ALLOW]
+
+-- layouts/page.html --
+{{ .Content }}
+-- content/p.rst --
+---
+title: p
+---
+
+.. include:: SECRET
+
+.. raw:: html
+   :file: SECRET
+
+.. csv-table::
+   :file: SECRET
+`)
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p/index.html", "! rst-secret-content")
 }

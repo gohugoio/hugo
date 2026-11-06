@@ -72,7 +72,7 @@ func (c *rstConverter) getRstContent(src []byte, ctx converter.DocumentContext) 
 
 	logger.Infoln("Rendering", ctx.DocumentName, "with", binaryName, "...")
 
-	args := []string{"--leave-comments", "--initial-header-level=2"}
+	args := []string{"--leave-comments", "--initial-header-level=2", "--no-file-insertion"}
 	if c.cfg.Conf != nil && c.cfg.MarkupConfig().RST.SyntaxHighlight != "long" {
 		args = append(args, "--syntax-highlight="+c.cfg.MarkupConfig().RST.SyntaxHighlight)
 	}
