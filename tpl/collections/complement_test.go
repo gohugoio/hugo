@@ -51,6 +51,8 @@ func TestComplement(t *testing.T) {
 		expected any
 	}{
 		{[]string{"a", "b", "c"}, []any{[]string{"c", "d"}}, []string{"a", "b"}},
+		// An array argument gives a slice, the length of an array result is fixed.
+		{[3]string{"a", "b", "c"}, []any{[]string{"c", "d"}}, []string{"a", "b"}},
 		{[]string{"a", "b", "c"}, []any{[]string{"c", "d"}, []string{"a", "b"}}, []string{}},
 		{[]any{"a", "b", nil}, []any{[]string{"a", "d"}}, []any{"b", nil}},
 		{[]int{1, 2, 3, 4, 5}, []any{[]int{1, 3}, []string{"a", "b"}, []int{1, 2}}, []int{4, 5}},
