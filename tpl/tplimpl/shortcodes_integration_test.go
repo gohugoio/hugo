@@ -891,3 +891,36 @@ title: home
 	b.Assert(err, qt.IsNotNil)
 	b.AssertLogContains(`ERROR The "gist" shortcode was deprecated in v0.143.0 and removed in v0.156.0.`)
 }
+
+// See issue 15540.
+func TestShortcodeOutputFormatFallback(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+[outputs]
+page = ['html','calendar','json']
+-- content/p1.md --
+---
+title: p1
+---
+{{< sc >}}
+-- layouts/page.html --
+{{ .Content }}
+-- layouts/page.calendar.ics --
+{{ .Content }}
+-- layouts/page.json.json --
+{{ .Content }}
+-- layouts/_shortcodes/sc.html --
+sc.html
+-- layouts/_shortcodes/sc.calendar.ics --
+sc.calendar.ics
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html", "sc.html")
+	b.AssertFileContent("public/p1/index.ics", "sc.calendar.ics")
+	b.AssertFileContent("public/p1/index.json", "sc.html", "! sc.calendar.ics")
+}

@@ -92,7 +92,12 @@ func (s descriptorHandler) compareDescriptors(category Category, this, other Tem
 
 		if category == CategoryShortcode {
 			if (this.IsPlainText == other.IsPlainText || !other.IsPlainText) || this.AlwaysAllowPlainText {
-				w.w1 = 1
+				// Output-format-specific shortcodes (e.g. sc.calendar.ics) must not win
+				// this fallback for unrelated formats. Default-format shortcodes (usually
+				// html) remain a valid fallback. See issue 15540.
+				if other.OutputFormat == "" || other.OutputFormat == this.OutputFormat || other.OutputFormat == s.opts.DefaultOutputFormat || other.MediaType == this.MediaType {
+					w.w1 = 1
+				}
 			}
 		}
 	}
