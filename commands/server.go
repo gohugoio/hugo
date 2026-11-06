@@ -847,6 +847,7 @@ func (c *serverCommand) fixURL(baseURLFromConfig, baseURLFromFlag string, port i
 func (c *serverCommand) partialReRender(urls ...string) (err error) {
 	defer func() {
 		c.errState.setWasErr(false)
+		c.recoverIfBroken(err)
 	}()
 	visited := types.NewEvictingQueue[string](len(urls))
 	for _, url := range urls {

@@ -506,3 +506,24 @@ func TestTimeoutIsBroken(t *testing.T) {
 	c.Assert(dispatchers.Close(), qt.IsNil)
 	c.Assert(time.Since(start) < time.Millisecond*500, qt.IsTrue)
 }
+
+// Closing healthy image dispatchers (which use the binary blob protocol)
+// must succeed, or the wazero runtime is never closed.
+func TestCloseImageDispatchers(t *testing.T) {
+	c := qt.New(t)
+
+	img := image.NewNRGBA(image.Rect(0, 0, 16, 16))
+
+	for range 3 {
+		dispatchers := AllDispatchers(Options{}, Options{PoolSize: 2, Memory: 384}, Options{PoolSize: 2, Memory: 384})
+		avif, err := dispatchers.NewAvifCodec()
+		c.Assert(err, qt.IsNil)
+		webp, err := dispatchers.NewWepCodec()
+		c.Assert(err, qt.IsNil)
+
+		c.Assert(avif.Encode(io.Discard, img, map[string]any{"quality": 75, "compression": "lossy", "encoderSpeed": 10, "hint": "photo"}), qt.IsNil)
+		c.Assert(webp.Encode(io.Discard, img, map[string]any{"quality": 75, "compression": "lossy", "hint": "photo", "useSharpYuv": 0, "method": 2}), qt.IsNil)
+
+		c.Assert(dispatchers.Close(), qt.IsNil)
+	}
+}

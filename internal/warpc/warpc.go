@@ -379,6 +379,10 @@ func (d *dispatcher[Q, R]) inputBlobs() error {
 	for {
 		id, length, err := textandbinarywriter.ReadBlobHeader(d.inOut.stdoutBinary)
 		if err != nil {
+			if d.closing.Load() && (errors.Is(err, io.EOF) || errors.Is(err, io.ErrClosedPipe)) {
+				// Expected, Close closes this pipe (both ends).
+				err = ErrShutdown
+			}
 			inputErr = err
 			break
 		}
