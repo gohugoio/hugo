@@ -174,3 +174,30 @@ dir = ":resourceDir/_gen"
 		}
 	})
 }
+
+// Issue 15456.
+func TestPruneWithIgnoreCache(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+
+	fs := afero.NewMemMapFs()
+	// Pre-populate cache with a stale item from a previous run.
+	preCache := filecache.NewCache(fs, filecache.FileCacheConfig{Dir: "cache", MaxAge: -1})
+	c.Assert(preCache.SetBytes("stale_item", []byte("stale")), qt.IsNil)
+
+	// Simulate --ignoreCache where MaxAge is set to 0.
+	cache := filecache.NewCache(fs, filecache.FileCacheConfig{Dir: "cache", MaxAge: 0})
+	// Write an active entry into cache during the build (e.g. via WriteCloser as done for transformed assets).
+	_, w, err := cache.WriteCloser("active_item")
+	c.Assert(err, qt.IsNil)
+	_, err = w.Write([]byte("active"))
+	c.Assert(err, qt.IsNil)
+	c.Assert(w.Close(), qt.IsNil)
+
+	count, err := cache.Prune(false)
+	c.Assert(err, qt.IsNil)
+	// Only stale_item should be pruned.
+	c.Assert(count, qt.Equals, 1)
+	c.Assert(cache.GetString("stale_item"), qt.Equals, "")
+	c.Assert(cache.GetString("active_item"), qt.Equals, "active")
+}
