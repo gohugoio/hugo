@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/rungroup"
 	"github.com/spf13/afero"
@@ -294,6 +295,8 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 		}
 		readdir = readdir[:n]
 
+		c.warnIfBothIndexFilesInDir(readdir)
+
 		// Pick the first regular file.
 		var first hugofs.FileMetaInfo
 		for _, fi := range readdir {
@@ -366,6 +369,64 @@ func (c *pagesCollector) collectDirDir(path string, root hugofs.FileMetaInfo, in
 		})
 
 	return w.Walk()
+}
+
+// The base names Hugo uses for the index files of leaf and branch bundles.
+const (
+	nameContentLeaf   = "index"
+	nameContentBranch = "_index"
+)
+
+// warnIfBothIndexFilesInDir warns about content directories that contain both a
+// leaf bundle index file (index.md) and a branch bundle index file (_index.md).
+// Such a directory is treated as a leaf bundle, so the _index file and any other
+// content files in the directory are silently ignored.
+//
+// The home page variant of this is covered by a separate warning, see
+// constants.WarnHomePageIsLeafBundle.
+//
+// Note that the content filesystem has already rewritten the path type of all
+// siblings of a leaf bundle to paths.TypeContentResource before this runs, so
+// the index files are identified by name and not by bundle type.
+func (c *pagesCollector) warnIfBothIndexFilesInDir(readdir []hugofs.FileMetaInfo) {
+	leafFiles := make(map[string]string)
+	for _, fi := range readdir {
+		if fi.IsDir() {
+			continue
+		}
+		pi := fi.Meta().PathInfo
+		if pi == nil || !pi.IsContent() || pi.NameNoIdentifier() != nameContentLeaf {
+			continue
+		}
+		if pi.Dir() == "/" {
+			// The home page has its own warning.
+			continue
+		}
+		leafFiles[pi.Lang()+":"+pi.Dir()] = pi.PathNoLeadingSlash()
+	}
+	if len(leafFiles) == 0 {
+		return
+	}
+
+	for _, fi := range readdir {
+		if fi.IsDir() {
+			continue
+		}
+		pi := fi.Meta().PathInfo
+		if pi == nil || !pi.IsContent() || pi.NameNoIdentifier() != nameContentBranch {
+			continue
+		}
+		key := pi.Lang() + ":" + pi.Dir()
+		leaf, found := leafFiles[key]
+		if !found {
+			continue
+		}
+		// Only warn once per directory and language.
+		delete(leafFiles, key)
+		c.logger.Warnidf(constants.WarnBothIndexFilesInContentDir,
+			"Directory %q contains both %q and %q. %q wins and the directory is treated as a leaf bundle, so %q and any other content files in it will not be rendered as pages. Remove or rename one of the files.",
+			pi.Dir(), leaf, pi.PathNoLeadingSlash(), leaf, pi.PathNoLeadingSlash())
+	}
 }
 
 func (c *pagesCollector) handleBundleLeaf(ctx context.Context, dir hugofs.FileMetaInfo, inPath string, readdir []hugofs.FileMetaInfo) error {
