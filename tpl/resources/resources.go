@@ -214,6 +214,15 @@ func (ns *Namespace) Concat(targetPathIn any, r any) (resource.Resource, error) 
 		rr = v
 	case resource.ResourcesConverter:
 		rr = v.ToResources()
+	case []any:
+		rr = make(resource.Resources, len(v))
+		for i, vv := range v {
+			res, ok := vv.(resource.Resource)
+			if !ok {
+				return nil, fmt.Errorf("expected slice of Resource objects, received %T in slice at index %d", vv, i)
+			}
+			rr[i] = res
+		}
 	default:
 		return nil, fmt.Errorf("expected slice of Resource objects, received %T instead", r)
 	}
