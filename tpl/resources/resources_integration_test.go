@@ -14,6 +14,7 @@
 package resources_test
 
 import (
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -286,6 +287,31 @@ Name: {{ $r.Name }}|
 
 	b.AssertFileContent("public/index.html", "Name: /js/main.js|")
 	b.AssertFileExists("public/js/main.min.js", true)
+}
+
+// See issue 15546.
+func TestConcatSliceOfAny(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','taxonomy','term','sitemap']
+-- assets/a.js --
+let a;
+-- assets/b.js --
+let b;
+-- layouts/home.html --
+{{ $sr := collections.Apply (slice "a.js" "b.js") "resources.Get" "." }}
+{{ $r := resources.Concat "bundle.js" $sr }}
+{{ $r.RelPermalink }}|{{ $r.Content }}|
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "/bundle.js|let a;\nlet b;|")
+
+	files = strings.Replace(files, `$r := resources.Concat "bundle.js" $sr`, `$r := resources.Concat "bundle.js" ($sr | append 42)`, 1)
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.ErrorMatches, `(?s).*expected slice of Resource objects, received int in slice at index 2.*`)
 }
 
 // See issue 15086.
