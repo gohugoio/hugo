@@ -169,16 +169,32 @@ func (p pairList) Less(i, j int) bool {
 			return p.sortComp.LtCollate(p.Collator, iv.Interface(), jv.Interface())
 		}
 
-		// if j is invalid, test i against i's zero value
-		return p.sortComp.LtCollate(p.Collator, iv.Interface(), reflect.Zero(iv.Type()))
+		// if j is invalid, test i against i's concrete zero value
+		return p.sortComp.LtCollate(p.Collator, iv.Interface(), zeroOf(iv))
 	}
 
 	if jv.IsValid() {
-		// if i is invalid, test j against j's zero value
-		return p.sortComp.LtCollate(p.Collator, reflect.Zero(jv.Type()), jv.Interface())
+		// if i is invalid, test j against j's concrete zero value
+		return p.sortComp.LtCollate(p.Collator, zeroOf(jv), jv.Interface())
 	}
 
 	return false
+}
+
+// zeroOf returns the zero value of v's concrete type.
+// Interface-typed keys (e.g. map[string]any) are unwrapped first so a
+// missing counterpart compares as "" / 0 rather than a nil interface.
+func zeroOf(v reflect.Value) any {
+	for v.Kind() == reflect.Interface {
+		if v.IsNil() {
+			return nil
+		}
+		v = v.Elem()
+	}
+	if !v.IsValid() {
+		return nil
+	}
+	return reflect.Zero(v.Type()).Interface()
 }
 
 // sorts a pairList and returns a slice of sorted values
