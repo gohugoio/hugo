@@ -166,6 +166,8 @@ github.com/bep/helpers v0.12.0 h1:tD6V2DQW0B+FUynF2etR/106S/TO9akm+vA/Hk24GxY=
 github.com/bep/helpers v0.12.0/go.mod h1:PfE7MGdA8sSQ19nyDh4tYbs5rAlStlJaDI21f/fnNps=
 github.com/bep/imagemeta v1.1.0 h1:CO12aFmrQIB8byUzvq9b5rD2DPTw8QhcaNlBZ7NgoOk=
 github.com/bep/imagemeta v1.1.0/go.mod h1:z2CUPKGs9uOCxeBbSiFTTkFRKMlO1UZjU2S2Gpy9z54=
+github.com/bep/imagemeta v1.1.1 h1:Ao69tpCmfk9ojuJC8Bsl+g+ODTg2nfkJszokfmAkdMA=
+github.com/bep/imagemeta v1.1.1/go.mod h1:z2CUPKGs9uOCxeBbSiFTTkFRKMlO1UZjU2S2Gpy9z54=
 github.com/bep/lazycache v0.9.0 h1:JLpAJGotKPaacb7dgv0+qBLneQjcMhJ3g9MvEhDyZUg=
 github.com/bep/lazycache v0.9.0/go.mod h1:E3yeEfnmWUNNuIIR/EX6srqQwsvAFHSLQ8tR+jClATg=
 github.com/bep/logg v0.4.0 h1:luAo5mO4ZkhA5M1iDVDqDqnBBnlHjmtZF6VAyTp+nCQ=
@@ -279,6 +281,8 @@ github.com/gohugoio/hugo-goldmark-extensions/extras v0.7.0 h1:I/n6v7VImJ3aISLnn7
 github.com/gohugoio/hugo-goldmark-extensions/extras v0.7.0/go.mod h1:9LJNfKWFmhEJ7HW0in5znezMwH+FYMBIhNZ3VWtRcRs=
 github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.5.0 h1:p13Q0DBCrBRpJGtbtlgkYNCs4TnIlZJh8vHgnAiofrI=
 github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.5.0/go.mod h1:ob9PCHy/ocsQhTz68uxhyInaYCbbVNpOOrJkIoSeD+8=
+github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.6.0 h1:U8z9C2o9oc1s1PtnKG3OwJm93njX1CTi7QKvG9701VI=
+github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.6.0/go.mod h1:wHb+OjkFu2Rx4wnWx6UyaH7wSsXUdSTv8nkuyDVHebM=
 github.com/golang-jwt/jwt/v5 v5.3.0 h1:pv4AsKCKKZuqlgs5sUmn4x8UlGa0kEVt/puTpKx9vvo=
 github.com/golang-jwt/jwt/v5 v5.3.0/go.mod h1:fxCRLWMO43lRc8nhHWY6LGqRcf+1gQWArsqaEUEa5bE=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
