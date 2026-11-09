@@ -1377,6 +1377,64 @@ JSON: {{ $json.RelPermalink }}: {{ $json.Content }}
 		"/jsons/data1.json: json1 content")
 }
 
+// See issue 10112.
+func TestResourcesMatchPreservePathCase(t *testing.T) {
+	t.Parallel()
+
+	const files = `
+-- hugo.toml --
+disablePathToLower = true
+disableKinds = ['taxonomy', 'term', 'rss', 'sitemap']
+-- assets/gallery/Travel/Iceland/TEST.txt --
+hello
+-- layouts/home.html --
+{{ range slice "PATTERNS" }}
+Pattern: {{ . }}: Match={{ range resources.Match . }}{{ .RelPermalink }}{{ end }}|GetMatch={{ with resources.GetMatch . }}{{ .RelPermalink }}{{ end }}|
+{{ end }}
+`
+
+	const (
+		literal  = "gallery/Travel/Iceland/*.txt"
+		lower    = "gallery/travel/iceland/*.txt"
+		wildcard = "*gallery/Travel/Iceland/*.txt"
+	)
+	for _, test := range []struct {
+		name     string
+		patterns []string
+	}{
+		{"literal first", []string{literal, lower, wildcard}},
+		{"lower first", []string{lower, wildcard, literal}},
+		{"wildcard first", []string{wildcard, literal, lower}},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			b := Test(t, strings.ReplaceAll(files, "PATTERNS", strings.Join(test.patterns, `" "`)))
+			for _, pattern := range test.patterns {
+				b.AssertFileContent("public/index.html", "Pattern: "+pattern+": Match=/gallery/Travel/Iceland/TEST.txt|GetMatch=/gallery/Travel/Iceland/TEST.txt|")
+			}
+			b.AssertFileContent("public/gallery/Travel/Iceland/TEST.txt", "hello")
+		})
+	}
+}
+
+func TestResourcesMatchMountedPathCase(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['taxonomy', 'term', 'rss', 'sitemap']
+[[module.mounts]]
+source = 'images'
+target = 'assets/gallery/Travel/Iceland'
+-- images/TEST.txt --
+hello
+-- layouts/home.html --
+{{ range resources.Match "gallery/travel/iceland/*.txt" }}{{ .RelPermalink }}{{ end }}
+`
+	b := Test(t, files)
+	b.AssertFileContent("public/index.html", "/gallery/Travel/Iceland/TEST.txt")
+	b.AssertFileContent("public/gallery/Travel/Iceland/TEST.txt", "hello")
+}
+
 func TestResourceMinifyDisabled(t *testing.T) {
 	t.Parallel()
 

@@ -16,6 +16,7 @@ package hugofs
 import (
 	"context"
 	"errors"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -30,10 +31,7 @@ func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error
 	if pattern == "" {
 		return nil
 	}
-	root := hglob.ResolveRootDir(pattern)
-	if !strings.HasPrefix(root, "/") {
-		root = "/" + root
-	}
+	root := resolveRootDirCase(fs, hglob.ResolveRootDir(pattern))
 	pattern = strings.ToLower(pattern)
 
 	g, err := hglob.GetGlob(pattern)
@@ -87,4 +85,50 @@ func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error
 	}
 
 	return nil
+}
+
+// resolveRootDirCase resolves the casing of each path element in root (which may be lowercased)
+// by looking it up lowercased in its parent's directory listing.
+// We need this to walk from the correct root on case-sensitive file systems,
+// and to preserve the original casing in the walked paths.
+// If no match is found (e.g. a virtual mount dir not listed in its parent), the element is used as is.
+func resolveRootDirCase(fs afero.Fs, root string) string {
+	resolved := "/"
+	for part := range strings.SplitSeq(root, "/") {
+		if part == "" {
+			continue
+		}
+		resolved = path.Join(resolved, findDirEntryName(fs, resolved, part))
+	}
+	return resolved
+}
+
+func findDirEntryName(fs afero.Fs, dir, name string) string {
+	f, err := fs.Open(dir)
+	if err != nil {
+		return name
+	}
+	defer f.Close()
+	fis, _, err := ReadDirWithContext(context.Background(), f, -1)
+	if err != nil {
+		return name
+	}
+	nameLower := strings.ToLower(name)
+	var candidate string
+	for _, fi := range fis {
+		if !fi.IsDir() {
+			continue
+		}
+		if fi.Name() == name {
+			return name
+		}
+		// Use the same lowercasing as the glob matcher (not strings.EqualFold, which differs for e.g. "İ").
+		if candidate == "" && strings.ToLower(fi.Name()) == nameLower {
+			candidate = fi.Name()
+		}
+	}
+	if candidate != "" {
+		return candidate
+	}
+	return name
 }
