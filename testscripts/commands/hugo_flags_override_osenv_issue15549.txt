@@ -1,0 +1,38 @@
+# Command-line flags should override OS environment variables.
+# See issues 15549 and 15550.
+
+env HUGO_BUILDDRAFTS=false
+hugo --buildDrafts
+exists public/p1/index.html
+
+env HUGO_BUILDDRAFTS=true
+hugo --buildDrafts=false --cleanDestinationDir
+! exists public/p1/index.html
+
+env HUGO_BUILDDRAFTS=
+env HUGO_ENVIRONMENT=qa
+hugo -e staging
+grep 'env=staging title=from-staging' public/index.html
+
+hugo
+grep 'env=qa title=from-qa' public/index.html
+
+hugo config -e staging
+stdout '^environment = .staging.'
+
+-- hugo.toml --
+baseURL = "http://example.org/"
+disableKinds = ["RSS", "sitemap", "robotsTXT", "404", "taxonomy", "term"]
+-- config/qa/hugo.toml --
+title = 'from-qa'
+-- config/staging/hugo.toml --
+title = 'from-staging'
+-- layouts/home.html --
+env={{ hugo.Environment }} title={{ site.Title }}
+-- layouts/single.html --
+Title: {{ .Title }}
+-- content/p1.md --
+---
+title: "P1"
+draft: true
+---
