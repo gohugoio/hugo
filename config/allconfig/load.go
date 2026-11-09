@@ -222,6 +222,18 @@ func (l configLoader) applyFlagsOverrides(cfg config.Provider) error {
 	return nil
 }
 
+// applyOsEnvAndFlagsOverrides applies the OS environment overrides followed by the flags,
+// so flags take precedence over OS environment variables.
+func (l configLoader) applyOsEnvAndFlagsOverrides(d ConfigSourceDescriptor) error {
+	if err := l.applyOsEnvOverrides(d.Environ); err != nil {
+		return err
+	}
+	if d.Flags != nil {
+		return l.applyFlagsOverrides(d.Flags)
+	}
+	return nil
+}
+
 func (l configLoader) applyOsEnvOverrides(environ []string) error {
 	if len(environ) == 0 {
 		return nil
@@ -407,8 +419,8 @@ func (l *configLoader) loadConfigMain(d ConfigSourceDescriptor) (config.LoadConf
 	}
 
 	// Some settings are used before we're done collecting all settings,
-	// so apply OS environment both before and after.
-	if err := l.applyOsEnvOverrides(d.Environ); err != nil {
+	// so apply OS environment and flags both before and after.
+	if err := l.applyOsEnvAndFlagsOverrides(d); err != nil {
 		return res, l.ModulesConfig, err
 	}
 
@@ -432,13 +444,7 @@ func (l *configLoader) loadConfigMain(d ConfigSourceDescriptor) (config.LoadConf
 
 	res.ConfigFiles = append(res.ConfigFiles, l.ModulesConfigFiles...)
 
-	if d.Flags != nil {
-		if err := l.applyFlagsOverrides(d.Flags); err != nil {
-			return res, l.ModulesConfig, err
-		}
-	}
-
-	if err := l.applyOsEnvOverrides(d.Environ); err != nil {
+	if err := l.applyOsEnvAndFlagsOverrides(d); err != nil {
 		return res, l.ModulesConfig, err
 	}
 
