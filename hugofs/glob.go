@@ -30,10 +30,9 @@ func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error
 	if pattern == "" {
 		return nil
 	}
-	root := hglob.ResolveRootDir(pattern)
-	if !strings.HasPrefix(root, "/") {
-		root = "/" + root
-	}
+	// Use the literal root to prune the walk, preserving directory names from Readdir.
+	root := hglob.NormalizePath(hglob.ResolveRootDir(pattern))
+	rootVisited := root == ""
 	pattern = strings.ToLower(pattern)
 
 	g, err := hglob.GetGlob(pattern)
@@ -50,6 +49,12 @@ func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error
 	wfn := func(ctx context.Context, p string, info FileMetaInfo) error {
 		p = hglob.NormalizePath(p)
 		if info.IsDir() {
+			if p == root {
+				rootVisited = true
+			}
+			if root != "" && p != "" && p != root && !strings.HasPrefix(root, p+"/") && !strings.HasPrefix(p, root+"/") {
+				return filepath.SkipDir
+			}
 			if !hasSuperAsterisk {
 				// Avoid walking to the bottom if we can avoid it.
 				if p != "" && strings.Count(p, "/") >= levels {
@@ -74,13 +79,23 @@ func Glob(fs afero.Fs, pattern string, handle func(fi FileMetaInfo) (bool, error
 
 	w := NewWalkway(
 		WalkwayConfig{
-			Root:           root,
+			Root:           "/",
 			Fs:             fs,
 			WalkFn:         wfn,
 			FailOnNotExist: true,
 		})
 
 	err = w.Walk()
+	if err == nil && !rootVisited {
+		// A virtual mount root may be accessible directly but absent from its parent's listing.
+		w = NewWalkway(WalkwayConfig{
+			Root:           "/" + root,
+			Fs:             fs,
+			WalkFn:         wfn,
+			FailOnNotExist: true,
+		})
+		err = w.Walk()
+	}
 
 	if err != done {
 		return err

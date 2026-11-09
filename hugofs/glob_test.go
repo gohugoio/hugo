@@ -26,7 +26,10 @@ import (
 func TestGlob(t *testing.T) {
 	c := qt.New(t)
 
-	fs := NewBaseFileDecorator(afero.NewMemMapFs())
+	var visited []string
+	fs := NewBaseFileDecorator(afero.NewMemMapFs(), func(fi FileMetaInfo) {
+		visited = append(visited, filepath.ToSlash(fi.Meta().Filename))
+	})
 
 	create := func(filename string) {
 		filename = filepath.FromSlash(filename)
@@ -42,7 +45,7 @@ func TestGlob(t *testing.T) {
 	collect := func(pattern string) []string {
 		var paths []string
 		h := func(fi FileMetaInfo) (bool, error) {
-			p := fi.Meta().PathInfo.Path()
+			p := fi.Meta().PathInfo.Unnormalized().Path()
 			paths = append(paths, p)
 			return false, nil
 		}
@@ -76,4 +79,8 @@ func TestGlob(t *testing.T) {
 
 	c.Assert(collect("root/UPPER/sub/style.css"), qt.HasLen, 1)
 	c.Assert(collect("UPPER/sub/style.css"), qt.HasLen, 1)
+	c.Assert(collect("upper/sub/STYLE.css"), qt.DeepEquals, []string{"/UPPER/sub/style.css"})
+	visited = nil
+	c.Assert(collect("ROOT/upper/sub/*.CSS"), qt.DeepEquals, []string{"/root/UPPER/sub/style.css"})
+	c.Assert(visited, qt.Not(qt.Contains), "/UPPER/sub/style.css")
 }
