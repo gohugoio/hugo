@@ -170,15 +170,26 @@ func (p pairList) Less(i, j int) bool {
 		}
 
 		// if j is invalid, test i against i's zero value
-		return p.sortComp.LtCollate(p.Collator, iv.Interface(), reflect.Zero(iv.Type()))
+		return p.sortComp.LtCollate(p.Collator, iv.Interface(), zeroOf(iv))
 	}
 
 	if jv.IsValid() {
 		// if i is invalid, test j against j's zero value
-		return p.sortComp.LtCollate(p.Collator, reflect.Zero(jv.Type()), jv.Interface())
+		return p.sortComp.LtCollate(p.Collator, zeroOf(jv), jv.Interface())
 	}
 
 	return false
+}
+
+// zeroOf returns the zero value of v's concrete type, looking through interfaces.
+func zeroOf(v reflect.Value) any {
+	for v.Kind() == reflect.Interface {
+		if v.IsNil() {
+			return nil
+		}
+		v = v.Elem()
+	}
+	return reflect.Zero(v.Type()).Interface()
 }
 
 // sorts a pairList and returns a slice of sorted values
