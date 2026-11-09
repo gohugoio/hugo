@@ -143,11 +143,12 @@ func ToTimeInDefaultLocationE(i any, location *time.Location) (tim time.Time, er
 	switch vv := i.(type) {
 	case AsTimeProvider:
 		return vv.AsTime(location), nil
-	// issue #8895
-	// datetimes parsed by `go-toml` have empty zone name
-	// convert back them into string and use `cast`
-	// TODO(bep) add tests, make sure we really need this.
 	case time.Time:
+		if name, _ := vv.Zone(); name != "" {
+			return vv, nil
+		}
+		// go-toml creates fixed zones with an empty name (issue #8895).
+		// Round-trip these through cast to match a local zone name if possible.
 		i = vv.Format(time.RFC3339)
 	}
 	return cast.ToTimeInDefaultLocationE(i, location)
