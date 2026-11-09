@@ -718,3 +718,41 @@ uniq: {{ uniq (slice 9007199254740993 9007199254740992 9007199254740992.0) }}|
 		"uniq: [9007199254740993 9007199254740992]|",
 	)
 }
+
+// Issue 15523.
+func TestSortMissingKey(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+{{ $values := slice (dict "t" "b") (dict "x" 1) (dict "t" "a") }}
+Asc: {{ sort $values "t" }}|
+Desc: {{ sort $values "t" "desc" }}|
+Pages: {{ range sort site.RegularPages "Params.color" }}{{ .Title }}|{{ end }}
+-- content/p1.md --
+---
+title: p1
+params:
+  color: blue
+---
+-- content/p2.md --
+---
+title: p2
+---
+-- content/p3.md --
+---
+title: p3
+params:
+  color: azure
+---
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"Asc: [map[x:1] map[t:a] map[t:b]]|",
+		"Desc: [map[t:b] map[t:a] map[x:1]]|",
+		"Pages: p2|p3|p1|",
+	)
+}
