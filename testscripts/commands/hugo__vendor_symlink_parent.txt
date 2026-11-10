@@ -1,0 +1,20 @@
+# A parent dir inside _vendor is a symlink.
+[windows] skip
+ln $WORK/secretparent site/themes/evil/_vendor/github.com/foo
+cd site
+! hugo
+stderr 'symlinks are not allowed'
+! exists public/index.html
+
+-- secretparent/bar/layouts/home.html --
+FROMSECRET
+-- secretparent/bar/hugo.toml --
+-- site/hugo.toml --
+theme = "evil"
+disableKinds = ["taxonomy","term","rss","sitemap","robotsTXT","page","section"]
+-- site/themes/evil/hugo.toml --
+[[module.imports]]
+path = "github.com/foo/bar"
+-- site/themes/evil/_vendor/modules.txt --
+# github.com/foo/bar v0.0.0
+-- site/themes/evil/_vendor/github.com/.keep --

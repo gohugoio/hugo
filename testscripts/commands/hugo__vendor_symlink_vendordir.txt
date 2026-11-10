@@ -1,0 +1,19 @@
+# _vendor itself is a symlink.
+[windows] skip
+ln $WORK/evilvendor site/themes/evil/_vendor
+cd site
+! hugo
+stderr 'symlinks are not allowed'
+! exists public/index.html
+
+-- evilvendor/github.com/foo/bar/layouts/home.html --
+FROMSECRET
+-- evilvendor/github.com/foo/bar/hugo.toml --
+-- site/hugo.toml --
+theme = "evil"
+disableKinds = ["taxonomy","term","rss","sitemap","robotsTXT","page","section"]
+-- site/themes/evil/hugo.toml --
+[[module.imports]]
+path = "github.com/foo/bar"
+-- evilvendor/modules.txt --
+# github.com/foo/bar v0.0.0

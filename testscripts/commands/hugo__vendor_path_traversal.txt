@@ -1,0 +1,17 @@
+cd site
+! hugo
+stderr 'invalid module path "../../../..".*must be a local path'
+! exists public/index.html
+
+-- secret/passwd.txt --
+topsecret
+-- site/hugo.toml --
+theme = "evil"
+disableKinds = ["taxonomy","term","rss","sitemap","robotsTXT","page","section"]
+-- site/layouts/home.html --
+SECRET:{{ readFile "secret/passwd.txt" }}
+-- site/themes/evil/hugo.toml --
+[[module.imports]]
+path = "../../../.."
+-- site/themes/evil/_vendor/modules.txt --
+# ../../../.. v0.0.0
