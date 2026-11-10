@@ -34,6 +34,7 @@ import (
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/paths"
 	"github.com/gohugoio/hugo/common/version"
+	"github.com/gohugoio/hugo/hugofs"
 	"golang.org/x/mod/module"
 
 	"github.com/spf13/cast"
@@ -246,7 +247,7 @@ func (c *collector) getAndCreateModule(owner *moduleAdapter, moduleImport Import
 
 	var realOwner Module = owner
 
-	if !(c.ccfg.shouldIgnoreVendor(vendorPath)) {
+	if !c.ccfg.shouldIgnoreVendor(vendorPath) {
 		if err := c.collectModulesTXT(owner); err != nil {
 			return nil, err
 		}
@@ -332,6 +333,12 @@ func (c *collector) getAndCreateModule(owner *moduleAdapter, moduleImport Import
 		return nil, nil
 	}
 
+	if !moduleImport.pathProjectReplaced {
+		if err := c.checkNoSymlinksInOwnerDir(realOwner, moduleDir); err != nil {
+			return nil, err
+		}
+	}
+
 	if !strings.HasSuffix(moduleDir, fileSeparator) {
 		moduleDir += fileSeparator
 	}
@@ -361,6 +368,30 @@ func (c *collector) getAndCreateModule(owner *moduleAdapter, moduleImport Import
 	}
 
 	return ma, nil
+}
+
+// checkNoSymlinksInOwnerDir returns an error if moduleDir lives inside the
+// directory of a non-project owner and moduleDir or any directory between it
+// and the owner's directory is a symlink, which would allow the owner to
+// point the module at arbitrary directories outside of itself.
+func (c *collector) checkNoSymlinksInOwnerDir(owner Module, moduleDir string) error {
+	if ma, ok := owner.(*moduleAdapter); !ok || ma.projectMod {
+		return nil
+	}
+	ownerDir := filepath.Clean(owner.Dir())
+	moduleDir = filepath.Clean(moduleDir)
+	rel, err := filepath.Rel(ownerDir, moduleDir)
+	if err != nil || rel == "." || !filepath.IsLocal(rel) {
+		return nil
+	}
+	symlink, err := hugofs.IsSymlinkOrHasSymlinkParent(c.fs, ownerDir, moduleDir)
+	if err != nil {
+		return err
+	}
+	if symlink {
+		return fmt.Errorf("invalid module dir %q in %q: symlinks are not allowed", rel, owner.Path())
+	}
+	return nil
 }
 
 func (c *collector) addAndRecurse(owner *moduleAdapter) error {
@@ -630,6 +661,10 @@ func (c *collector) collectModulesTXT(owner Module) error {
 			return fmt.Errorf("invalid modules list: %q", filename)
 		}
 		path := parts[0]
+
+		if !filepath.IsLocal(path) {
+			return fmt.Errorf("invalid module path %q in %q: must be a local path relative to %q", path, filename, vendord)
+		}
 
 		shouldAdd := c.Client.moduleConfig.VendorClosest
 

@@ -884,11 +884,10 @@ func (c *Client) createThemeDirname(modulePath string, isProjectMod bool) (strin
 		return "", invalid
 	}
 
-	moduleDir := filepath.Join(c.ccfg.ThemesDir, modulePath)
-	if !isProjectMod && !strings.HasPrefix(moduleDir, c.ccfg.ThemesDir) {
+	if !isProjectMod && !filepath.IsLocal(modulePath) {
 		return "", invalid
 	}
-	return moduleDir, nil
+	return filepath.Join(c.ccfg.ThemesDir, modulePath), nil
 }
 
 // ClientConfig configures the module Client.

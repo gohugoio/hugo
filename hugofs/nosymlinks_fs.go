@@ -117,3 +117,9 @@ func (fs *DropSymlinksFs) Stat(name string) (os.FileInfo, error) {
 	}
 	return fi, nil
 }
+
+// IsSymlinkOrHasSymlinkParent reports whether name is a symlink or has a symlinked parent below base.
+// base itself is not checked.
+func IsSymlinkOrHasSymlinkParent(fs afero.Fs, base, name string) (bool, error) {
+	return newSymlinkChecker(fs).isSymlinkOrHasSymlinkParent(base, name)
+}

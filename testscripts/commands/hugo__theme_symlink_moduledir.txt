@@ -1,0 +1,16 @@
+# Theme imports a theme path inside itself that is a symlink.
+[windows] skip
+ln $WORK/secret site/themes/evil/link
+cd site
+! hugo
+stderr 'symlinks are not allowed'
+! exists public/index.html
+
+-- secret/layouts/home.html --
+FROMSECRET
+-- site/hugo.toml --
+theme = "evil"
+disableKinds = ["taxonomy","term","rss","sitemap","robotsTXT","page","section"]
+-- site/themes/evil/hugo.toml --
+[[module.imports]]
+path = "evil/link"
