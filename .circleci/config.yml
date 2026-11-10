@@ -3,7 +3,7 @@ parameters:
 defaults: &defaults
   resource_class: large
   docker:
-      - image: golang:1.27.3-bookworm
+      - image: golang:1.27.4-bookworm
 environment: &buildenv
       GOMODCACHE: /root/project/gomodcache
 version: 2.1
