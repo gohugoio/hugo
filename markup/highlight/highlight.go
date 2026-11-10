@@ -312,7 +312,7 @@ func (s startEnd) End(code bool) string {
 
 func writeDivStart(w hugio.FlexiWriter, attrs []attributes.Attribute, wrapperClass string) {
 	w.WriteString(`<div class="`)
-	w.WriteString(wrapperClass)
+	w.WriteString(gohtml.EscapeString(wrapperClass))
 	if attrs != nil {
 		for _, attr := range attrs {
 			if attr.Name == "class" {

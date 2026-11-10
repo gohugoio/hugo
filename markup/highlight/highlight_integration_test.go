@@ -246,3 +246,32 @@ aaa
 	b, err = hugolib.TestE(t, f)
 	b.Assert(err, qt.ErrorMatches, want)
 }
+
+func TestHighlightWrapperClassIsEscaped(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- content/_index.md --
+---
+title: home
+---
+{{< highlight go "wrapperClass=x\"><script>alert(1)</script>" >}}
+package main
+{{< /highlight >}}
+
+§§§go {wrapperClass="y\"><script>alert(2)</script>"}
+package main
+§§§
+-- layouts/home.html --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		`<div class="x&#34;&gt;&lt;script&gt;alert(1)&lt;/script&gt;"><pre`,
+		"! <script>",
+	)
+}
