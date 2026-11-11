@@ -67,6 +67,7 @@ func (p *pagesFromDataTemplateContext) toPathSitesMap(v any) (string, map[string
 	if err != nil {
 		return "", nil, nil, err
 	}
+	hmaps.PrepareParams(m)
 
 	path, err := cast.ToStringE(m["path"])
 	if err != nil {

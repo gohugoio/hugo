@@ -26,8 +26,6 @@ import (
 	"github.com/gohugoio/hugo/langs"
 
 	"github.com/gohugoio/hugo/common/hreflect"
-	"github.com/gohugoio/hugo/common/htime"
-	"github.com/gohugoio/hugo/common/types"
 )
 
 // New returns a new instance of the compare-namespaced template functions.
@@ -103,63 +101,7 @@ func (n *Namespace) Eq(first any, others ...any) bool {
 		panic("caseInsensitive not implemented for Eq")
 	}
 	n.checkComparisonArgCount(1, others...)
-	normalize := func(v any) any {
-		if types.IsNil(v) {
-			return nil
-		}
-		if at, ok := v.(htime.AsTimeProvider); ok {
-			return at.AsTime(n.loc)
-		}
-		return v
-	}
-
-	normFirst := normalize(first)
-	fv := reflect.ValueOf(normFirst)
-	for _, other := range others {
-		if e, ok := first.(compare.Eqer); ok {
-			if e.Eq(other) {
-				return true
-			}
-			continue
-		}
-
-		if e, ok := other.(compare.Eqer); ok {
-			if e.Eq(first) {
-				return true
-			}
-			continue
-		}
-
-		other = normalize(other)
-		if normFirst == nil || other == nil {
-			if normFirst == other {
-				return true
-			}
-			continue
-		}
-
-		ov := reflect.ValueOf(other)
-
-		if fv.Kind() == reflect.String && ov.Kind() == reflect.String {
-			if fv.String() == ov.String() {
-				return true
-			}
-			continue
-		}
-
-		if c, ok := hreflect.CompareNumbers(fv, ov); ok {
-			if c == 0 {
-				return true
-			}
-			continue
-		}
-
-		if reflect.DeepEqual(normFirst, other) {
-			return true
-		}
-	}
-
-	return false
+	return compare.EqInLocation(n.loc, first, others...)
 }
 
 // Ne returns the boolean truth of arg1 != arg2 && arg1 != arg3 && arg1 != arg4.
