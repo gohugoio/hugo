@@ -64,7 +64,7 @@ require (
 	github.com/spf13/cast v1.10.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/fsync v0.10.2
-	github.com/spf13/pflag v1.0.10
+	github.com/spf13/pflag v1.1.0
 	github.com/tdewolff/minify/v2 v2.24.25
 	github.com/tdewolff/parse/v2 v2.8.20
 	github.com/tetratelabs/wazero v1.12.0
