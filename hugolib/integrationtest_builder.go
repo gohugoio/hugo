@@ -1024,11 +1024,6 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		s.fs = fs
 
 		if s.Cfg.NeedsNpmInstall || len(s.Cfg.NeedsNpmGlobalInstall) > 0 {
-			if s.Cfg.NeedsNpmInstall {
-				wd, _ := os.Getwd()
-				s.Assert(os.Chdir(s.Cfg.WorkingDir), qt.IsNil)
-				s.C.Cleanup(func() { os.Chdir(wd) })
-			}
 			sc := security.DefaultConfig
 			sc.Exec.Allow, err = security.NewWhitelist("npm")
 			s.Assert(err, qt.IsNil)
@@ -1050,7 +1045,7 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 					}
 				})
 			} else {
-				command, err := ex.New("npm", "install")
+				command, err := ex.New("npm", "install", hexec.WithDir(s.Cfg.WorkingDir))
 				s.Assert(err, qt.IsNil)
 				s.Assert(command.Run(), qt.IsNil)
 			}
