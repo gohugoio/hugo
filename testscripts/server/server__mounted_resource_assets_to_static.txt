@@ -1,0 +1,46 @@
+# See issue 7740.
+
+hugo server --disableFastRender &
+waitServer
+
+httpget $HUGOTEST_BASEURL_0 'main\.9767e91e9d4b0334e59a1d389e9801bc6a2c5c4a5500a3c2c7915687965b2c16\.css'
+httpget ${HUGOTEST_BASEURL_0}css/main.css 'color: red'
+httpget ${HUGOTEST_BASEURL_0}css/main.9767e91e9d4b0334e59a1d389e9801bc6a2c5c4a5500a3c2c7915687965b2c16.css 'color: red'
+
+replace assets/css/main.css 'red' 'green'
+
+httpget $HUGOTEST_BASEURL_0 'main\.84f7f463a20e81e01b68cdde010eb5fffccfea5d6e386a7dfd99cb31302d0c27\.css'
+httpget ${HUGOTEST_BASEURL_0}css/main.css 'color: green'
+httpget ${HUGOTEST_BASEURL_0}css/main.84f7f463a20e81e01b68cdde010eb5fffccfea5d6e386a7dfd99cb31302d0c27.css 'color: green'
+
+rm assets/css/main.css
+
+httpget $HUGOTEST_BASEURL_0 'No stylesheet'
+! exists public/css/main.css
+
+stopServer
+! stderr .
+
+-- hugo.toml --
+baseURL = 'https://example.org/'
+disableKinds = ['rss', 'sitemap', 'taxonomy', 'term']
+[[module.mounts]]
+source = 'static'
+target = 'static'
+[[module.mounts]]
+source = 'assets'
+target = 'assets'
+[[module.mounts]]
+source = 'assets/css'
+target = 'static/css'
+-- layouts/home.html --
+<!doctype html>
+<html><head>
+{{ with resources.Get "css/main.css" }}
+  {{ with . | fingerprint }}
+    <link rel="stylesheet" href="{{ .RelPermalink }}">
+  {{ end }}
+{{ else }}No stylesheet{{ end }}
+</head><body>Home</body></html>
+-- assets/css/main.css --
+body { color: red; }

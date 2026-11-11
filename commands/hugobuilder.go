@@ -965,9 +965,11 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 			})
 		}
 
-		if staticSyncer.isStatic(h, ev.Name) {
+		isStatic := staticSyncer.isStatic(h, ev.Name)
+		if isStatic {
 			staticEvents = append(staticEvents, ev)
-		} else {
+		}
+		if !isStatic || h.BaseFs.Assets.Contains(ev.Name) {
 			dynamicEvents = append(dynamicEvents, ev)
 		}
 	}
