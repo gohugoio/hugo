@@ -797,6 +797,61 @@ Output format: foo|Title: {{ .Title }}
 	`)
 }
 
+// With uglyURLs enabled the home page's Link ends in index.html, so
+// renderDefaultSiteRedirect computed its redirect paths from a file name
+// instead of a directory. With defaultContentLanguageInSubdir the site root
+// redirect was then written into the default language home page, clobbering its
+// content; without it the /en => / redirect was written to a bogus
+// /index.htmlen/ path.
+// See issue 14576.
+func TestDefaultSiteRedirectWithUglyURLs(t *testing.T) {
+	t.Parallel()
+
+	filesSubdir := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+uglyURLs = true
+disableKinds = ["RSS", "sitemap", "taxonomy", "term"]
+[languages.en]
+weight = 1
+[languages.fr]
+weight = 2
+-- content/_index.en.md --
+---
+title: Home EN
+---
+-- content/_index.fr.md --
+---
+title: Home FR
+---
+-- layouts/home.html --
+Home|{{ .Language.Lang }}|{{ .Title }}
+`
+
+	b := Test(t, filesSubdir)
+
+	// The default language home keeps its content and is not a redirect to itself.
+	b.AssertFileContent("public/en/index.html", "Home|en|Home EN", `! <meta http-equiv="refresh"`)
+	b.AssertFileContent("public/fr/index.html", "Home|fr|Home FR")
+	// The site root redirects to the default language home.
+	b.AssertFileContent("public/index.html", `<meta http-equiv="refresh" content="0; url=https://example.org/en/index.html">`)
+
+	// Same, but with the default language at the root.
+	filesRoot := strings.Replace(filesSubdir, "defaultContentLanguageInSubdir = true\n", "", 1)
+
+	b = Test(t, filesRoot)
+
+	// The default language home lives at the root and keeps its content.
+	b.AssertFileContent("public/index.html", "Home|en|Home EN", `! <meta http-equiv="refresh"`)
+	b.AssertFileContent("public/fr/index.html", "Home|fr|Home FR")
+	// The /en/ redirect points back to the default language home, not to a
+	// bogus /index.htmlen/ path.
+	b.AssertFileContent("public/en/index.html", `<meta http-equiv="refresh" content="0; url=https://example.org/index.html">`)
+	b.AssertFileExists("public/index.htmlen/index.html", false)
+}
+
 // Issue 14807
 func TestDoNotRenderAliasesIfPageNotRendered14807(t *testing.T) {
 	t.Parallel()
