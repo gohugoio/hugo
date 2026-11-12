@@ -154,6 +154,15 @@ func (n *Namespace) Eq(first any, others ...any) bool {
 			continue
 		}
 
+		if ft, ok := normFirst.(time.Time); ok {
+			if ot, ok := other.(time.Time); ok {
+				if ft.Equal(ot) {
+					return true
+				}
+				continue
+			}
+		}
+
 		if reflect.DeepEqual(normFirst, other) {
 			return true
 		}

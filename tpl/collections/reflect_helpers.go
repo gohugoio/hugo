@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"time"
 
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hreflect"
@@ -49,6 +50,9 @@ func normalize(v reflect.Value) any {
 	}
 
 	vv := types.Unwrapv(v.Interface())
+	if t, ok := vv.(time.Time); ok {
+		return t.Round(0).UTC()
+	}
 	if ip, ok := vv.(resource.TransientIdentifier); ok {
 		return ip.TransientKey()
 	}
