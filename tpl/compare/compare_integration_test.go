@@ -47,6 +47,29 @@ ge: {{ ge 1 1.0 }}|{{ ge 1 1.5 }}
 	)
 }
 
+// See issue 15577.
+func TestEqTimeDifferentLocations(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/home.html --
+{{ $utc := time.AsTime "2023-07-19T17:42:36Z" }}
+{{ $tokyo := $utc | time.In "Asia/Tokyo" }}
+{{ $later := $utc.Add 1 }}
+eq: {{ eq $utc $tokyo }}|{{ eq $tokyo $utc }}|{{ eq $utc $later }}|{{ eq $utc $later $tokyo }}
+ne: {{ ne $utc $tokyo }}|{{ ne $utc $later }}
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent(
+		"public/index.html",
+		"eq: true|true|false|true",
+		"ne: false|true",
+	)
+}
+
 func BenchmarkCompare(b *testing.B) {
 	files := `
 -- hugo.toml --
