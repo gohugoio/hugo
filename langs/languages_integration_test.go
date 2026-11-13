@@ -402,8 +402,10 @@ onlyen = "Only English"
 -- i18n/de.toml --
 hello = "Hallo"
 -- layouts/home.html --
-{{ range site.Languages -}}
+{{ range hugo.Sites -}}
+{{ with .Language -}}
 {{ .Lang }}: {{ .Translate "hello" }}|{{ .Translate "onlyen" }}|{{ .FormatNumber 2 1234.5 }}|{{ .FormatPercent 1 12.3 }}|{{ .FormatCurrency 2 "EUR" 12.3 }}|{{ .FormatAccounting 2 "EUR" -12.3 }}|
+{{ end -}}
 {{ end -}}
 site: {{ site.Language.Translate "hello" }}|
 `

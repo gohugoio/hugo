@@ -66,9 +66,9 @@ func TestMergeLanguages(t *testing.T) {
 		c.Assert(p.Language().Lang, qt.Equals, expectedLang)
 	}
 
-	firstNN := nnSite.RegularPages()[0]
-	c.Assert(len(firstNN.Sites()), qt.Equals, 4)
-	c.Assert(firstNN.Sites().Default().Language().Lang, qt.Equals, "en")
+	sites := hugoSitesSitesProvider{h: b.H}.Sites()
+	c.Assert(len(sites), qt.Equals, 4)
+	c.Assert(sites.Default().Language().Lang, qt.Equals, "en")
 
 	nnBundle := nnSite.getPageOldVersion("page", "bundle")
 	enBundle := enSite.getPageOldVersion("page", "bundle")
@@ -94,8 +94,8 @@ func TestMergeLanguagesTemplate(t *testing.T) {
 -- layouts/home.html --
 {{ $pages := .Site.RegularPages }}
 {{ .Scratch.Set "pages" $pages }}
-{{ $enSite := index .Sites 0 }}
-{{ $frSite := index .Sites 1 }}
+{{ $enSite := index hugo.Sites 0 }}
+{{ $frSite := index hugo.Sites 1 }}
 {{ if eq .Language.Lang "nn" }}:
 {{ $nnBundle := .Site.GetPage "page" "bundle" }}
 {{ $enBundle := $enSite.GetPage "page" "bundle" }}

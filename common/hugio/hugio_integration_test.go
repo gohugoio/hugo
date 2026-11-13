@@ -46,7 +46,7 @@ Unmarshal resource to map: {{ resources.Get "myyaml.yaml" | transform.Unmarshal 
 Unmarshal resource.Content to map: {{ (resources.Get "myyaml.yaml").Content | transform.Unmarshal }}|
 {{ $myyamlFronOsReadFile := os.ReadFile "assets/myyaml.yaml" }}
 Unmarshal os.ReadFile result to map: {{ $myyamlFronOsReadFile | transform.Unmarshal }}|
-Data: {{ .Site.Data.mydata.foo }}|
+Data: {{ hugo.Data.mydata.foo }}|
 I18n: {{ i18n "hello" }}|
 CSS1: {{ resources.Get "mycss.css" | minify | resources.Publish }}|
 CSS2: {{ resources.Get "mycss.css" | css.Build | resources.Publish }}|
