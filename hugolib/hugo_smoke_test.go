@@ -393,7 +393,8 @@ Len home.RegularPagesRecursive: {{ len .RegularPagesRecursive }}|
 RegularPagesRecursive: {{ range .RegularPagesRecursive }}{{ .RelPermalink }}|{{ end }}@
 Len site.RegularPages: {{ len site.RegularPages }}|
 Len site.Pages: {{ len site.Pages }}|
-Len site.AllPages: {{ len site.AllPages }}|
+{{ $allPages := 0 }}{{ range hugo.Sites }}{{ $allPages = add $allPages (len .Pages) }}{{ end -}}
+Len all pages: {{ $allPages }}|
 GetPage: {{ with .Site.GetPage "posts/p1" }}{{ .RelPermalink }}|{{ .Title }}{{ end }}|
 RenderString with shortcode: {{ .RenderString "{{% hello %}}" }}|
 Paginate: {{ .Paginator.PageNumber }}/{{ .Paginator.TotalPages }}|
@@ -514,7 +515,7 @@ Content Tag 1.
 		"Len home.RegularPagesRecursive: 2|",
 		"Len site.RegularPages: 2|",
 		"Len site.Pages: 8|",
-		"Len site.AllPages: 16|",
+		"Len all pages: 16|",
 		"GetPage: /en/posts/p1/|Post 1|",
 		"RenderString with shortcode: Hello.|",
 		"Paginate: 1/2|",

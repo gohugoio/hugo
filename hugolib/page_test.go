@@ -1922,7 +1922,7 @@ title: "p2"
 
 	p1 := b.H.Sites[0].RegularPages()[0]
 	p2 := b.H.Sites[0].RegularPages()[1]
-	sites := p1.Sites()
+	sites := hugoSitesSitesProvider{h: b.H}.Sites()
 
 	b.Assert(p1, qt.Not(qt.Equals), p2)
 

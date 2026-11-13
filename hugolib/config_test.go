@@ -836,7 +836,7 @@ title: "My Swedish Section"
 -- layouts/home.html --
 LanguageCode: {{ eq site.LanguageCode site.Language.LanguageCode }}|{{ site.Language.LanguageCode }}|
 {{ range $i, $e := (slice site .Site) }}
-{{ $i }}|AllPages: {{ len .AllPages }}|Sections: {{ if .Sections }}true{{ end }}|BuildDrafts: {{ .BuildDrafts }}|Param: {{ .Language.Params.myparam }}|Language string: {{ .Language }}|Languages: {{ .Languages }}
+{{ $i }}|Pages: {{ len .Pages }}|Sections: {{ if .Sections }}true{{ end }}|Param: {{ .Language.Params.myparam }}|Language string: {{ .Language }}|
 {{ end }}
 
 `
@@ -845,7 +845,8 @@ LanguageCode: {{ eq site.LanguageCode site.Language.LanguageCode }}|{{ site.Lang
 	b.Assert(b.H.Log.LoggCount(logg.LevelWarn), qt.Equals, 1)
 
 	b.AssertFileContent("public/index.html", `
-AllPages: 4|
+0|Pages: 2|
+1|Pages: 2|
 Sections: true|
 Param: enParamValue
 Param: enParamValue
