@@ -338,7 +338,14 @@ func (s *Site) renderDefaultSiteRedirect(home *pageState) error {
 	addRedirectInRoot := s.conf.DefaultContentLanguageInSubdir && !s.Conf.IsMultihost()
 	addRedirectInRoot = addRedirectInRoot || s.conf.DefaultContentVersionInSubdir || s.conf.DefaultContentRoleInSubdir
 
-	homeLink := home.pageOutput.targetPaths().Link // This doesn't have any baseURL paths in it.
+	// Use the home's directory link, not Link, which with uglyURLs ends in
+	// index.html and would make the redirect paths below point at a file name
+	// (e.g. clobbering the home page or writing to /index.htmlen/).
+	// This doesn't have any baseURL paths in it.
+	homeLink := home.pageOutput.targetPaths().SubResourceBaseLink
+	if !strings.HasSuffix(homeLink, "/") {
+		homeLink += "/"
+	}
 
 	of := home.outputFormat()
 	homePermalink := home.Permalink()
