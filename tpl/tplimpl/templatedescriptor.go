@@ -72,6 +72,17 @@ func (s descriptorHandler) compareDescriptors(category Category, this, other Tem
 		return weightNoMatch
 	}
 
+	if category == CategoryBaseof && other.OutputFormat == "" && other.MediaType != this.MediaType && s.mediaTypesShareSuffix(this.MediaType, other.MediaType) {
+		// A baseof template without an explicit output format identifier (e.g.
+		// layouts/baseof.xml) has its media type resolved to whichever output
+		// format claims the shared file suffix first, e.g. application/atom when
+		// a custom Atom format and the built-in RSS format both use the "xml"
+		// suffix. It must still serve every output format sharing that suffix,
+		// not only the one it happened to resolve to, or e.g. the RSS home page
+		// renders without its base template. See issue #15590.
+		other.MediaType = this.MediaType
+	}
+
 	w := this.doCompare(category, other, sitesMatrixThis, sitesMatrixOther)
 
 	if w.w1 <= 0 {
@@ -105,6 +116,25 @@ func (s descriptorHandler) compareDescriptors(category Category, this, other Tem
 	}
 
 	return w
+}
+
+// mediaTypesShareSuffix reports whether the two media types share at least one
+// file suffix, e.g. application/rss+xml and a custom application/atom type both
+// claiming "xml".
+func (s descriptorHandler) mediaTypesShareSuffix(mt1, mt2 string) bool {
+	t1, ok1 := s.opts.MediaTypes.GetByType(mt1)
+	t2, ok2 := s.opts.MediaTypes.GetByType(mt2)
+	if !ok1 || !ok2 {
+		return false
+	}
+	for _, s1 := range t1.Suffixes() {
+		for _, s2 := range t2.Suffixes() {
+			if strings.EqualFold(s1, s2) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 //lint:ignore ST1006 this vs other makes it easier to reason about.
