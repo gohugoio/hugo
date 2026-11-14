@@ -26,6 +26,7 @@ import (
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/config"
 
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/afero"
 )
@@ -214,7 +215,7 @@ func DecodeConfig(fs afero.Fs, bcfg config.BaseConfig, m map[string]any) (Config
 		valid[k] = true
 	}
 
-	_, isOsFs := fs.(*afero.OsFs)
+	isOsFs := hugofs.IsOsFs(fs)
 
 	for k, v := range m {
 		if _, ok := v.(hmaps.Params); !ok {
