@@ -1670,3 +1670,81 @@ sc.calendar.ics
 	b.AssertFileContent("public/p1/index.ics", "sc.calendar.ics")
 	b.AssertFileContent("public/p1/index.json", "sc.html", "! sc.calendar.ics") // fail
 }
+
+// Issue 15590.
+func TestBaseofBySuffixWithMultipleOutputFormatsSharingSuffix(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.com'
+disableKinds = ['taxonomy', 'term', 'page', 'sitemap', 'robotsTXT']
+[mediatypes.'application/atom+xml']
+suffixes = ['xml']
+[outputformats.atom]
+basename = 'atom'
+mediatype = 'application/atom+xml'
+name = 'atom'
+[outputformats.rss]
+basename = 'rss'
+mediatype = 'application/rss+xml'
+name = 'rss'
+[outputs]
+home = ['atom', 'rss']
+-- content/_index.md --
++++
+title = "Home"
++++
+-- layouts/baseof.xml --
+{{ block "main" . }}{{ end }}
+-- layouts/list.atom.xml --
+{{ define "main" }}ATOM{{ end }}
+-- layouts/list.rss.xml --
+{{ define "main" }}RSS{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/atom.xml", "ATOM")
+	b.AssertFileContent("public/rss.xml", "RSS")
+}
+
+// Issue 15590.
+func TestBaseofBySuffixPrefersTheOutputFormatSpecificBaseof(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.com'
+disableKinds = ['taxonomy', 'term', 'page', 'sitemap', 'robotsTXT']
+[mediatypes.'application/atom+xml']
+suffixes = ['xml']
+[outputformats.atom]
+basename = 'atom'
+mediatype = 'application/atom+xml'
+name = 'atom'
+[outputformats.rss]
+basename = 'rss'
+mediatype = 'application/rss+xml'
+name = 'rss'
+[outputs]
+home = ['atom', 'rss']
+-- content/_index.md --
++++
+title = "Home"
++++
+-- layouts/baseof.xml --
+SuffixOnlyBaseof: {{ block "main" . }}{{ end }}
+-- layouts/baseof.rss.xml --
+RSSBaseof: {{ block "main" . }}{{ end }}
+-- layouts/list.atom.xml --
+{{ define "main" }}ATOM{{ end }}
+-- layouts/list.rss.xml --
+{{ define "main" }}RSS{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/atom.xml", "SuffixOnlyBaseof:", "ATOM")
+	b.AssertFileContent("public/rss.xml", "RSSBaseof:", "! SuffixOnlyBaseof:", "RSS")
+}

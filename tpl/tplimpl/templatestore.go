@@ -1894,6 +1894,13 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path, fi hugofs.File
 		k1 = p.PathNoIdentifier()
 	}
 
+	if category == CategoryBaseof && d.OutputFormat == "" && p.Ext() != "" {
+		// A baseof template named by suffix only, e.g. baseof.xml, applies to
+		// all output formats using that suffix. More than one format may share
+		// it, in which case the media type cannot be resolved to a single type.
+		d.MediaTypeSuffix = p.Ext()
+	}
+
 	if category == CategoryShortcode {
 		k1 = p.PathNoIdentifier()
 
