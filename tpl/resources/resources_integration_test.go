@@ -114,6 +114,33 @@ Empty string not found
 		`)
 }
 
+// See issue 10736.
+func TestGetMatchURLDoesNotPanic(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+-- layouts/home.html --
+GetURL: {{ with resources.Get "https://picsum.photos/400/300.webp" }}FAIL{{ else }}ok{{ end }}
+GetMatchURL: {{ with resources.GetMatch "https://picsum.photos/400/300.webp" }}FAIL{{ else }}ok{{ end }}
+GetColon: {{ with resources.Get ":" }}FAIL{{ else }}ok{{ end }}
+GetMatchColon: {{ with resources.GetMatch ":/a" }}FAIL{{ else }}ok{{ end }}
+GetMatchDrive: {{ with resources.GetMatch "a:/a" }}FAIL{{ else }}ok{{ end }}
+MatchURL: {{ len (resources.Match "https://example.com/*.png") }}
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html",
+		"GetURL: ok",
+		"GetMatchURL: ok",
+		"GetColon: ok",
+		"GetMatchColon: ok",
+		"GetMatchDrive: ok",
+		"MatchURL: 0",
+	)
+}
+
 func TestResourcesGettersShouldNotNormalizePermalinks(t *testing.T) {
 	t.Parallel()
 

@@ -246,6 +246,9 @@ func (c *Client) Copy(r resource.Resource, targetPath string) (resource.Resource
 // Get creates a new Resource by opening the given pathname in the assets filesystem.
 func (c *Client) Get(pathname string) (resource.Resource, error) {
 	pathname = path.Clean(pathname)
+	if !isAssetLookupPath(pathname) {
+		return nil, nil
+	}
 	key := dynacache.CleanKey(pathname) + "__get"
 
 	return c.rs.ResourceCache.GetOrCreate(key, func() (resource.Resource, error) {
@@ -254,10 +257,9 @@ func (c *Client) Get(pathname string) (resource.Resource, error) {
 		filename := filepath.FromSlash(pathname)
 		fi, err := c.rs.BaseFs.Assets.Fs.Stat(filename)
 		if err != nil {
-			if os.IsNotExist(err) {
+			if isMissingAsset(err) {
 				return nil, nil
 			}
-			// A real error.
 			return nil, err
 		}
 
@@ -306,6 +308,9 @@ func (c *Client) getOrCreateFileResource(info hugofs.FileMetaInfo) (resource.Res
 
 func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource) bool, firstOnly bool) (resource.Resources, error) {
 	pattern = hglob.NormalizePath(pattern)
+	if !isAssetLookupPath(pattern) {
+		return nil, nil
+	}
 	partitions := hglob.FilterGlobParts(strings.Split(pattern, "/"))
 	key := path.Join(name, path.Join(partitions...))
 	key = path.Join(key, pattern)
@@ -329,11 +334,32 @@ func (c *Client) match(name, pattern string, matchFunc func(r resource.Resource)
 		}
 
 		if err := hugofs.Glob(c.rs.BaseFs.Assets.Fs, pattern, handle); err != nil {
+			if isMissingAsset(err) {
+				return nil, nil
+			}
 			return nil, err
 		}
 
 		return res, nil
 	})
+}
+
+func isAssetLookupPath(p string) bool {
+	return p != "" && !strings.Contains(p, ":")
+}
+
+func isMissingAsset(err error) bool {
+	if err == nil {
+		return false
+	}
+	if os.IsNotExist(err) {
+		return true
+	}
+	if os.IsPermission(err) {
+		return false
+	}
+	var pe *os.PathError
+	return errors.As(err, &pe)
 }
 
 type Options struct {
