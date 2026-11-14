@@ -31,6 +31,29 @@ var (
 	errorType = reflect.TypeFor[error]()
 )
 
+// sliceTypeOf returns t as a slice type, so that the result of a function can be
+// built from a fixed-length array argument.
+func sliceTypeOf(t reflect.Type) reflect.Type {
+	if t.Kind() == reflect.Array {
+		return reflect.SliceOf(t.Elem())
+	}
+	return t
+}
+
+// asSlice returns v unchanged unless it is a fixed-length array, which is copied
+// into a new slice. An array that arrives through a template is usually
+// unaddressable, and reflect.Value.Slice panics on those.
+func asSlice(v reflect.Value) reflect.Value {
+	if v.Kind() != reflect.Array {
+		return v
+	}
+
+	s := reflect.MakeSlice(sliceTypeOf(v.Type()), v.Len(), v.Len())
+	reflect.Copy(s, v)
+
+	return s
+}
+
 // normalizes different numeric types if isNumber
 // or get the hash values if not Comparable (such as map or struct)
 // to make them comparable
