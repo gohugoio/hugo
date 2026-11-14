@@ -306,9 +306,36 @@ func (df DirFile) String() string {
 func PathEscape(pth string) string {
 	u, err := url.Parse(pth)
 	if err != nil {
-		panic(err)
+		// url.Parse rejects malformed percent escapes. They are valid literal
+		// characters in filesystem paths, so escape only those percent signs and
+		// retry. Valid escapes must remain unchanged to keep this operation
+		// idempotent.
+		pth = escapeInvalidPercentEscapes(pth)
+		u, err = url.Parse(pth)
+		if err != nil {
+			panic(err)
+		}
 	}
 	return u.EscapedPath()
+}
+
+func escapeInvalidPercentEscapes(s string) string {
+	var b strings.Builder
+	for i := 0; i < len(s); i++ {
+		if s[i] != '%' {
+			b.WriteByte(s[i])
+			continue
+		}
+
+		if i+2 < len(s) && ishex(s[i+1]) && ishex(s[i+2]) {
+			b.WriteString(s[i : i+3])
+			i += 2
+			continue
+		}
+
+		b.WriteString("%25")
+	}
+	return b.String()
 }
 
 // ToSlashTrimLeading is just a filepath.ToSlash with an added / prefix trimmer.
