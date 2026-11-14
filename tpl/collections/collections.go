@@ -339,7 +339,7 @@ func (ns *Namespace) IsSet(c any, key any) (bool, error) {
 		if err != nil {
 			return false, fmt.Errorf("isset unable to use key of type %T as index", key)
 		}
-		if av.Len() > k {
+		if k >= 0 && k < av.Len() {
 			return true, nil
 		}
 	case reflect.Map:
