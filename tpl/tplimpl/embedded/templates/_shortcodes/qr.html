@@ -4,6 +4,8 @@ Encodes the given text into a QR code using the specified options and renders th
 @param {string} text The text to encode, falling back to the text between the opening and closing shortcode tags.
 @param {string} [level=medium] The error correction level to use when encoding the text, one of low, medium, quartile, or high.
 @param {int} [scale=4] The number of image pixels per QR code module. Must be greater than or equal to 2.
+@param {string} [fgColor=#000000] The foreground color of the image as a hex color, e.g. #000080.
+@param {string} [bgColor=#ffffff] The background color of the image as a hex color, e.g. #ffff00 or #ffffff00 for a transparent background.
 @param {string} [targetDir] The subdirectory within the publishDir where Hugo will place the generated image.
 @param {string} [alt] The alt attribute of the img element.
 @param {string} [class] The class attribute of the img element.
@@ -25,6 +27,8 @@ Encodes the given text into a QR code using the specified options and renders th
     text="https://gohugo.io"
     level="high"
     scale=4
+    fgColor="#000080"
+    bgColor="#ffffff00"
     targetDir="codes"
     alt="QR code linking to https://gohugo.io"
     class="my-class"
@@ -42,6 +46,8 @@ Encodes the given text into a QR code using the specified options and renders th
 {{- $text := or (.Get "text") (strings.TrimSpace .Inner) "" }}
 {{- $level := or (.Get "level") "medium" }}
 {{- $scale := or (.Get "scale") 4 }}
+{{- $fgColor := or (.Get "fgColor") "" }}
+{{- $bgColor := or (.Get "bgColor") "" }}
 {{- $targetDir := or (.Get "targetDir") "" }}
 {{- $alt := or (.Get "alt") "" }}
 {{- $class := or (.Get "class") "" }}
@@ -66,7 +72,7 @@ Encodes the given text into a QR code using the specified options and renders th
 
 {{- /* Render image. */}}
 {{- if not $errors }}
-	{{- $opts := dict "level" $level "scale" $scale "targetDir" $targetDir }}
+	{{- $opts := dict "level" $level "scale" $scale "targetDir" $targetDir "fgColor" $fgColor "bgColor" $bgColor }}
 	{{- with images.QR $text $opts -}}
 		<img src="{{ .RelPermalink }}" width="{{ .Width }}" height="{{ .Height }}"
 			{{- with $alt }} alt="{{ $alt }}" {{- end }}

@@ -300,13 +300,19 @@ title: home
 {{< qr >}}
 https://gohugo.io"
 {{< /qr >}}
+
+{{< qr text="https://gohugo.io" bgColor="#ffffff00" />}}
+
+{{< qr text="https://gohugo.io" fgColor="#000080" bgColor="#ffffff00" />}}
 `
 
 	b := hugolib.Test(t, files)
 
 	b.AssertFileContent("public/index.html",
-		`<img src="/codes/qr_be5d263c2671bcbd.png" width="148" height="148" alt="QR code linking to https://gohugo.io" class="my-class" id="my-id" title="My Title">`,
-		`<img src="/qr_472aab57ec7a6e3d.png" width="132" height="132">`,
+		`<img src="/codes/qr_217b79ded2a46bfc.png" width="148" height="148" alt="QR code linking to https://gohugo.io" class="my-class" id="my-id" title="My Title">`,
+		`<img src="/qr_9a4e650f45152086.png" width="132" height="132">`,
+		`<img src="/qr_3ecfd7dbbd40fa2.png" width="132" height="132">`,
+		`<img src="/qr_30c639d4c1717d9.png" width="132" height="132">`,
 	)
 }
 

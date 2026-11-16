@@ -42,6 +42,7 @@ require (
 	github.com/gohugoio/httpcache v0.9.0
 	github.com/gohugoio/hugo-goldmark-extensions/extras v0.7.0
 	github.com/gohugoio/hugo-goldmark-extensions/passthrough v0.6.0
+	github.com/gohugoio/qr v0.1.0
 	github.com/google/go-cmp v0.7.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/hairyhenderson/go-codeowners v0.7.0
@@ -79,7 +80,6 @@ require (
 	golang.org/x/text v0.44.0
 	golang.org/x/tools v0.52.0
 	google.golang.org/api v0.276.0
-	rsc.io/qr v0.2.0
 )
 
 require (

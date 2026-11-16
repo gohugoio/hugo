@@ -70,10 +70,14 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
     (dict "level" "quartile" "scale" 5)
     (dict "level" "high" "scale" 6)
     (dict "level" "high" "scale" 6 "targetDir" "foo/bar")
+    (dict "bgColor" "")
+    (dict "bgColor" "#ffffff00")
+    (dict "fgColor" "#000080")
+    (dict "fgColor" "#000080" "bgColor" "#ffffff00")
 }}
 {{- range $k, $opts := $optionMaps }}
     {{- with images.QR $text $opts }}
-<img data-id="{{ $k }}" data-img-hash="{{ .Content | hash.XxHash }}" data-level="{{ $opts.level }}" data-scale="{{ $opts.scale }}" data-targetDir="{{ $opts.targetDir }}" src="{{ .RelPermalink }}">
+<img data-id="{{ $k }}" data-img-hash="{{ .Content | hash.XxHash }}" data-level="{{ $opts.level }}" data-scale="{{ $opts.scale }}" data-targetDir="{{ $opts.targetDir }}" data-fgColor="{{ $opts.fgColor }}" data-bgColor="{{ $opts.bgColor }}" src="{{ .RelPermalink }}">
     {{- end }}
 {{- end }}
 `
@@ -81,14 +85,18 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 	b := hugolib.Test(t, files)
 	b.AssertFileContent(
 		"public/index.html",
-		`<img data-id="0" data-img-hash="6ccacf8056c41475" data-level="" data-scale="" data-targetDir="" src="/qr_924bf7d80a564b23.png">`,
-		`<img data-id="1" data-img-hash="6ccacf8056c41475" data-level="medium" data-scale="" data-targetDir="" src="/qr_924bf7d80a564b23.png">`,
-		`<img data-id="2" data-img-hash="6ccacf8056c41475" data-level="medium" data-scale="4" data-targetDir="" src="/qr_924bf7d80a564b23.png">`,
-		`<img data-id="3" data-img-hash="c29338c3d105b156" data-level="low" data-scale="2" data-targetDir="" src="/qr_9bf1ce25c5f2c058.png">`,
-		`<img data-id="4" data-img-hash="8f7a639cea917b0e" data-level="medium" data-scale="3" data-targetDir="" src="/qr_7af14b329dd10af7.png">`,
-		`<img data-id="5" data-img-hash="2d15d6dcb861b5da" data-level="quartile" data-scale="5" data-targetDir="" src="/qr_9600ecb2010c2185.png">`,
-		`<img data-id="6" data-img-hash="113c45f2c091bc4d" data-level="high" data-scale="6" data-targetDir="" src="/qr_bdc74ee7f5c11cc6.png">`,
-		`<img data-id="7" data-img-hash="113c45f2c091bc4d" data-level="high" data-scale="6" data-targetDir="foo/bar" src="/foo/bar/qr_14162f02f2b83fff.png">`,
+		`<img data-id="0" data-img-hash="6ccacf8056c41475" data-level="" data-scale="" data-targetDir="" data-fgColor="" data-bgColor="" src="/qr_f743b395352b685.png">`,
+		`<img data-id="1" data-img-hash="6ccacf8056c41475" data-level="medium" data-scale="" data-targetDir="" data-fgColor="" data-bgColor="" src="/qr_43fef82f8b8a7529.png">`,
+		`<img data-id="2" data-img-hash="6ccacf8056c41475" data-level="medium" data-scale="4" data-targetDir="" data-fgColor="" data-bgColor="" src="/qr_68f7a19c2d9a2c96.png">`,
+		`<img data-id="3" data-img-hash="c29338c3d105b156" data-level="low" data-scale="2" data-targetDir="" data-fgColor="" data-bgColor="" src="/qr_af88a986bc8dab16.png">`,
+		`<img data-id="4" data-img-hash="8f7a639cea917b0e" data-level="medium" data-scale="3" data-targetDir="" data-fgColor="" data-bgColor="" src="/qr_4330469b6d489687.png">`,
+		`<img data-id="5" data-img-hash="2d15d6dcb861b5da" data-level="quartile" data-scale="5" data-targetDir="" data-fgColor="" data-bgColor="" src="/qr_b99aad6d77809ef5.png">`,
+		`<img data-id="6" data-img-hash="113c45f2c091bc4d" data-level="high" data-scale="6" data-targetDir="" data-fgColor="" data-bgColor="" src="/qr_10ac11cf56b5f005.png">`,
+		`<img data-id="7" data-img-hash="113c45f2c091bc4d" data-level="high" data-scale="6" data-targetDir="foo/bar" data-fgColor="" data-bgColor="" src="/foo/bar/qr_b0b693968a7b6004.png">`,
+		`<img data-id="8" data-img-hash="6ccacf8056c41475" data-level="" data-scale="" data-targetDir="" data-fgColor="" data-bgColor="" src="/qr_b18b303169857ee6.png">`,
+		`<img data-id="9" data-img-hash="3d79c39776c41c73" data-level="" data-scale="" data-targetDir="" data-fgColor="" data-bgColor="#ffffff00" src="/qr_162cd678732f8c4a.png">`,
+		`<img data-id="10" data-img-hash="3545d2324ee722c7" data-level="" data-scale="" data-targetDir="" data-fgColor="#000080" data-bgColor="" src="/qr_df0d8e76450bf32d.png">`,
+		`<img data-id="11" data-img-hash="4771511a806b1183" data-level="" data-scale="" data-targetDir="" data-fgColor="#000080" data-bgColor="#ffffff00" src="/qr_7d2e79585cd932f.png">`,
 	)
 
 	files = strings.ReplaceAll(files, "low", "foo")
@@ -97,6 +105,13 @@ disableKinds = ['page','rss','section','sitemap','taxonomy','term']
 	b.Assert(err.Error(), qt.Contains, "error correction level must be one of low, medium, quartile, or high")
 
 	files = strings.ReplaceAll(files, "foo", "low")
+
+	b, err = hugolib.TestE(t, strings.ReplaceAll(files, "#ffffff00", "#fffff"))
+	b.Assert(err.Error(), qt.Contains, "invalid bgColor")
+
+	b, err = hugolib.TestE(t, strings.ReplaceAll(files, "#000080", "#00008"))
+	b.Assert(err.Error(), qt.Contains, "invalid fgColor")
+
 	files = strings.ReplaceAll(files, "https://gohugo.io", "")
 
 	b, err = hugolib.TestE(t, files)
@@ -123,6 +138,10 @@ Home.
 
 {{ template "copy" (dict "name" "qr-default.png" "img" (images.QR "https://gohugo.io"))  }}
 {{ template "copy" (dict "name" "qr-level-high_scale-6.png" "img" (images.QR "https://gohugo.io" (dict "level" "high" "scale" 6)))  }}
+{{ template "copy" (dict "name" "qr-bgcolor-transparent.png" "img" (images.QR "https://gohugo.io" (dict "bgColor" "#ffffff00")))  }}
+{{ template "copy" (dict "name" "qr-bgcolor-yellow.png" "img" (images.QR "https://gohugo.io" (dict "bgColor" "#ffff00")))  }}
+{{ template "copy" (dict "name" "qr-fgcolor-navy.png" "img" (images.QR "https://gohugo.io" (dict "fgColor" "#000080")))  }}
+{{ template "copy" (dict "name" "qr-fgcolor-navy_bgcolor-transparent.png" "img" (images.QR "https://gohugo.io" (dict "fgColor" "#000080" "bgColor" "#ffffff00")))  }}
 
 {{ define "copy"}}
 {{ if lt (len (path.Ext .name)) 4 }}
