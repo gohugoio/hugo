@@ -89,7 +89,7 @@ func (*Filters) Text(text string, options ...any) gift.Filter {
 		for option, v := range opt {
 			switch option {
 			case "color":
-				if color, ok, _ := toColorGo(v); ok {
+				if color, ok, _ := ToColorGo(v); ok {
 					tf.color = color
 				}
 			case "size":
@@ -155,7 +155,7 @@ func (*Filters) Padding(args ...any) gift.Filter {
 
 	_args := args // preserve original args for most stable hash
 
-	if vcs, ok, err := toColorGo(args[len(args)-1]); ok || err != nil {
+	if vcs, ok, err := ToColorGo(args[len(args)-1]); ok || err != nil {
 		if err != nil {
 			panic("invalid canvas color: specify RGB or RGBA using hex notation")
 		}
@@ -230,7 +230,7 @@ func (*Filters) Dither(options ...any) gift.Filter {
 
 	var palette []color.Color
 	for _, c := range ditherOptions.Colors {
-		cc, ok, err := toColorGo(c)
+		cc, ok, err := ToColorGo(c)
 		if !ok || err != nil {
 			panic(fmt.Sprintf("%q is an invalid color: specify RGB or RGBA using hexadecimal notation", c))
 		}
