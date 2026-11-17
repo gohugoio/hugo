@@ -241,6 +241,17 @@ func (i *imageResource) cloneTo(targetPath string) resource.Resource {
 	return ir
 }
 
+func (i *imageResource) cloneForMultihost(spec *Spec) *imageResource {
+	gr := i.baseResource.(*genericResource).cloneForMultihost(spec)
+	ir := &imageResource{
+		root:         i.root,
+		Image:        i.WithSpec(gr),
+		baseResource: gr,
+	}
+	ir.colorsFn = ir.newColorsFn()
+	return ir
+}
+
 func (i *imageResource) cloneWithUpdates(u *transformationUpdate) (baseResource, error) {
 	base, err := i.baseResource.cloneWithUpdates(u)
 	if err != nil {

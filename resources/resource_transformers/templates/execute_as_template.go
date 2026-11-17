@@ -51,6 +51,12 @@ type executeAsTemplateTransform struct {
 }
 
 func (t *executeAsTemplateTransform) Key() internal.ResourceTransformationKey {
+	// Multihost sites duplicate a resource per language (see ImageCache). The
+	// target path alone collides, so the first language to execute owns the
+	// cached content and permalink host.
+	if t.rs != nil && t.rs.Cfg.IsMultihost() {
+		return internal.NewResourceTransformationKey("execute-as-template", t.rs.Lang(), t.targetPath)
+	}
 	return internal.NewResourceTransformationKey("execute-as-template", t.targetPath)
 }
 
@@ -66,6 +72,14 @@ func (t *executeAsTemplateTransform) Transform(ctx *resources.ResourceTransforma
 }
 
 func (c *Client) ExecuteAsTemplate(ctx context.Context, res resources.ResourceTransformer, targetPath string, data any) (resource.Resource, error) {
+	// The assets cache is global. Rebind a clone to this language before
+	// transforming so permalink and publish use this site, not whichever
+	// language first called resources.Get.
+	if c.rs.Cfg.IsMultihost() {
+		if cloned, ok := resources.CloneForMultihost(res, c.rs).(resources.ResourceTransformer); ok {
+			res = cloned
+		}
+	}
 	return res.TransformWithContext(ctx, &executeAsTemplateTransform{
 		rs:         c.rs,
 		targetPath: paths.ToSlashTrimLeading(targetPath),

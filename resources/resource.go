@@ -435,6 +435,16 @@ func (l *genericResource) cloneTo(targetPath string) resource.Resource {
 	return c
 }
 
+// cloneForMultihost returns a clone published under spec's language directory
+// and linked with spec's baseURL. The receiver is left unchanged so a shared
+// asset can be cloned once per language.
+func (l *genericResource) cloneForMultihost(spec *Spec) *genericResource {
+	c := l.clone()
+	c.spec = spec
+	c.paths.TargetBasePaths = []string{paths.ToSlashPreserveLeading(spec.GetTargetLanguageBasePath())}
+	return c
+}
+
 func (l *genericResource) Content(context.Context) (any, error) {
 	r, err := l.ReadSeekCloser()
 	if err != nil {

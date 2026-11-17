@@ -237,9 +237,15 @@ func canonicalAddr(u *url.URL) string {
 
 // Copy copies r to the new targetPath.
 func (c *Client) Copy(r resource.Resource, targetPath string) (resource.Resource, error) {
-	key := dynacache.CleanKey(targetPath) + "__copy"
+	// Same pattern as ImageCache: in multihost the memory key must include the
+	// language, otherwise every host shares the first copy's permalink.
+	key := targetPath
+	if c.rs.Cfg.IsMultihost() {
+		key = c.rs.Lang() + "/" + key
+	}
+	key = dynacache.CleanKey(key) + "__copy"
 	return c.rs.ResourceCache.GetOrCreate(key, func() (resource.Resource, error) {
-		return resources.Copy(r, targetPath), nil
+		return resources.CloneForMultihost(resources.Copy(r, targetPath), c.rs), nil
 	})
 }
 

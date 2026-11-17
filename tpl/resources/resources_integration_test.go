@@ -74,6 +74,40 @@ Copy3: /blog/js/copies/moo.a677329fc6c4ad947e0c7116d91f37a2.min.js|text/javascri
 	b.AssertFileExists("public/images/copy3.png", false)
 }
 
+// See issue 15595.
+func TestCopyMultihostSameTargetPath(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+defaultContentLanguage = "en"
+[languages.en]
+baseURL = "https://example.com/"
+weight = 1
+[languages.fr]
+baseURL = "https://example.fr/"
+weight = 2
+-- assets/pixel.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- layouts/home.html --
+{{ $res := printf "lang=%s" site.Language.Lang | resources.FromString "src.css" }}
+{{ $copy := $res | resources.Copy "bundle.css" }}
+{{ $copy.Publish }}
+{{ $img := resources.Get "pixel.png" | resources.Copy "images/pixel.png" }}
+{{ $img.Publish }}
+Site: {{ .Site.Language.Lang }} | Link: {{ $copy.Permalink }} | Img: {{ $img.Permalink }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/en/index.html", "Site: en | Link: https://example.com/bundle.css | Img: https://example.com/images/pixel.png")
+	b.AssertFileContent("public/fr/index.html", "Site: fr | Link: https://example.fr/bundle.css | Img: https://example.fr/images/pixel.png")
+	b.AssertFileContent("public/en/bundle.css", "lang=en")
+	b.AssertFileContent("public/fr/bundle.css", "lang=fr")
+	b.AssertFileExists("public/en/images/pixel.png", true)
+	b.AssertFileExists("public/fr/images/pixel.png", true)
+}
+
 func TestCopyPageShouldFail(t *testing.T) {
 	t.Parallel()
 

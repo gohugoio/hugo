@@ -251,6 +251,67 @@ func (r resourceAdapter) cloneTo(targetPath string) resource.Resource {
 	return &r
 }
 
+// CloneForMultihost clones r for spec's language when spec is a multihost site.
+// The clone publishes into that language's output directory and uses spec's baseURL.
+// Single-host sites share one resource namespace, so r is returned unchanged.
+func CloneForMultihost(r resource.Resource, spec *Spec) resource.Resource {
+	if r == nil || spec == nil || !spec.Cfg.IsMultihost() {
+		return r
+	}
+	switch r := r.(type) {
+	case *resourceAdapter:
+		return r.cloneForMultihost(spec)
+	case *genericResource:
+		return r.cloneForMultihost(spec)
+	case *imageResource:
+		return r.cloneForMultihost(spec)
+	default:
+		return r
+	}
+}
+
+func (r *resourceAdapter) cloneForMultihost(spec *Spec) resource.Resource {
+	src := r.sourceTarget
+	if src == nil {
+		src = r.target
+	}
+	cloned, ok := cloneForMultihostTarget(src, spec)
+	if !ok {
+		return r
+	}
+	out := *r
+	// Do not share the transformation slice. A later append must not write into r.
+	out.resourceTransformations = &resourceTransformations{
+		transformations: append([]ResourceTransformation(nil), r.transformations...),
+	}
+	inner := &resourceAdapterInner{
+		ctx:    r.ctx,
+		spec:   spec,
+		Staler: r.Staler,
+		target: cloned,
+	}
+	if r.ctx == nil {
+		inner.ctx = context.Background()
+	}
+	if r.publishOnce != nil {
+		inner.publishOnce = &publishOnce{}
+	}
+	out.resourceAdapterInner = inner
+	out.sourceTarget = cloned
+	return &out
+}
+
+func cloneForMultihostTarget(t transformableResource, spec *Spec) (transformableResource, bool) {
+	switch t := t.(type) {
+	case *genericResource:
+		return t.cloneForMultihost(spec), true
+	case *imageResource:
+		return t.cloneForMultihost(spec), true
+	default:
+		return nil, false
+	}
+}
+
 func (r *resourceAdapter) Process(spec string) (images.ImageResource, error) {
 	return r.getImageOps().Process(spec)
 }

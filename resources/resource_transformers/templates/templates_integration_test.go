@@ -71,3 +71,41 @@ LangURL: {{ relLangURL "foo" }}
 		Hello2: Bonjour
 		`)
 }
+
+// See issue 15595.
+func TestExecuteAsTemplateMultihostSameTargetPath(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+defaultContentLanguage = "en"
+[languages.en]
+baseURL = "https://example.com/"
+weight = 1
+[languages.fr]
+baseURL = "https://example.fr/"
+weight = 2
+-- assets/style.css --
+/* Site language: {{ .Site.Language.Lang }} */
+-- content/_index.en.md --
+---
+title: Home EN
+---
+-- content/_index.fr.md --
+---
+title: Home FR
+---
+-- layouts/home.html --
+{{ $res := resources.Get "style.css" }}
+{{ $executed := $res | resources.ExecuteAsTemplate "bundle.css" . }}
+{{ $executed.Publish }}
+Site: {{ .Site.Language.Lang }} | Link: {{ $executed.Permalink }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/en/index.html", "Site: en | Link: https://example.com/bundle.css")
+	b.AssertFileContent("public/fr/index.html", "Site: fr | Link: https://example.fr/bundle.css")
+	b.AssertFileContent("public/en/bundle.css", "/* Site language: en */")
+	b.AssertFileContent("public/fr/bundle.css", "/* Site language: fr */")
+}
