@@ -83,7 +83,10 @@ func (i HugoInfo) IsServer() bool {
 
 // IsExtended always returns false.
 // The extended edition of Hugo was removed in v0.170.0.
+//
+// Deprecated: The extended edition of Hugo was removed in v0.170.0.
 func (i HugoInfo) IsExtended() bool {
+	hugo.Deprecate("hugo.IsExtended", "The extended edition of Hugo was removed in v0.170.0.", "v0.171.0")
 	return false
 }
 
