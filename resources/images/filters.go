@@ -62,11 +62,18 @@ func (*Filters) Mask(mask ImageSource) gift.Filter {
 }
 
 // Opacity creates a filter that changes the opacity of an image.
-// The opacity parameter must be in range (0, 1).
+// The opacity parameter must be in range [0, 1].
 func (*Filters) Opacity(opacity any) gift.Filter {
+	o, err := cast.ToFloat32E(opacity)
+	if err != nil {
+		panic(fmt.Sprintf("invalid opacity: %s", err))
+	}
+	if o < 0 || o > 1 {
+		panic("opacity must be in the range [0, 1]")
+	}
 	return filter{
 		Options: newFilterOpts(opacity),
-		Filter:  opacityFilter{opacity: cast.ToFloat32(opacity)},
+		Filter:  opacityFilter{opacity: o},
 	}
 }
 
