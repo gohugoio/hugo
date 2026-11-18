@@ -658,7 +658,7 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 			tryFileCache = true
 		} else {
 			err = tr.Transform(tctx)
-			if err != nil && err != herrors.ErrFeatureNotAvailable {
+			if err != nil && !herrors.IsFeatureNotAvailableError(err) {
 				return nil, newErr(err)
 			}
 
