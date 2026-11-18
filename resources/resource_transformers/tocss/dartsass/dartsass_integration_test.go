@@ -875,3 +875,22 @@ T1: {{ $r.Content }}|{{ hugo.IsExtended }}
 	b := hugolib.Test(t, files)
 	b.AssertFileContent("public/index.html", "T1: body{width:5px}|false")
 }
+
+// See issue 13003.
+func TestTransformDartSassNotInstalled(t *testing.T) {
+	t.Parallel()
+	if dartsass.Supports() {
+		t.Skip()
+	}
+
+	files := `
+-- hugo.toml --
+-- assets/scss/main.scss --
+moo { color: #fff; }
+-- layouts/home.html --
+{{ (resources.Get "scss/main.scss" | css.Sass).RelPermalink }}
+`
+
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.ErrorMatches, `(?s).*Dart Sass not found; install it or add its location to PATH, see https://gohugo.io/functions/css/sass/#dart-sass.*`)
+}
