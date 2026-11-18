@@ -770,6 +770,98 @@ func (c *hugoBuilder) handleBuildErr(err error, msg string) {
 	c.r.logger.Errorln(msg + ": " + cleanErrorLog(err.Error()))
 }
 
+// renamedDirsInBatch pairs directory renames within a batch of file events,
+// returning a map from the new to the old path.
+//
+// When a watched directory is renamed, the watch on the directory itself is
+// removed, but the watches on its subdirectories survive and keep reporting
+// events under the old path. Re-adding such a subdirectory is a no-op in
+// fsnotify (the inode is already watched), so the stale path sticks and later
+// changes below the renamed directory are reported with a name that no longer
+// exists on disk and get dropped as ghost events. See issue #15579.
+//
+// A rename is detected by pairing a Rename event for a path that no longer
+// exists with a Create event for a directory. Duplicate events for the same
+// path (a rename is reported both by the parent watch and by the renamed
+// directory's own watch) count once. A pair is only made when it is
+// unambiguous: exactly one moved-away and one moved-in directory sharing a
+// parent, or a single pair in the whole batch (which also covers renames
+// across parents). Ambiguous batches are left alone.
+func renamedDirsInBatch(evs []fsnotify.Event) map[string]string {
+	movedAway := make(map[string]map[string]bool)
+	movedIn := make(map[string]map[string]bool)
+	add := func(m map[string]map[string]bool, name string) {
+		parent := filepath.Dir(name)
+		if m[parent] == nil {
+			m[parent] = make(map[string]bool)
+		}
+		m[parent][name] = true
+	}
+	for _, ev := range evs {
+		if ev.Has(fsnotify.Rename) {
+			if _, err := os.Stat(ev.Name); err != nil {
+				add(movedAway, ev.Name)
+			}
+		}
+		if ev.Has(fsnotify.Create) {
+			if fi, err := os.Stat(ev.Name); err == nil && fi.IsDir() {
+				add(movedIn, ev.Name)
+			}
+		}
+	}
+	one := func(m map[string]bool) (string, bool) {
+		if len(m) != 1 {
+			return "", false
+		}
+		for name := range m {
+			return name, true
+		}
+		return "", false
+	}
+	renamed := make(map[string]string)
+	var unpairedAway, unpairedIn []string
+	for parent, away := range movedAway {
+		a, okA := one(away)
+		b, okB := one(movedIn[parent])
+		if okA && okB {
+			renamed[b] = a
+			continue
+		}
+		for name := range away {
+			unpairedAway = append(unpairedAway, name)
+		}
+		for name := range movedIn[parent] {
+			unpairedIn = append(unpairedIn, name)
+		}
+	}
+	for parent, in := range movedIn {
+		if _, ok := movedAway[parent]; !ok {
+			for name := range in {
+				unpairedIn = append(unpairedIn, name)
+			}
+		}
+	}
+	if len(unpairedAway) == 1 && len(unpairedIn) == 1 {
+		renamed[unpairedIn[0]] = unpairedAway[0]
+	}
+	return renamed
+}
+
+// staleWatchPath returns the old path of a watched directory that was moved
+// along with a renamed directory, or "" if path is not below any of the
+// renamed directories in renamedDirs.
+func staleWatchPath(renamedDirs map[string]string, path string) string {
+	for newRoot, oldRoot := range renamedDirs {
+		if path == newRoot {
+			return oldRoot
+		}
+		if rel, err := filepath.Rel(newRoot, path); err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+			return filepath.Join(oldRoot, rel)
+		}
+	}
+	return ""
+}
+
 func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 	staticSyncer *staticSyncer,
 	evs []fsnotify.Event,
@@ -912,6 +1004,11 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 	}
 	evs = evs[:n]
 
+	// Directories renamed in this batch, mapped from new to old path. Used
+	// below to drop the stale watches on renamed subdirectories before they
+	// are re-added. See renamedDirsInBatch.
+	renamedDirs := renamedDirsInBatch(evs)
+
 	for _, ev := range evs {
 		ext := filepath.Ext(ev.Name)
 		baseName := filepath.Base(ev.Name)
@@ -943,6 +1040,14 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 
 		walkAdder := func(ctx context.Context, path string, f hugofs.FileMetaInfo) error {
 			if f.IsDir() {
+				// If this directory was moved here by a rename, its
+				// subdirectories may still be watched under their old
+				// path. Remove the stale watch first, or the Add below
+				// is a no-op and later changes keep arriving with the
+				// old name. See issue #15579.
+				if oldPath := staleWatchPath(renamedDirs, path); oldPath != "" {
+					_ = watcher.Remove(oldPath)
+				}
 				c.r.logger.Println("adding created directory to watchlist", path)
 				if err := watcher.Add(path); err != nil {
 					return err
