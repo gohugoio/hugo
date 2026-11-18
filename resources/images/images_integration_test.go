@@ -18,6 +18,7 @@ import (
 	"testing"
 
 	"github.com/bep/logg"
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/htesting"
 	"github.com/gohugoio/hugo/hugolib"
 )
@@ -336,5 +337,32 @@ overlay={{ ($a | images.Filter (images.Overlay $s 0 0)).RelPermalink }}|mask={{ 
 		} else if content != first {
 			t.Fatalf("output changed between builds:\nbuild 1: %s\nbuild 2: %s", first, content)
 		}
+	}
+}
+
+// See issue 15612.
+func TestImagesOpacityValidation(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- assets/sunset.jpg --
+sourcefilename: ../testdata/sunset.jpg
+-- layouts/home.html --
+{{ $img := resources.Get "sunset.jpg" }}
+{{ ($img.Filter (images.Opacity OPACITY)).RelPermalink }}
+`
+
+	for _, v := range []string{"-0.1", "1.2"} {
+		b, err := hugolib.TestE(t, strings.ReplaceAll(files, "OPACITY", v))
+		b.Assert(err, qt.ErrorMatches, `(?s).*opacity must be in the range \[0, 1\].*`)
+	}
+
+	b, err := hugolib.TestE(t, strings.ReplaceAll(files, "OPACITY", `"abc"`))
+	b.Assert(err, qt.ErrorMatches, `(?s).*invalid opacity.*`)
+
+	for _, v := range []string{"0", "0.5", "1"} {
+		b := hugolib.Test(t, strings.ReplaceAll(files, "OPACITY", v))
+		b.AssertFileContent("public/index.html", "/sunset_")
 	}
 }
