@@ -59,7 +59,7 @@ func convert(c *qt.C, conf config.AllProvider, content string) converter.ResultR
 
 	mconf := pconf.MarkupConfig()
 
-	h := highlight.New(mconf.Highlight)
+	h := highlight.New(mconf.Highlight, nil)
 
 	getRenderer := func(t hooks.RendererType, id any) any {
 		switch t {
@@ -452,7 +452,7 @@ LINE5
 			pcfg,
 		)
 
-		h := highlight.New(pcfg.MarkupConfig().Highlight)
+		h := highlight.New(pcfg.MarkupConfig().Highlight, nil)
 
 		getRenderer := func(t hooks.RendererType, id any) any {
 			if t == hooks.CodeBlockRendererType {

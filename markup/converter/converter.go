@@ -35,6 +35,7 @@ type ProviderConfig struct {
 	Logger    loggers.Logger
 	Exec      *hexec.Exec
 	highlight.Highlighter
+	HighlightCache highlight.Cache
 }
 
 func (p ProviderConfig) MarkupConfig() markup_config.Config {

@@ -39,7 +39,7 @@ func NewConverterProvider(cfg converter.ProviderConfig) (ConverterProvider, erro
 	mcfg := cfg.MarkupConfig()
 
 	if cfg.Highlighter == nil {
-		cfg.Highlighter = highlight.New(mcfg.Highlight)
+		cfg.Highlighter = highlight.New(mcfg.Highlight, cfg.HighlightCache)
 	}
 
 	defaultHandler := mcfg.DefaultMarkdownHandler
