@@ -2442,3 +2442,35 @@ p1 v1
 	b.EditFileReplaceAll("content/p1.md", "p1 v1", "p1 v2").Build()
 	b.AssertFileContent("public/p1/index.html", "p1 v2")
 }
+
+// Issue 15456.
+func TestRebuildServerGCIgnoreCacheIssue15456(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableLiveReload = true
+disableKinds = ["taxonomy", "term", "rss", "sitemap", "section"]
+ignoreCache = true
+-- assets/images/pixel.png --
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==
+-- content/_index.md --
+---
+title: Home
+---
+home v1
+-- layouts/home.html --
+{{ $img := (resources.Get "images/pixel.png").Resize "2x2" }}
+RelPermalink: {{ $img.RelPermalink }}
+Content: {{ .Content }}
+`
+	b := TestRunning(
+		t, files,
+		TestOptWithConfig(func(c *IntegrationTestConfig) {
+			c.RunGC = true
+		}),
+	)
+	b.AssertFileContent("public/index.html", "home v1")
+
+	b.EditFileReplaceAll("content/_index.md", "home v1", "home v2").Build()
+	b.AssertFileContent("public/index.html", "home v2")
+}

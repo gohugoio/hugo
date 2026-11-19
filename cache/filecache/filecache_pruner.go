@@ -18,6 +18,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/hugofs"
@@ -115,24 +116,32 @@ func (c *Cache) Prune(force bool) (int, error) {
 			return nil
 		}
 
-		shouldRemove := force || c.isExpired(info.ModTime())
-
-		if seen.Has(name) {
+		var shouldRemove bool
+		if force {
+			shouldRemove = true
+		} else if seen.Has(name) {
 			visited[name] = true
-		} else if !shouldRemove && seen.Len() > 0 {
-			if id, found := seenByLower[strings.ToLower(name)]; found {
-				// On case-insensitive filesystems this is the same file as id; e.g. an
-				// entry created before Hugo started lowercasing the content paths in
-				// v0.123 (content/MyBundle => _gen/images/MyBundle). Decided once the
-				// walk is done: if id is walked too, they are distinct files and this
-				// one is stale. See issue 15101.
-				if candidates == nil {
-					candidates = make(map[string]string)
-				}
-				candidates[name] = id
-			} else {
-				// Remove it if it's not been touched/used in the last build.
+			if c.cfg.MaxAge > 0 && time.Since(info.ModTime()) > c.cfg.MaxAge {
 				shouldRemove = true
+			}
+		} else {
+			if c.isExpired(info.ModTime()) {
+				shouldRemove = true
+			} else if seen.Len() > 0 {
+				if id, found := seenByLower[strings.ToLower(name)]; found {
+					// On case-insensitive filesystems this is the same file as id; e.g. an
+					// entry created before Hugo started lowercasing the content paths in
+					// v0.123 (content/MyBundle => _gen/images/MyBundle). Decided once the
+					// walk is done: if id is walked too, they are distinct files and this
+					// one is stale. See issue 15101.
+					if candidates == nil {
+						candidates = make(map[string]string)
+					}
+					candidates[name] = id
+				} else {
+					// Remove it if it's not been touched/used in the last build.
+					shouldRemove = true
+				}
 			}
 		}
 
