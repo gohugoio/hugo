@@ -205,21 +205,21 @@ type Transformer interface {
 	TransformWithContext(context.Context, ...ResourceTransformation) (ResourceTransformer, error)
 }
 
-func NewFeatureNotAvailableTransformer(key string, elements ...any) ResourceTransformation {
-	return transformerNotAvailable{
+func NewExecNotFoundTransformer(key string, elements ...any) ResourceTransformation {
+	return transformerExecNotFound{
 		key: internal.NewResourceTransformationKey(key, elements...),
 	}
 }
 
-type transformerNotAvailable struct {
+type transformerExecNotFound struct {
 	key internal.ResourceTransformationKey
 }
 
-func (t transformerNotAvailable) Transform(ctx *ResourceTransformationCtx) error {
-	return herrors.ErrFeatureNotAvailable
+func (t transformerExecNotFound) Transform(ctx *ResourceTransformationCtx) error {
+	return herrors.ErrExecNotFound
 }
 
-func (t transformerNotAvailable) Key() internal.ResourceTransformationKey {
+func (t transformerExecNotFound) Key() internal.ResourceTransformationKey {
 	return t.key
 }
 

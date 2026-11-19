@@ -184,7 +184,7 @@ func (b BuildConfig) UseResourceCache(err error) bool {
 	}
 
 	if b.UseResourceCacheWhen == "fallback" {
-		return herrors.IsFeatureNotAvailableError(err)
+		return herrors.IsExecNotFoundError(err)
 	}
 
 	return true
