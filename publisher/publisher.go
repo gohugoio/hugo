@@ -14,12 +14,15 @@
 package publisher
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
 	"net/url"
+	"path/filepath"
 	"sync/atomic"
 
+	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/resources"
 
 	"github.com/gohugoio/hugo/media"
@@ -66,6 +69,9 @@ type Descriptor struct {
 	// Enable to minify the output using the OutputFormat defined above to
 	// pick the correct minifier configuration.
 	Minify bool
+
+	// Whether Src contains templates.Defer placeholders.
+	HasDeferred bool
 }
 
 // DestinationPublisher is the default and currently only publisher in Hugo. This
@@ -74,6 +80,10 @@ type DestinationPublisher struct {
 	fs                    afero.Fs
 	min                   minifiers.Client
 	htmlElementsCollector *htmlElementsCollector
+
+	// Descriptors for files with templates.Defer placeholders, keyed by target path.
+	// Transformations are applied in PublishDeferred.
+	deferred *hmaps.Cache[string, Descriptor]
 }
 
 // NewDestinationPublisher creates a new DestinationPublisher.
@@ -84,7 +94,7 @@ func NewDestinationPublisher(rs *resources.Spec, outputFormats output.Formats, m
 	if rs.BuildConfig().BuildStats.Enabled() {
 		classCollector = newHTMLElementsCollector(rs.BuildConfig().BuildStats)
 	}
-	pub = DestinationPublisher{fs: fs, htmlElementsCollector: classCollector}
+	pub = DestinationPublisher{fs: fs, htmlElementsCollector: classCollector, deferred: hmaps.NewCache[string, Descriptor]()}
 	pub.min, err = minifiers.New(mediaTypes, outputFormats, cfg)
 	return
 }
@@ -96,9 +106,33 @@ func (p DestinationPublisher) Publish(d Descriptor) error {
 		return errors.New("Publish: must provide a TargetPath")
 	}
 
-	src := d.Src
-
 	transformers := p.createTransformerChain(d)
+	collect := p.htmlElementsCollector != nil && d.OutputFormat.IsHTML
+
+	if len(transformers) != 0 && d.HasDeferred {
+		// Transform when the placeholders are replaced.
+		dd := d
+		dd.Src = nil
+		dd.StatCounter = nil
+		p.deferred.Set(filepath.Clean(d.TargetPath), dd)
+		transformers = nil
+	}
+
+	return p.publish(d, transformers, collect)
+}
+
+// PublishDeferred publishes content with its templates.Defer placeholders replaced.
+func (p DestinationPublisher) PublishDeferred(filename string, content []byte) error {
+	d, found := p.deferred.Get(filename)
+	if !found {
+		return afero.WriteFile(p.fs, filename, content, 0o666)
+	}
+	d.Src = bytes.NewReader(content)
+	return p.publish(d, p.createTransformerChain(d), false)
+}
+
+func (p DestinationPublisher) publish(d Descriptor, transformers transform.Chain, collect bool) error {
+	src := d.Src
 
 	if len(transformers) != 0 {
 		b := bp.GetBuffer()
@@ -120,7 +154,7 @@ func (p DestinationPublisher) Publish(d Descriptor) error {
 
 	var w io.Writer = f
 
-	if p.htmlElementsCollector != nil && d.OutputFormat.IsHTML {
+	if collect {
 		w = io.MultiWriter(w, newHTMLElementsCollectorWriter(p.htmlElementsCollector))
 	}
 
@@ -149,6 +183,7 @@ type PublishStats struct {
 // Publisher publishes a result file.
 type Publisher interface {
 	Publish(d Descriptor) error
+	PublishDeferred(filename string, content []byte) error
 	PublishStats() PublishStats
 }
 
