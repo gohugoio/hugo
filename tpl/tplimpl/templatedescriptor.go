@@ -89,6 +89,10 @@ func (s descriptorHandler) compareDescriptors(category Category, this, other Tem
 
 			if this.isLayoutCompatible(other) {
 				w.w1 = 1
+				if other.Variant2 != "" && other.Variant2 == this.Variant2 {
+					// Prefer e.g. render-codeblock-goat.html over render-codeblock.html. See issue #15614.
+					w.w1 = 2
+				}
 			}
 		}
 
