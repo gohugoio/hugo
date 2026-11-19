@@ -500,3 +500,33 @@ func main() {}
 		`href="#z&#34;&gt;&lt;script&gt;alert(1)&lt;/script&gt;-1"`,
 	)
 }
+
+// A list or a null attribute value must not be rewritten or abort the build.
+// See issue 14227.
+func TestCodeblockAttributeValues(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/_markup/render-codeblock-go.html --
+Lines: |{{ jsonify .Attributes.lines }}|
+Empty: |{{ jsonify .Attributes.empty }}|
+-- layouts/single.html --
+{{ .Content }}
+-- content/p1.md --
+---
+title: "p1"
+---
+
+§§§go {lines=[1, 2], empty=null}
+func main() {}
+§§§
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/p1/index.html",
+		"Lines: |[1,2]|",
+		"Empty: |null|",
+	)
+}

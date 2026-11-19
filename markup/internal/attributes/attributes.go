@@ -46,6 +46,10 @@ func init() {
 	}
 }
 
+// attrHLLines is the attribute that makes the Chroma highlighter highlight
+// specific lines.
+const attrHLLines = "hl_lines"
+
 type AttributesOwnerType int
 
 const (
@@ -66,31 +70,14 @@ func New(astAttributes []ast.Attribute, ownerType AttributesOwnerType) *Attribut
 		}
 		var vv any
 		switch vvv := v.Value.(type) {
-		case bool, float64:
+		case bool, float64, nil:
 			vv = vvv
 		case []any:
-			// Highlight line number hlRanges.
-			var hlRanges [][2]int
-			for _, l := range vvv {
-				if ln, ok := l.(float64); ok {
-					hlRanges = append(hlRanges, [2]int{int(ln) - 1, int(ln) - 1})
-				} else if rng, ok := l.([]uint8); ok {
-					slices := strings.Split(string([]byte(rng)), "-")
-					lhs, err := strconv.Atoi(slices[0])
-					if err != nil {
-						continue
-					}
-					rhs := lhs
-					if len(slices) > 1 {
-						rhs, err = strconv.Atoi(slices[1])
-						if err != nil {
-							continue
-						}
-					}
-					hlRanges = append(hlRanges, [2]int{lhs - 1, rhs - 1})
-				}
+			if nameLower == attrHLLines {
+				vv = toHLLines(vvv)
+			} else {
+				vv = toStrings(vvv)
 			}
-			vv = hlRanges
 		case []byte:
 			// Note that we don't do any HTML escaping here.
 			// We used to do that, but that changed in #9558.
@@ -114,6 +101,48 @@ func New(astAttributes []ast.Attribute, ownerType AttributesOwnerType) *Attribut
 		attributes: attrs,
 		options:    opts,
 	}
+}
+
+// toHLLines converts the hl_lines attribute to a list of 0-based line ranges.
+func toHLLines(values []any) [][2]int {
+	var hlRanges [][2]int
+	for _, l := range values {
+		if ln, ok := l.(float64); ok {
+			hlRanges = append(hlRanges, [2]int{int(ln) - 1, int(ln) - 1})
+		} else if rng, ok := l.([]uint8); ok {
+			slices := strings.Split(string(rng), "-")
+			lhs, err := strconv.Atoi(slices[0])
+			if err != nil {
+				continue
+			}
+			rhs := lhs
+			if len(slices) > 1 {
+				rhs, err = strconv.Atoi(slices[1])
+				if err != nil {
+					continue
+				}
+			}
+			hlRanges = append(hlRanges, [2]int{lhs - 1, rhs - 1})
+		}
+	}
+	return hlRanges
+}
+
+// toStrings converts a list attribute value to strings, the form the attribute
+// values have in the templates.
+func toStrings(values []any) []any {
+	ret := make([]any, len(values))
+	for i, v := range values {
+		switch vv := v.(type) {
+		case []byte:
+			ret[i] = string(vv)
+		case []any:
+			ret[i] = toStrings(vv)
+		default:
+			ret[i] = vv
+		}
+	}
+	return ret
 }
 
 type Attribute struct {
