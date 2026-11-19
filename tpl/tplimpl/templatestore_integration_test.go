@@ -1670,3 +1670,38 @@ sc.calendar.ics
 	b.AssertFileContent("public/p1/index.ics", "sc.calendar.ics")
 	b.AssertFileContent("public/p1/index.json", "sc.html", "! sc.calendar.ics") // fail
 }
+
+// See issue 15614. The built-in goat code block template must win over a
+// user's generic render-codeblock.html hook for every output format, not
+// depend on map iteration order for non-HTML output.
+func TestGoatHookNonHTMLOutputWithUserCodeBlockHook(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page', 'rss', 'section', 'sitemap', 'taxonomy', 'term']
+[outputs]
+  home = ['html', 'json']
+-- content/_index.md --
+---
+title: home
+---
+
+` + "```goat" + `
++--+
+|AB|
++--+
+` + "```" + `
+-- layouts/_markup/render-codeblock.html --
+USER CODEBLOCK HOOK
+-- layouts/home.html --
+{{ .Content }}
+-- layouts/home.json --
+{{ .Content }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "<svg")
+	b.AssertFileContent("public/index.json", "<svg")
+}

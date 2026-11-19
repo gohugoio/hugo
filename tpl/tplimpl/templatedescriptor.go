@@ -89,6 +89,17 @@ func (s descriptorHandler) compareDescriptors(category Category, this, other Tem
 
 			if this.isLayoutCompatible(other) {
 				w.w1 = 1
+
+				if this.Variant2 != "" && this.Variant2 == other.Variant2 {
+					// A template with an exact variant match (e.g. the embedded
+					// render-codeblock-goat.html) must outrank a generic render
+					// hook (e.g. render-codeblock.html) here as well, where both
+					// would otherwise fall back to the same minimal weight and
+					// the winner would depend on map iteration order. This
+					// mirrors the weightVariant2 bonus a full match gets in
+					// doCompare. See issue #15614.
+					w.w1 += 4 // weightVariant2
+				}
 			}
 		}
 
