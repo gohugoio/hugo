@@ -75,29 +75,29 @@ func (e *errMessage) Unwrap() error {
 	return e.err
 }
 
-// IsFeatureNotAvailableError returns true if the given error is or contains a FeatureNotAvailableError.
-func IsFeatureNotAvailableError(err error) bool {
-	return errors.Is(err, &FeatureNotAvailableError{})
+// IsExecNotFoundError returns true if the given error is or contains an ExecNotFoundError.
+func IsExecNotFoundError(err error) bool {
+	return errors.Is(err, &ExecNotFoundError{})
 }
 
-// ErrFeatureNotAvailable denotes that a feature is unavailable.
-var ErrFeatureNotAvailable = &FeatureNotAvailableError{Cause: errors.New("this feature is not available in your current Hugo version, see https://goo.gl/YMrWcn for more information")}
+// ErrExecNotFound denotes that a required executable was not found.
+var ErrExecNotFound = &ExecNotFoundError{Cause: errors.New("executable not found")}
 
-// FeatureNotAvailableError is an error type used to signal that a feature is not available.
-type FeatureNotAvailableError struct {
+// ExecNotFoundError is an error type used to signal that a required executable was not found.
+type ExecNotFoundError struct {
 	Cause error
 }
 
-func (e *FeatureNotAvailableError) Unwrap() error {
+func (e *ExecNotFoundError) Unwrap() error {
 	return e.Cause
 }
 
-func (e *FeatureNotAvailableError) Error() string {
+func (e *ExecNotFoundError) Error() string {
 	return e.Cause.Error()
 }
 
-func (e *FeatureNotAvailableError) Is(target error) bool {
-	_, ok := target.(*FeatureNotAvailableError)
+func (e *ExecNotFoundError) Is(target error) bool {
+	_, ok := target.(*ExecNotFoundError)
 	return ok
 }
 

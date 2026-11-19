@@ -111,11 +111,6 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 
 	cmd, err := ex.Npx(binaryName, cmdArgs...)
 	if err != nil {
-		if hexec.IsNotFound(err) {
-			// This may be on a CI server etc. Will fall back to pre-built assets.
-			return &herrors.FeatureNotAvailableError{Cause: err}
-		}
-
 		var accessDeniedErr *security.AccessDeniedError
 		if errors.As(err, &accessDeniedErr) {
 			if t.rs.Cfg.IgnoreTailwindCSSSecurityError() {
@@ -158,10 +153,8 @@ func (t *tailwindcssTransformation) Transform(ctx *resources.ResourceTransformat
 
 	err = cmd.Run()
 	if err != nil {
-		if hexec.IsNotFound(err) {
-			return &herrors.FeatureNotAvailableError{
-				Cause: err,
-			}
+		if herrors.IsExecNotFoundError(err) {
+			return err
 		}
 		s := errBuf.String()
 		if options.InlineImports.DisableInlineImports && strings.Contains(s, "Can't resolve") {

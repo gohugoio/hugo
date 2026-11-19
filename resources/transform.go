@@ -79,7 +79,6 @@ func (e *errWithMessage) Unwrap() error { return e.err }
 // TODO(bep) it's a little fragile having these constants redefined here.
 var transformationsToCacheOnDisk = map[string]bool{
 	"postcss":    true,
-	"tocss":      true,
 	"tocss-dart": true,
 }
 
@@ -629,7 +628,7 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 		newErr := func(err error) error {
 			msg := fmt.Sprintf("%s: failed to transform %q (%s)", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type)
 
-			if herrors.IsFeatureNotAvailableError(err) {
+			if herrors.IsExecNotFoundError(err) {
 				var name, url string
 				switch strings.ToLower(tr.Key().Name) {
 				case "postcss":
@@ -658,7 +657,7 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 			tryFileCache = true
 		} else {
 			err = tr.Transform(tctx)
-			if err != nil && !herrors.IsFeatureNotAvailableError(err) {
+			if err != nil && !herrors.IsExecNotFoundError(err) {
 				return nil, newErr(err)
 			}
 
