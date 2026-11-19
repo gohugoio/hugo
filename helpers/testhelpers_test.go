@@ -41,7 +41,7 @@ func newTestPathSpec(configKeyValues ...any) *helpers.PathSpec {
 func newTestContentSpec(cfg config.Provider) *helpers.ContentSpec {
 	fs := afero.NewMemMapFs()
 	conf := testconfig.GetTestConfig(fs, cfg)
-	spec, err := helpers.NewContentSpec(conf, loggers.NewDefault(), fs, nil)
+	spec, err := helpers.NewContentSpec(conf, loggers.NewDefault(), fs, nil, nil)
 	if err != nil {
 		panic(err)
 	}

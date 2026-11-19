@@ -25,6 +25,7 @@ import (
 	"github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/alecthomas/chroma/v2/lexers"
 	"github.com/alecthomas/chroma/v2/styles"
+	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugio"
 	"github.com/gohugoio/hugo/common/text"
 	"github.com/gohugoio/hugo/markup/converter/hooks"
@@ -52,9 +53,15 @@ func init() {
 	}
 }
 
-func New(cfg Config) Highlighter {
+// Cache caches highlighted code. A nil Cache disables caching.
+type Cache interface {
+	GetOrCreate(key string, create func(string) (HighlightResult, error)) (HighlightResult, error)
+}
+
+func New(cfg Config, cache Cache) Highlighter {
 	return chromaHighlighter{
-		cfg: cfg,
+		cfg:   cfg,
+		cache: cache,
 	}
 }
 
@@ -66,7 +73,8 @@ type Highlighter interface {
 }
 
 type chromaHighlighter struct {
-	cfg Config
+	cfg   Config
+	cache Cache
 }
 
 func (h chromaHighlighter) Highlight(code, lang string, opts any) (string, error) {
@@ -74,19 +82,16 @@ func (h chromaHighlighter) Highlight(code, lang string, opts any) (string, error
 	if err := applyOptions(opts, &cfg, &lang, &code); err != nil {
 		return "", err
 	}
-	var b strings.Builder
-
-	if _, _, err := highlight(&b, code, lang, nil, cfg); err != nil {
+	res, err := h.highlightCached(code, lang, nil, cfg)
+	if err != nil {
 		return "", err
 	}
 
-	return b.String(), nil
+	return string(res.highlighted), nil
 }
 
 func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts any) (HighlightResult, error) {
 	cfg := h.cfg
-
-	var b strings.Builder
 
 	attributes := ctx.(hooks.AttributesOptionsSliceProvider).AttributesSlice()
 
@@ -105,21 +110,7 @@ func (h chromaHighlighter) HighlightCodeBlock(ctx hooks.CodeblockContext, opts a
 		return HighlightResult{}, err
 	}
 
-	low, high, err := highlight(&b, code, lang, attributes, cfg)
-	if err != nil {
-		return HighlightResult{}, err
-	}
-
-	highlighted := b.String()
-	if high == 0 {
-		high = len(highlighted)
-	}
-
-	return HighlightResult{
-		highlighted: template.HTML(highlighted),
-		innerLow:    low,
-		innerHigh:   high,
-	}, nil
+	return h.highlightCached(code, lang, attributes, cfg)
 }
 
 func (h chromaHighlighter) RenderCodeblock(cctx context.Context, w hugio.FlexiWriter, ctx hooks.CodeblockContext) error {
@@ -137,8 +128,40 @@ func (h chromaHighlighter) RenderCodeblock(cctx context.Context, w hugio.FlexiWr
 
 	code := text.Puts(ctx.Inner())
 
-	_, _, err := highlight(w, code, ctx.Type(), attributes, cfg)
+	res, err := h.highlightCached(code, ctx.Type(), attributes, cfg)
+	if err != nil {
+		return err
+	}
+	_, err = w.WriteString(string(res.highlighted))
 	return err
+}
+
+// The result depends only on the arguments, so it's safe to share across sites.
+func (h chromaHighlighter) highlightCached(code, lang string, attributes []attributes.Attribute, cfg Config) (HighlightResult, error) {
+	if h.cache == nil {
+		return highlightToResult(code, lang, attributes, cfg)
+	}
+	key := hashing.HashString(code, lang, attributes, cfg)
+	return h.cache.GetOrCreate(key, func(string) (HighlightResult, error) {
+		return highlightToResult(code, lang, attributes, cfg)
+	})
+}
+
+func highlightToResult(code, lang string, attributes []attributes.Attribute, cfg Config) (HighlightResult, error) {
+	var b strings.Builder
+	low, high, err := highlight(&b, code, lang, attributes, cfg)
+	if err != nil {
+		return HighlightResult{}, err
+	}
+	highlighted := b.String()
+	if high == 0 {
+		high = len(highlighted)
+	}
+	return HighlightResult{
+		highlighted: template.HTML(highlighted),
+		innerLow:    low,
+		innerHigh:   high,
+	}, nil
 }
 
 func (h chromaHighlighter) IsDefaultCodeBlockRenderer() bool {
