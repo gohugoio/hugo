@@ -1155,22 +1155,22 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 				return nil, err
 			}
 
-			// Adjust Goldmark config defaults for multilingual, single-host sites.
-			if len(languagesConfig) > 1 && !isMultihost && !clone.Markup.Goldmark.DuplicateResourceFiles {
-				if clone.Markup.Goldmark.RenderHooks.Image.UseEmbedded == gc.RenderHookUseEmbeddedAuto {
-					clone.Markup.Goldmark.RenderHooks.Image.UseEmbedded = gc.RenderHookUseEmbeddedFallback
-				}
-				if clone.Markup.Goldmark.RenderHooks.Link.UseEmbedded == gc.RenderHookUseEmbeddedAuto {
-					clone.Markup.Goldmark.RenderHooks.Link.UseEmbedded = gc.RenderHookUseEmbeddedFallback
-				}
-			}
-
 			langConfigMap[k] = clone
 		case hmaps.ParamsMergeStrategy:
 
 		default:
 			panic(fmt.Sprintf("unknown type in languages config: %T", v))
 
+		}
+	}
+
+	// Shared page resources are published once per resource, not once per
+	// language and version, so the embedded link and image render hooks must
+	// resolve their destinations.
+	if !isMultihost && (len(languagesConfig) > 1 || all.Versions.Config.Len() > 1) {
+		all.setEmbeddedRenderHookDefaults()
+		for _, l := range langConfigMap {
+			l.setEmbeddedRenderHookDefaults()
 		}
 	}
 
@@ -1195,6 +1195,19 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 	}
 
 	return cm, nil
+}
+
+func (c *Config) setEmbeddedRenderHookDefaults() {
+	gm := &c.Markup.Goldmark
+	if gm.DuplicateResourceFiles {
+		return
+	}
+	if gm.RenderHooks.Image.UseEmbedded == gc.RenderHookUseEmbeddedAuto {
+		gm.RenderHooks.Image.UseEmbedded = gc.RenderHookUseEmbeddedFallback
+	}
+	if gm.RenderHooks.Link.UseEmbedded == gc.RenderHookUseEmbeddedAuto {
+		gm.RenderHooks.Link.UseEmbedded = gc.RenderHookUseEmbeddedFallback
+	}
 }
 
 func decodeConfigFromParams(fs afero.Fs, logger loggers.Logger, bcfg config.BaseConfig, p config.Provider, target *Config, keys []string) error {

@@ -297,6 +297,74 @@ custom image render hook: {{ .Text }}|{{ .Destination }}
 	}
 }
 
+// Issue 15620
+func TestEmbeddedLinkAndImageRenderHookMultipleVersions(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+defaultContentVersion = 'v1'
+defaultContentVersionInSubdir = true
+#DUPLICATE
+[versions.v1]
+#V2
+[[module.mounts]]
+source = 'content'
+target = 'content'
+[module.mounts.sites.matrix]
+versions = '**'
+-- content/s1/p1/index.md --
+---
+title: p1
+---
+[a](a.txt)
+
+![b](b.jpg)
+-- content/s1/p1/a.txt --
+-- content/s1/p1/b.jpg --
+-- layouts/all.html --
+{{ .Content }}
+`
+
+	t.Run("multiple versions", func(t *testing.T) {
+		t.Parallel()
+		f := strings.ReplaceAll(files, "#V2", "[versions.v2]")
+		b := hugolib.Test(t, f)
+		for _, v := range []string{"v1", "v2"} {
+			b.AssertFileContent("public/"+v+"/s1/p1/index.html",
+				`<a href="/v2/s1/p1/a.txt">a</a>`,
+				`<img src="/v2/s1/p1/b.jpg" alt="b">`,
+			)
+		}
+		b.AssertFileExists("public/v2/s1/p1/b.jpg", true)
+		b.AssertFileExists("public/v1/s1/p1/b.jpg", false)
+	})
+
+	t.Run("multiple versions with duplicateResourceFiles", func(t *testing.T) {
+		t.Parallel()
+		f := strings.ReplaceAll(files, "#V2", "[versions.v2]")
+		f = strings.ReplaceAll(f, "#DUPLICATE", "markup.goldmark.duplicateResourceFiles = true")
+		b := hugolib.Test(t, f)
+		for _, v := range []string{"v1", "v2"} {
+			b.AssertFileContent("public/"+v+"/s1/p1/index.html",
+				`<a href="a.txt">a</a>`,
+				`<img src="b.jpg" alt="b">`,
+			)
+			b.AssertFileExists("public/"+v+"/s1/p1/b.jpg", true)
+		}
+	})
+
+	t.Run("one version", func(t *testing.T) {
+		t.Parallel()
+		b := hugolib.Test(t, files)
+		b.AssertFileContent("public/v1/s1/p1/index.html",
+			`<a href="a.txt">a</a>`,
+			`<img src="b.jpg" alt="b">`,
+		)
+	})
+}
+
 func TestRenderHookMultilingual(t *testing.T) {
 	t.Parallel()
 
