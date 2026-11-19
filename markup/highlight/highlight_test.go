@@ -43,7 +43,7 @@ User-Agent: foo
 	c.Run("Basic", func(c *qt.C) {
 		cfg := DefaultConfig
 		cfg.NoClasses = false
-		h := New(cfg)
+		h := New(cfg, nil)
 
 		result, _ := h.Highlight(`echo "Hugo Rocks!"`, "bash", "")
 		c.Assert(result, qt.Equals, `<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">echo</span> <span class="s2">&#34;Hugo Rocks!&#34;</span></span></span></code></pre></div>`)
@@ -54,7 +54,7 @@ User-Agent: foo
 	c.Run("Highlight lines, default config", func(c *qt.C) {
 		cfg := DefaultConfig
 		cfg.NoClasses = false
-		h := New(cfg)
+		h := New(cfg, nil)
 
 		result, _ := h.Highlight(lines, "bash", "linenos=table,hl_lines=2 4-5,linenostart=3")
 		c.Assert(result, qt.Contains, "<div class=\"highlight\"><div class=\"chroma\">\n<table class=\"lntable\"><tr><td class=\"lntd\">\n<pre tabindex=\"0\" class=\"chroma\"><code><span class")
@@ -73,7 +73,7 @@ User-Agent: foo
 		cfg := DefaultConfig
 		cfg.NoClasses = false
 		cfg.LineNos = true
-		h := New(cfg)
+		h := New(cfg, nil)
 
 		result, _ := h.Highlight(lines, "bash", "")
 		c.Assert(result, qt.Contains, "<span class=\"lnt\">2\n</span>")
@@ -86,7 +86,7 @@ User-Agent: foo
 		cfg.NoClasses = false
 		cfg.LineNos = true
 		cfg.AnchorLineNos = true
-		h := New(cfg)
+		h := New(cfg, nil)
 
 		result, _ := h.Highlight(lines, "bash", "")
 		c.Assert(result, qt.Contains, "<span class=\"lnt\" id=\"2\"><a class=\"lnlinks\" href=\"#2\">2</a>\n</span>")
@@ -99,7 +99,7 @@ User-Agent: foo
 		cfg.NoClasses = false
 		cfg.LineNos = true
 		cfg.LineNumbersInTable = false
-		h := New(cfg)
+		h := New(cfg, nil)
 
 		result, _ := h.Highlight(lines, "bash", "")
 		c.Assert(result, qt.Contains, "<span class=\"cl\">LINE2\n</span></span>")
@@ -111,7 +111,7 @@ User-Agent: foo
 		cfg := DefaultConfig
 		cfg.NoClasses = false
 		cfg.LineNos = true
-		h := New(cfg)
+		h := New(cfg, nil)
 
 		result, _ := h.Highlight(lines, "", "")
 		c.Assert(result, qt.Equals, "<pre tabindex=\"0\"><code>LINE1\nLINE2\nLINE3\nLINE4\nLINE5\n</code></pre>")
@@ -123,7 +123,7 @@ User-Agent: foo
 		cfg.GuessSyntax = true
 		cfg.LineNos = true
 		cfg.LineNumbersInTable = false
-		h := New(cfg)
+		h := New(cfg, nil)
 
 		result, _ := h.Highlight(lines, "", "")
 		c.Assert(result, qt.Contains, "<span class=\"cl\">LINE2\n</span></span>")
@@ -132,7 +132,7 @@ User-Agent: foo
 	c.Run("No language, Escape HTML string", func(c *qt.C) {
 		cfg := DefaultConfig
 		cfg.NoClasses = false
-		h := New(cfg)
+		h := New(cfg, nil)
 
 		result, _ := h.Highlight("Escaping less-than in code block? <fail>", "", "")
 		c.Assert(result, qt.Contains, "&lt;fail&gt;")
@@ -141,7 +141,7 @@ User-Agent: foo
 	c.Run("Highlight lines, default config", func(c *qt.C) {
 		cfg := DefaultConfig
 		cfg.NoClasses = false
-		h := New(cfg)
+		h := New(cfg, nil)
 
 		result, _ := h.Highlight(coalesceNeeded, "http", "linenos=true,hl_lines=2")
 		c.Assert(result, qt.Contains, "hello")
@@ -156,4 +156,40 @@ func TestGitHubDarkStyleIncludesNameOther(t *testing.T) {
 	c.Assert(style, qt.Not(qt.IsNil))
 	c.Assert(style.Has(chroma.NameOther), qt.Equals, true)
 	c.Assert(style.Get(chroma.NameOther).Colour.String(), qt.Equals, "#e6edf3")
+}
+
+type countingCache struct {
+	m       map[string]HighlightResult
+	creates int
+}
+
+func (c *countingCache) GetOrCreate(key string, create func(string) (HighlightResult, error)) (HighlightResult, error) {
+	if v, ok := c.m[key]; ok {
+		return v, nil
+	}
+	c.creates++
+	v, err := create(key)
+	c.m[key] = v
+	return v, err
+}
+
+func TestHighlightCache(t *testing.T) {
+	c := qt.New(t)
+	cache := &countingCache{m: map[string]HighlightResult{}}
+	h := New(DefaultConfig, cache)
+
+	highlight := func(code, opts string) string {
+		s, err := h.Highlight(code, "go", opts)
+		c.Assert(err, qt.IsNil)
+		return s
+	}
+
+	a := highlight("a := 1", "")
+	c.Assert(highlight("a := 1", ""), qt.Equals, a)
+	c.Assert(cache.creates, qt.Equals, 1)
+
+	c.Assert(highlight("a := 1", "hl_lines=1"), qt.Not(qt.Equals), a)
+	c.Assert(highlight("a := 1", "style=github"), qt.Not(qt.Equals), a)
+	c.Assert(highlight("a := 2", ""), qt.Not(qt.Equals), a)
+	c.Assert(cache.creates, qt.Equals, 4)
 }

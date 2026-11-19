@@ -275,3 +275,56 @@ package main
 		"! <script>",
 	)
 }
+
+func TestHighlightCacheAcrossSites(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss", "sitemap"]
+defaultContentLanguage = "en"
+defaultContentLanguageInSubdir = true
+[markup.highlight]
+noClasses = false
+[languages.en]
+weight = 1
+[languages.de]
+weight = 2
+[languages.de.markup.highlight]
+noClasses = false
+lineNos = true
+-- content/p1.md --
+---
+title: "p1"
+sites:
+  matrix:
+    languages: ["**"]
+---
+§§§go
+fmt.Println("a")
+§§§
+
+§§§go {hl_lines=1}
+fmt.Println("a")
+§§§
+
+Shortcode:{{< highlight go "hl_inline=true" >}}fmt.Println("a"){{< /highlight >}}:End.
+-- layouts/page.html --
+{{ .Content }}
+Func:{{ transform.Highlight "fmt.Println(\"a\")" "go" "hl_inline=true" }}:End.
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/en/p1/index.html",
+		`<span class="line"><span class="cl"><span class="nx">fmt</span>`,
+		`<span class="line hl"><span class="cl"><span class="nx">fmt</span>`,
+		`Shortcode:<code class="code-inline language-go"><span class="nx">fmt</span>`,
+		`Func:<code class="code-inline language-go"><span class="nx">fmt</span>`,
+		"! lnt",
+	)
+	b.AssertFileContent("public/de/p1/index.html",
+		`<span class="lnt">1`,
+		`<span class="line hl"><span class="cl"><span class="nx">fmt</span>`,
+	)
+}

@@ -30,6 +30,7 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/markup/converter"
+	"github.com/gohugoio/hugo/markup/highlight"
 
 	"github.com/gohugoio/hugo/markup"
 
@@ -45,16 +46,17 @@ type ContentSpec struct {
 
 // NewContentSpec returns a ContentSpec initialized
 // with the appropriate fields from the given config.Provider.
-func NewContentSpec(cfg config.AllProvider, logger loggers.Logger, contentFs afero.Fs, ex *hexec.Exec) (*ContentSpec, error) {
+func NewContentSpec(cfg config.AllProvider, logger loggers.Logger, contentFs afero.Fs, ex *hexec.Exec, highlightCache highlight.Cache) (*ContentSpec, error) {
 	spec := &ContentSpec{
 		Cfg: cfg,
 	}
 
 	converterProvider, err := markup.NewConverterProvider(converter.ProviderConfig{
-		Conf:      cfg,
-		ContentFs: contentFs,
-		Logger:    logger,
-		Exec:      ex,
+		Conf:           cfg,
+		ContentFs:      contentFs,
+		Logger:         logger,
+		Exec:           ex,
+		HighlightCache: highlightCache,
 	})
 	if err != nil {
 		return nil, err

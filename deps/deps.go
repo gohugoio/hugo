@@ -38,6 +38,7 @@ import (
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/internal/js"
 	"github.com/gohugoio/hugo/internal/warpc"
+	"github.com/gohugoio/hugo/markup/highlight"
 	"github.com/gohugoio/hugo/media"
 	"github.com/gohugoio/hugo/resources/page"
 	"github.com/gohugoio/hugo/resources/postpub"
@@ -242,7 +243,12 @@ func (d *Deps) Init() error {
 	d.ExecHelper.SetNodeReadPaths(d.BaseFs.Assets.RealPaths(""))
 
 	if d.ContentSpec == nil {
-		contentSpec, err := helpers.NewContentSpec(d.Conf, d.Log, d.Content.Fs, d.ExecHelper)
+		highlightCache := dynacache.GetOrCreatePartition[string, highlight.HighlightResult](
+			d.MemCache,
+			"/misc/highlight",
+			dynacache.OptionsPartition{Weight: 30, ClearWhen: dynacache.ClearNever},
+		)
+		contentSpec, err := helpers.NewContentSpec(d.Conf, d.Log, d.Content.Fs, d.ExecHelper, highlightCache)
 		if err != nil {
 			return err
 		}
