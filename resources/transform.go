@@ -632,13 +632,13 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 				var name, url string
 				switch strings.ToLower(tr.Key().Name) {
 				case "postcss":
-					name, url = "PostCSS", "https://gohugo.io/functions/css/postcss/"
+					name, url = "PostCSS", "https://gohugo.io/docs/reference/functions/css/postcss/"
 				case "tailwindcss":
-					name, url = "Tailwind CSS CLI", "https://gohugo.io/functions/css/tailwindcss/"
+					name, url = "Tailwind CSS CLI", "https://gohugo.io/docs/reference/functions/css/tailwindcss/"
 				case "tocss-dart":
-					name, url = "Dart Sass", "https://gohugo.io/functions/css/sass/#dart-sass"
+					name, url = "Dart Sass", "https://gohugo.io/docs/reference/functions/css/sass/#dart-sass"
 				case "babel":
-					name, url = "Babel", "https://gohugo.io/functions/js/babel/"
+					name, url = "Babel", "https://gohugo.io/docs/reference/functions/js/babel/"
 				}
 				if name != "" {
 					return &errWithMessage{
