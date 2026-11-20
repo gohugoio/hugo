@@ -89,6 +89,8 @@ func (ns *Namespace) After(n any, l any) (any, error) {
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(l).Type().String())
 	}
 
+	lv = asSlice(lv)
+
 	if nv >= lv.Len() {
 		return lv.Slice(0, 0).Interface(), nil
 	}
@@ -221,6 +223,8 @@ func (ns *Namespace) First(limit any, l any) (any, error) {
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(l).Type().String())
 	}
 
+	lv = asSlice(lv)
+
 	if limitv > lv.Len() {
 		limitv = lv.Len()
 	}
@@ -280,7 +284,7 @@ func (ns *Namespace) Intersect(l1, l2 any) (any, error) {
 
 	switch l1v.Kind() {
 	case reflect.Array, reflect.Slice:
-		ins = &intersector{r: reflect.MakeSlice(l1v.Type(), 0, 0), seen: make(map[any]bool)}
+		ins = &intersector{r: reflect.MakeSlice(sliceTypeOf(l1v.Type()), 0, 0), seen: make(map[any]bool)}
 		switch l2v.Kind() {
 		case reflect.Array, reflect.Slice:
 			for i := range l1v.Len() {
@@ -381,6 +385,8 @@ func (ns *Namespace) Last(limit any, l any) (any, error) {
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(l).Type().String())
 	}
 
+	seqv = asSlice(seqv)
+
 	if limitv > seqv.Len() {
 		limitv = seqv.Len()
 	}
@@ -396,12 +402,12 @@ func (ns *Namespace) Reverse(l any) (any, error) {
 	v := reflect.ValueOf(l)
 
 	switch v.Kind() {
-	case reflect.Slice:
+	case reflect.Array, reflect.Slice:
 	default:
-		return nil, errors.New("argument must be a slice")
+		return nil, errors.New("argument must be a slice or array")
 	}
 
-	sliceCopy := reflect.MakeSlice(v.Type(), v.Len(), v.Len())
+	sliceCopy := reflect.MakeSlice(sliceTypeOf(v.Type()), v.Len(), v.Len())
 
 	for i := v.Len() - 1; i >= 0; i-- {
 		element := sliceCopy.Index(i)
@@ -511,7 +517,7 @@ func (ns *Namespace) Shuffle(l any) (any, error) {
 		return nil, errors.New("can't iterate over " + reflect.ValueOf(l).Type().String())
 	}
 
-	shuffled := reflect.MakeSlice(reflect.TypeOf(l), lv.Len(), lv.Len())
+	shuffled := reflect.MakeSlice(sliceTypeOf(lv.Type()), lv.Len(), lv.Len())
 
 	randomIndices := rand.Perm(lv.Len())
 
@@ -653,7 +659,7 @@ func (ns *Namespace) Union(l1, l2 any) (any, error) {
 	case reflect.Array, reflect.Slice:
 		switch l2v.Kind() {
 		case reflect.Array, reflect.Slice:
-			ins = &intersector{r: reflect.MakeSlice(l1v.Type(), 0, 0), seen: make(map[any]bool)}
+			ins = &intersector{r: reflect.MakeSlice(sliceTypeOf(l1v.Type()), 0, 0), seen: make(map[any]bool)}
 
 			if l1v.Type() != l2v.Type() &&
 				l1v.Type().Elem().Kind() != reflect.Interface &&

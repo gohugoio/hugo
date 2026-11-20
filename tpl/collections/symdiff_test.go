@@ -41,6 +41,8 @@ func TestSymDiff(t *testing.T) {
 		expected any
 	}{
 		{[]string{"a", "x", "b", "c"}, []string{"a", "b", "y", "c"}, []string{"x", "y"}},
+		// An array argument gives a slice, the length of an array result is fixed.
+		{[3]string{"a", "b", "c"}, []string{"b"}, []string{"a", "c"}},
 		{[]string{"a", "b", "c"}, []string{"a", "b", "c"}, []string{}},
 		{[]any{"a", "b", nil}, []any{"a"}, []any{"b", nil}},
 		{[]int{1, 2, 3}, []int{3, 4}, []int{1, 2, 4}},
