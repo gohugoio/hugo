@@ -43,6 +43,13 @@ type TemplateDescriptor struct {
 	LayoutFromUserMustMatch bool // If set, we only look for the exact layout.
 	IsPlainText             bool // Whether this is a plain text template.
 	AlwaysAllowPlainText    bool // Whether to e.g. allow plain text templates to be rendered in HTML.
+
+	// MediaTypeSuffix is set for templates identified by file suffix only, e.g.
+	// baseof.xml. Several output formats may share a suffix (e.g. both RSS and a
+	// custom Atom format use .xml), so the media type alone cannot express which
+	// templates such a file should be applied to. When set, this template matches
+	// any output format whose media type has this suffix. See issue 15590.
+	MediaTypeSuffix string
 }
 
 func (d *TemplateDescriptor) normalizeFromFile() {
@@ -70,6 +77,17 @@ type descriptorHandler struct {
 func (s descriptorHandler) compareDescriptors(category Category, this, other TemplateDescriptor, sitesMatrixThis, sitesMatrixOther sitesmatrix.VectorProvider) weight {
 	if this.LayoutFromUserMustMatch && this.LayoutFromUser != other.LayoutFromTemplate {
 		return weightNoMatch
+	}
+
+	if other.MediaTypeSuffix != "" && this.MediaType != "" {
+		// This template was identified by suffix only, e.g. baseof.xml. It applies
+		// to every output format using that suffix, so compare the media types by
+		// suffix. See issue 15590.
+		mt, found := s.opts.MediaTypes.GetByType(this.MediaType)
+		if !found || !mt.HasSuffix(strings.ToLower(strings.TrimPrefix(other.MediaTypeSuffix, "."))) {
+			return weightNoMatch
+		}
+		other.MediaType = this.MediaType
 	}
 
 	w := this.doCompare(category, other, sitesMatrixThis, sitesMatrixOther)
