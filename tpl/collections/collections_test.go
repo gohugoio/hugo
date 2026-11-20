@@ -452,6 +452,8 @@ func TestIsSet(t *testing.T) {
 		{[]any{1, 2, 3, 5}, 2.0, true, false},
 
 		{[]any{1, 2, 3, 5}, 22, false, false},
+		{[]any{1, 2, 3, 5}, -1, false, false},
+		{[]any{1, 2, 3, 5}, "-1", false, false},
 
 		{map[string]any{"a": 1, "b": 2}, "b", true, false},
 		{map[string]any{"a": 1, "b": 2}, "bc", false, false},
