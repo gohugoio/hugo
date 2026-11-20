@@ -126,6 +126,7 @@ type Rebuilder interface {
 
 type Spec struct {
 	*helpers.PathSpec
+	ResourceCache *ResourceCache
 
 	Logger       loggers.Logger
 	ErrorSender  herrors.ErrorSender
@@ -146,9 +147,8 @@ type Spec struct {
 
 // The parts of Spec that's common for all sites.
 type SpecCommon struct {
-	incr          identity.Incrementer
-	ResourceCache *ResourceCache
-	FileCaches    filecache.Caches
+	incr       identity.Incrementer
+	FileCaches filecache.Caches
 
 	// Assets used after the build is done.
 	// This is shared between all sites.
