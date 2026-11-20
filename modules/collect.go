@@ -768,6 +768,10 @@ func (c *collector) mountCommonJSConfig(owner *moduleAdapter, mounts []Mount) ([
 					if filepath.ToSlash(wsDir) == filepath.ToSlash(files.FolderPackagesHugoAutoGen) {
 						continue
 					}
+					// These mounts are added after normalizeMounts, so apply the same restriction here.
+					if !owner.projectMod && !filepath.IsLocal(wsDir) {
+						continue
+					}
 					wsPackageJSON := filepath.Join(wsDir, files.FilenamePackageJSON)
 					if fi, err := c.fs.Stat(filepath.Join(owner.Dir(), wsPackageJSON)); err == nil && !fi.IsDir() {
 						mounts = append(mounts, Mount{
