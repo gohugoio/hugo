@@ -14,15 +14,27 @@
 package hexec
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config/security"
 )
+
+func TestNotFoundErrorIsExecNotFoundError(t *testing.T) {
+	c := qt.New(t)
+
+	err := &NotFoundError{name: "foo", method: "in PATH"}
+	c.Assert(herrors.IsExecNotFoundError(err), qt.IsTrue)
+	c.Assert(herrors.IsExecNotFoundError(fmt.Errorf("bar: %w", err)), qt.IsTrue)
+	c.Assert(herrors.IsExecNotFoundError(errors.New("foo")), qt.IsFalse)
+}
 
 func TestNodePermissionArgs(t *testing.T) {
 	c := qt.New(t)

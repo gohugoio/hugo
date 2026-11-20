@@ -216,9 +216,9 @@ func TestTransform(t *testing.T) {
 
 			if i == 0 {
 				// There is currently a hardcoded list of transformations that we
-				// persist to disk (tocss, postcss).
+				// persist to disk (tocss-dart, postcss).
 				transformation = &testTransformation{
-					name: "tocss",
+					name: "tocss-dart",
 					transform: func(ctx *resources.ResourceTransformationCtx) error {
 						in := helpers.ReaderToString(ctx.From)
 						in = strings.Replace(in, "blue", "green", 1)
@@ -234,9 +234,9 @@ func TestTransform(t *testing.T) {
 			} else {
 				// Force read from file cache.
 				transformation = &testTransformation{
-					name: "tocss",
+					name: "tocss-dart",
 					transform: func(ctx *resources.ResourceTransformationCtx) error {
-						return herrors.ErrFeatureNotAvailable
+						return herrors.ErrExecNotFound
 					},
 				}
 			}

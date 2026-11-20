@@ -1748,3 +1748,38 @@ RSSBaseof: {{ block "main" . }}{{ end }}
 	b.AssertFileContent("public/atom.xml", "SuffixOnlyBaseof:", "ATOM")
 	b.AssertFileContent("public/rss.xml", "RSSBaseof:", "! SuffixOnlyBaseof:", "RSS")
 }
+
+// Issue #15614.
+func TestGoatNonHTMLOutputWithUserCodeBlockHook(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page', 'rss', 'section', 'sitemap', 'taxonomy', 'term']
+[outputs]
+home = ['html', 'json']
+-- content/_index.md --
+---
+title: home
+---
+
+§§§goat
++--+
+|AB|
++--+
+§§§
+-- layouts/_markup/render-codeblock.html --
+USER CODEBLOCK HOOK
+-- layouts/home.html --
+{{ .Content }}
+-- layouts/home.json --
+{{ .Content }}
+`
+
+	for range 20 {
+		b := hugolib.Test(t, files)
+
+		b.AssertFileContent("public/index.html", "<svg")
+		b.AssertFileContent("public/index.json", "<svg")
+	}
+}

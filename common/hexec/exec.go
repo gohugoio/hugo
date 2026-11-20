@@ -17,7 +17,6 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -28,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/bep/logg"
+	"github.com/gohugoio/hugo/common/herrors"
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/config"
@@ -107,12 +107,6 @@ func New(cfg security.Config, workingDir string, log loggers.Logger) *Exec {
 		nodeSymlinkChecks: hmaps.NewCache[string, bool](),
 		readPathChecks:    hmaps.NewCacheWithOptions[string, bool](hmaps.CacheOptions{Size: 10000}),
 	}
-}
-
-// IsNotFound reports whether this is an error about a binary not found.
-func IsNotFound(err error) bool {
-	var notFoundErr *NotFoundError
-	return errors.As(err, &notFoundErr)
 }
 
 // Exec enforces a security policy for commands run via os/exec.
@@ -458,6 +452,11 @@ type NotFoundError struct {
 
 func (e *NotFoundError) Error() string {
 	return fmt.Sprintf("binary with name %q not found %s", e.name, e.method)
+}
+
+func (e *NotFoundError) Is(target error) bool {
+	_, ok := target.(*herrors.ExecNotFoundError)
+	return ok
 }
 
 // Runner wraps a *os.Cmd.

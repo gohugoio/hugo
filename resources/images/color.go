@@ -149,7 +149,9 @@ func HexStringsToColors(s ...string) []Color {
 	return colors
 }
 
-func toColorGo(v any) (color.Color, bool, error) {
+// ToColorGo converts v, a Color or a hex color string, to a color.Color.
+// The second return value is false if v is not of a supported type.
+func ToColorGo(v any) (color.Color, bool, error) {
 	switch vv := v.(type) {
 	case colorGoProvider:
 		return vv.ColorGo(), true, nil

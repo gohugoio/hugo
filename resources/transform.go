@@ -67,10 +67,18 @@ var (
 // These are transformations that need special support in Hugo that may not
 // be available when building the theme/site so we write the transformation
 // result to disk and reuse if needed for these,
+// errWithMessage wraps err but replaces its message.
+type errWithMessage struct {
+	msg string
+	err error
+}
+
+func (e *errWithMessage) Error() string { return e.msg }
+func (e *errWithMessage) Unwrap() error { return e.err }
+
 // TODO(bep) it's a little fragile having these constants redefined here.
 var transformationsToCacheOnDisk = map[string]bool{
 	"postcss":    true,
-	"tocss":      true,
 	"tocss-dart": true,
 }
 
@@ -620,23 +628,24 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 		newErr := func(err error) error {
 			msg := fmt.Sprintf("%s: failed to transform %q (%s)", strings.ToUpper(tr.Key().Name), tctx.InPath, tctx.InMediaType.Type)
 
-			if herrors.IsFeatureNotAvailableError(err) {
-				var errMsg string
+			if herrors.IsExecNotFoundError(err) {
+				var name, url string
 				switch strings.ToLower(tr.Key().Name) {
 				case "postcss":
-					// This transformation is not available in this
-					// Most likely because PostCSS is not installed.
-					errMsg = ". You need to install PostCSS. See https://gohugo.io/functions/css/postcss/"
+					name, url = "PostCSS", "https://gohugo.io/functions/css/postcss/"
 				case "tailwindcss":
-					errMsg = ". You need to install TailwindCSS CLI. See https://gohugo.io/functions/css/tailwindcss/"
+					name, url = "Tailwind CSS CLI", "https://gohugo.io/functions/css/tailwindcss/"
 				case "tocss-dart":
-					errMsg = ". You need to install Dart Sass, see https://gohugo.io//functions/css/sass/#dart-sass"
+					name, url = "Dart Sass", "https://gohugo.io/functions/css/sass/#dart-sass"
 				case "babel":
-					errMsg = ". You need to install Babel, see https://gohugo.io/functions/js/babel/"
-
+					name, url = "Babel", "https://gohugo.io/functions/js/babel/"
 				}
-
-				return fmt.Errorf(msg+errMsg+": %w", err)
+				if name != "" {
+					return &errWithMessage{
+						msg: fmt.Sprintf("%s: %s not found; install it or add its location to PATH, see %s", msg, name, url),
+						err: err,
+					}
+				}
 			}
 
 			return fmt.Errorf(msg+": %w", err)
@@ -648,7 +657,7 @@ func (r *resourceAdapter) transform(key string, publish, setContent bool) (*reso
 			tryFileCache = true
 		} else {
 			err = tr.Transform(tctx)
-			if err != nil && err != herrors.ErrFeatureNotAvailable {
+			if err != nil && !herrors.IsExecNotFoundError(err) {
 				return nil, newErr(err)
 			}
 

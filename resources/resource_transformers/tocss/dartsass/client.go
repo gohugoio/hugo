@@ -100,7 +100,7 @@ type Client struct {
 
 func (c *Client) ToCSS(res resources.ResourceTransformer, args map[string]any) (resource.Resource, error) {
 	if c.transpiler == nil {
-		return res.Transform(resources.NewFeatureNotAvailableTransformer(transformationName, args))
+		return res.Transform(resources.NewExecNotFoundTransformer(transformationName, args))
 	}
 	return res.Transform(&transform{c: c, optsm: args})
 }

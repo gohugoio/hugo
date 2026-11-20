@@ -378,6 +378,7 @@ baseURL = "http://example.com/"
 
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, "return with a value is only supported in partials")
+	b.Assert(err.Error(), qt.Contains, `home.html:1:1": execute of template failed`)
 }
 
 func TestPartialCached(t *testing.T) {

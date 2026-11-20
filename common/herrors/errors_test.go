@@ -36,10 +36,10 @@ func TestIsNotExist(t *testing.T) {
 	c.Assert(IsNotExist(fmt.Errorf("foo: %w", afero.ErrFileNotFound)), qt.Equals, true)
 }
 
-func TestIsFeatureNotAvailableError(t *testing.T) {
+func TestIsExecNotFoundError(t *testing.T) {
 	c := qt.New(t)
 
-	c.Assert(IsFeatureNotAvailableError(ErrFeatureNotAvailable), qt.Equals, true)
-	c.Assert(IsFeatureNotAvailableError(&FeatureNotAvailableError{}), qt.Equals, true)
-	c.Assert(IsFeatureNotAvailableError(errors.New("asdf")), qt.Equals, false)
+	c.Assert(IsExecNotFoundError(ErrExecNotFound), qt.Equals, true)
+	c.Assert(IsExecNotFoundError(&ExecNotFoundError{}), qt.Equals, true)
+	c.Assert(IsExecNotFoundError(errors.New("asdf")), qt.Equals, false)
 }

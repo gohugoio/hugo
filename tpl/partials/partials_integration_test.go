@@ -245,6 +245,13 @@ ABCD
 			_, _ = ns.IncludeCached(context.Background(), "42.html", "foo")
 		}
 	})
+
+	// See issue 15604.
+	b.Run("include_return", func(b *testing.B) {
+		for b.Loop() {
+			_, _ = ns.Include(context.Background(), "42.html", "foo")
+		}
+	})
 }
 
 func TestIncludeTimeout(t *testing.T) {

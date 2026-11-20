@@ -62,11 +62,18 @@ func (*Filters) Mask(mask ImageSource) gift.Filter {
 }
 
 // Opacity creates a filter that changes the opacity of an image.
-// The opacity parameter must be in range (0, 1).
+// The opacity parameter must be in range [0, 1].
 func (*Filters) Opacity(opacity any) gift.Filter {
+	o, err := cast.ToFloat32E(opacity)
+	if err != nil {
+		panic(fmt.Sprintf("invalid opacity: %s", err))
+	}
+	if o < 0 || o > 1 {
+		panic("opacity must be in the range [0, 1]")
+	}
 	return filter{
 		Options: newFilterOpts(opacity),
-		Filter:  opacityFilter{opacity: cast.ToFloat32(opacity)},
+		Filter:  opacityFilter{opacity: o},
 	}
 }
 
@@ -89,7 +96,7 @@ func (*Filters) Text(text string, options ...any) gift.Filter {
 		for option, v := range opt {
 			switch option {
 			case "color":
-				if color, ok, _ := toColorGo(v); ok {
+				if color, ok, _ := ToColorGo(v); ok {
 					tf.color = color
 				}
 			case "size":
@@ -155,7 +162,7 @@ func (*Filters) Padding(args ...any) gift.Filter {
 
 	_args := args // preserve original args for most stable hash
 
-	if vcs, ok, err := toColorGo(args[len(args)-1]); ok || err != nil {
+	if vcs, ok, err := ToColorGo(args[len(args)-1]); ok || err != nil {
 		if err != nil {
 			panic("invalid canvas color: specify RGB or RGBA using hex notation")
 		}
@@ -230,7 +237,7 @@ func (*Filters) Dither(options ...any) gift.Filter {
 
 	var palette []color.Color
 	for _, c := range ditherOptions.Colors {
-		cc, ok, err := toColorGo(c)
+		cc, ok, err := ToColorGo(c)
 		if !ok || err != nil {
 			panic(fmt.Sprintf("%q is an invalid color: specify RGB or RGBA using hexadecimal notation", c))
 		}

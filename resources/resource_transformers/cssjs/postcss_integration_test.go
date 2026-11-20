@@ -216,6 +216,44 @@ Styles Content: Len: 770917
 	}
 }
 
+// See issue 15609.
+func TestTransformPostCSSFallbackToResourceCache(t *testing.T) {
+	t.Setenv("PATH", "") // ensure that the postcss exec is not found
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+[build]
+useResourceCacheWhen = 'always'
+-- assets/css/main.css --
+::placeholder {
+  color: gray;
+}
+-- layouts/home.html --
+{{ (resources.Get "css/main.css" | css.PostCSS).Content }}
+-- resources/_gen/assets/css/main.csse03652540c5bbc68d359e86d9fc1015a.content --
+::-moz-placeholder {
+  color: gray;
+}
+::placeholder {
+  color: gray;
+}
+-- resources/_gen/assets/css/main.csse03652540c5bbc68d359e86d9fc1015a.json --
+{"Target":"/css/main.css","MediaType":"text/css","Data":{}}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "::-moz-placeholder {")
+
+	files = strings.ReplaceAll(files, "always", "fallback")
+	b = hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "::-moz-placeholder {")
+
+	files = strings.ReplaceAll(files, "fallback", "never")
+	b, err := hugolib.TestE(t, files)
+	b.Assert(err, qt.ErrorMatches, `(?s).*PostCSS not found.*`)
+}
+
 // See Issue 15039.
 // See Issue 15040.
 func TestTransformPostCSSConfigResolution(t *testing.T) {
@@ -290,7 +328,8 @@ CONFIG_FILE_CONTENT
 			f := strings.ReplaceAll(files, "CONFIG_FILE_NAME", tt.configFileName)
 			f = strings.ReplaceAll(f, "CONFIG_FILE_CONTENT", tt.configFileContent)
 
-			b := hugolib.Test(c, f,
+			b := hugolib.Test(
+				c, f,
 				hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
 					cfg.WorkingDir = projectDir
 					cfg.NeedsOsFS = true
@@ -299,7 +338,8 @@ CONFIG_FILE_CONTENT
 				hugolib.TestOptInfo(),
 			)
 
-			b.AssertFileContent("public/index.html",
+			b.AssertFileContent(
+				"public/index.html",
 				"RelPermalink: /css/styles.css|HasBody: true|",
 			)
 			b.AssertLogContains(tt.configFileName)
@@ -364,7 +404,8 @@ export default { plugins: [postcssImport()] };
 
 `
 
-	b := hugolib.Test(c, files,
+	b := hugolib.Test(
+		c, files,
 		hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
 			cfg.WorkingDir = projectDir
 			cfg.NeedsOsFS = true
@@ -372,7 +413,8 @@ export default { plugins: [postcssImport()] };
 		}),
 	)
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		"RelPermalink: /css/styles.css|HasBody: true|",
 	)
 }
@@ -444,7 +486,8 @@ export default { plugins: [postcssImport()] };
 
 `
 
-	b := hugolib.Test(c, files,
+	b := hugolib.Test(
+		c, files,
 		hugolib.TestOptWithConfig(func(cfg *hugolib.IntegrationTestConfig) {
 			cfg.WorkingDir = projectDir
 			cfg.NeedsOsFS = true
@@ -452,7 +495,8 @@ export default { plugins: [postcssImport()] };
 		}),
 	)
 
-	b.AssertFileContent("public/index.html",
+	b.AssertFileContent(
+		"public/index.html",
 		"RelPermalink: /css/styles.css|HasBody: true|",
 	)
 }

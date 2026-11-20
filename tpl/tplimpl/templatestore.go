@@ -550,6 +550,12 @@ func (t *TemplateStore) ExecuteWithContextAndKey(ctx context.Context, key string
 
 	execErr := t.storeSite.executer.ExecuteWithContext(ctx, ti, wr, data)
 	if execErr != nil {
+		if ti.category == CategoryPartial {
+			if _, ok := execErr.(*texttemplate.ReturnError); ok {
+				// The return sentinel, handled by the partial caller.
+				return execErr
+			}
+		}
 		return t.addFileContext(ti, "execute of template failed", execErr)
 	}
 	return nil

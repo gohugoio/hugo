@@ -1,14 +1,14 @@
 {{- /*
 Renders an embedded Vimeo video.
 
-Accepts named or positional arguments. If positional, order is id, class,
-title, then loading.
+Accepts named arguments, or the video id as the first and only positional
+argument.
 
 @param {bool} [allowFullScreen=true] Whether the iframe element can activate full screen mode.
 @param {string} [class] The class attribute of the wrapping div element. When specified, removes the style attributes from the iframe element and its wrapping div element.
 @param {string} [id] The video id. Optional if the id is the first and only positional argument.
-@param {string} [loading=eager] The loading attribute of the iframe element.
-@param {string} [title=Vimeo video] The title attribute of the iframe element.
+@param {string} [loading] The loading attribute of the iframe element. Omitted if not specified.
+@param {string} [title] The title attribute of the iframe element. Omitted if not specified.
 
 @returns {template.HTML}
 
@@ -23,10 +23,10 @@ title, then loading.
 		{{- $dnt := cond $pc.EnableDNT 1 0 }}
 
 		{{- $allowFullScreen := true }}
-		{{- $class := or (.Get "class") }}
+		{{- $class := .Get "class" }}
 		{{- $id := or (.Get "id") (.Get 0) }}
-		{{- $loading := or (.Get "loading") }}
-		{{- $title := or (.Get "title") }}
+		{{- $loading := .Get "loading" }}
+		{{- $title := .Get "title" }}
 
 		{{- if in (slice "true" true 1) (.Get "allowFullScreen") }}
 			{{- $allowFullScreen = true }}
