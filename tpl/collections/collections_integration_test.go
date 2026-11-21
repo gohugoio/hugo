@@ -79,6 +79,26 @@ uniq: {{ len (uniq (slice $utc $tokyo $later)) }}
 	b.AssertFileContent("public/index.html", "in: true|false", "uniq: 2")
 }
 
+// See issue 15577: intersect was not covered by the time.Time instant
+// comparison fix; it still compares struct values with ==, which is
+// location-sensitive for time.Time.
+func TestIntersectTimeDifferentLocations(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/home.html --
+{{ $utc := time.AsTime "2023-07-19T17:42:36Z" }}
+{{ $tokyo := $utc | time.In "Asia/Tokyo" }}
+{{ $later := $utc.Add 1 }}
+intersect: {{ len (intersect (slice $utc) (slice $tokyo)) }}|{{ len (intersect (slice $utc) (slice $later)) }}
+`
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.html", "intersect: 1|0")
+}
+
 // Issue 9865
 func TestSortStable(t *testing.T) {
 	t.Parallel()

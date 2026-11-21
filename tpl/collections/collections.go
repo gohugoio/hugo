@@ -623,7 +623,13 @@ func (i *intersector) handleValuePair(l1vv, l2vv reflect.Value) {
 		c, ok := hreflect.CompareNumbers(v1, v2)
 		eq = ok && c == 0
 	case kind == reflect.Pointer, kind == reflect.Struct:
-		eq = types.Unwrapv(v1.Interface()) == types.Unwrapv(v2.Interface())
+		u1, u2 := types.Unwrapv(v1.Interface()), types.Unwrapv(v2.Interface())
+		if t1, ok := u1.(time.Time); ok {
+			t2, ok := u2.(time.Time)
+			eq = ok && t1.Equal(t2)
+		} else {
+			eq = u1 == u2
+		}
 	}
 
 	if eq {
