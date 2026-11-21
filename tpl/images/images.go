@@ -21,11 +21,13 @@ import (
 	"image/color"
 	"path"
 	"path/filepath"
+	"time"
 
 	"github.com/bep/helpers/maphelpers"
 	"github.com/bep/overlayfs"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugio"
+	"github.com/gohugoio/hugo/langs"
 	"github.com/gohugoio/hugo/resources/images"
 	"github.com/gohugoio/hugo/resources/resource_factories/create"
 	"github.com/gohugoio/qr"
@@ -50,9 +52,16 @@ func New(d *deps.Deps) *Namespace {
 		})
 	}
 
+	loc := time.UTC
+	if d.Conf != nil {
+		if lang, ok := d.Conf.Language().(*langs.Language); ok && lang != nil {
+			loc = langs.GetLocation(lang)
+		}
+	}
+
 	return &Namespace{
 		readFileFs:   readFileFs,
-		Filters:      &images.Filters{},
+		Filters:      images.NewFilters(loc),
 		cache:        maphelpers.NewConcurrentMap[string, image.Config](),
 		deps:         d,
 		createClient: create.New(d.ResourceSpec),
