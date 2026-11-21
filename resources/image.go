@@ -24,9 +24,11 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/bep/imagemeta"
 	color_extractor "github.com/marekm4/color-extractor"
 
 	"github.com/gohugoio/hugo/cache/filecache"
+	"github.com/gohugoio/hugo/common/constants"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hugo"
 	"github.com/gohugoio/hugo/common/paths"
@@ -307,18 +309,32 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 		gfilters = append(gfilters, images.ToFilters(f)...)
 	}
 
-	var options []string
+	var (
+		options []string
+		meta    imagemeta.Meta
+	)
 
 	for _, f := range gfilters {
 		f = images.UnwrapFilter(f)
 		if specProvider, ok := f.(images.ImageProcessSpecProvider); ok {
 			options = append(options, strings.Fields(specProvider.ImageProcessSpec())...)
 		}
+		if metaProvider, ok := f.(images.ImageMetaProvider); ok {
+			metaProvider.MergeImageMeta(&meta)
+		}
 	}
 
 	confMain, err := images.DecodeImageConfig(options, i.Proc.Cfg, i.Format)
 	if err != nil {
 		return nil, err
+	}
+
+	if !meta.IsZero() {
+		if !imagemeta.CanWrite(confMain.TargetFormat.ToImageMetaImageFormatFormat()) {
+			i.getSpec().Logger.Warnidf(constants.WarnImageMetaNotWritten, "Writing metadata to %s images is not supported: %s", confMain.TargetFormat, i.Key())
+		} else {
+			confMain.Meta = meta
+		}
 	}
 
 	confMain.Action = images.ActionFilter
@@ -334,7 +350,7 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 	// Geometric filters cannot introduce colors outside the source palette.
 	for _, f := range gfilters {
 		switch images.UnwrapFilter(f).(type) {
-		case images.ImageProcessSpecProvider, images.ImageFilterFromOrientationProvider:
+		case images.ImageProcessSpecProvider, images.ImageFilterFromOrientationProvider, images.ImageMetaProvider:
 		default:
 			confMain.PreserveSourcePalette = false
 		}
@@ -363,6 +379,8 @@ func (i *imageResource) Filter(filters ...any) (images.ImageResource, error) {
 				if tf := orientationProvider.AutoOrient(orientation); tf != nil {
 					filters = append(filters, tf)
 				}
+			} else if _, ok := f.(images.ImageMetaProvider); ok {
+				// Applied when encoding.
 			} else {
 				filters = append(filters, f)
 			}

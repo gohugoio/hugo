@@ -22,6 +22,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bep/imagemeta"
 	"github.com/gohugoio/hugo/common/hashing"
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/config"
@@ -409,6 +410,9 @@ type ImageConfig struct {
 
 	// If set, only the first frame of animated images is decoded and processed.
 	FirstFrameOnly bool
+
+	// Metadata to write to the encoded image.
+	Meta imagemeta.Meta
 
 	Width  int
 	Height int

@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"image/color"
 	"strings"
+	"time"
 
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/common/hugio"
@@ -32,7 +33,14 @@ import (
 // Increment for re-generation of images using these filters.
 const filterAPIVersion = 0
 
-type Filters struct{}
+type Filters struct {
+	loc *time.Location
+}
+
+// NewFilters returns a new Filters with the given default time location.
+func NewFilters(loc *time.Location) *Filters {
+	return &Filters{loc: loc}
+}
 
 // Process creates a filter that processes an image using the given specification.
 func (*Filters) Process(spec any) gift.Filter {
@@ -43,6 +51,13 @@ func (*Filters) Process(spec any) gift.Filter {
 			spec: specs,
 		},
 	}
+}
+
+// Meta creates a filter that writes metadata to the processed image as EXIF and XMP.
+// The supported fields are copyright, creator, title, description, date, lat and long.
+// When used multiple times in a filter chain, the non-empty values are merged, the last one wins.
+func (f *Filters) Meta(m any) gift.Filter {
+	return newMetaFilter(m, f.loc)
 }
 
 // Overlay creates a filter that overlays src at position x y.

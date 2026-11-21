@@ -21,6 +21,7 @@ const (
 	WarnPartialSuperfluousPrefix = "warning-partial-superfluous-prefix"
 	WarnHomePageIsLeafBundle     = "warning-home-page-is-leaf-bundle"
 	WarnMenuPrePostHTMLEscaped   = "warning-menu-pre-post-html-escaped"
+	WarnImageMetaNotWritten      = "warning-image-meta-not-written"
 )
 
 // Field/method names with special meaning.

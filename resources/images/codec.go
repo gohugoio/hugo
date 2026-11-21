@@ -73,6 +73,22 @@ func newCodec(webp, avif EncodeDecoder, debugl logg.LevelLogger) *Codec {
 }
 
 func (d *Codec) EncodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
+	if conf.Meta.IsZero() {
+		return d.encodeTo(conf, w, img)
+	}
+	var buf bytes.Buffer
+	if err := d.encodeTo(conf, &buf, img); err != nil {
+		return err
+	}
+	return imagemeta.Write(imagemeta.WriteOptions{
+		R:           &buf,
+		W:           w,
+		ImageFormat: conf.TargetFormat.ToImageMetaImageFormatFormat(),
+		Meta:        conf.Meta,
+	})
+}
+
+func (d *Codec) encodeTo(conf ImageConfig, w io.Writer, img image.Image) error {
 	d.debugl.Log(
 		// This construct looks odd, but the func will only be called if debug is enabled.
 		logg.StringFunc(
