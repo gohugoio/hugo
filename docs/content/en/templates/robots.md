@@ -15,11 +15,16 @@ enableRobotsTXT = true
 
 By default, Hugo generates robots.txt using an [embedded template][].
 
+For a site with `baseURL = 'https://example.org/'`:
+
 ```text
 User-agent: *
+Sitemap: https://example.org/sitemap.xml
 ```
 
 Search engines that honor the Robots Exclusion Protocol will interpret this as permission to crawl everything on the site.
+
+Hugo omits the `Sitemap` directive when sitemap generation is disabled. For multilingual single-host sites, the directive points to the sitemap index.
 
 ## robots.txt template lookup order
 
