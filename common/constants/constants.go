@@ -16,11 +16,12 @@ package constants
 // Error/Warning IDs.
 // Do not change these values.
 const (
-	WarnRenderShortcodesInHTML   = "warning-rendershortcodes-in-html"
-	WarnGoldmarkRawHTML          = "warning-goldmark-raw-html"
-	WarnPartialSuperfluousPrefix = "warning-partial-superfluous-prefix"
-	WarnHomePageIsLeafBundle     = "warning-home-page-is-leaf-bundle"
-	WarnMenuPrePostHTMLEscaped   = "warning-menu-pre-post-html-escaped"
+	WarnRenderShortcodesInHTML     = "warning-rendershortcodes-in-html"
+	WarnGoldmarkRawHTML            = "warning-goldmark-raw-html"
+	WarnPartialSuperfluousPrefix   = "warning-partial-superfluous-prefix"
+	WarnHomePageIsLeafBundle       = "warning-home-page-is-leaf-bundle"
+	WarnBothIndexFilesInContentDir = "warning-both-index-files-in-content-dir"
+	WarnMenuPrePostHTMLEscaped     = "warning-menu-pre-post-html-escaped"
 )
 
 // Field/method names with special meaning.
