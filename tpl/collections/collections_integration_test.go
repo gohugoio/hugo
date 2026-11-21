@@ -125,6 +125,28 @@ func TestAppendSliceToASliceOfSlices(t *testing.T) {
 }
 
 // See issue 11131.
+func TestAppendSliceOfSlicesToASliceOfSlices(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+-- layouts/home.html --
+{{ $rows := slice }}
+{{ $rows = $rows | append (slice (slice 10 20)) }}
+{{ $rows = $rows | append (slice (slice 30)) }}
+Same: {{ $rows | jsonify }}|{{ printf "%T" $rows }}
+{{ $rows = $rows | append (slice (slice "x" "y")) }}
+Mixed: {{ $rows | jsonify }}
+`
+
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html",
+		"Same: [[10,20],[30]]|[][]int",
+		`Mixed: [[10,20],[30],["x","y"]]`,
+	)
+}
+
+// See issue 11131.
 func TestAppendEmptySlicePreservesType(t *testing.T) {
 	t.Parallel()
 
