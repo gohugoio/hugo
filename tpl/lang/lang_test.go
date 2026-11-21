@@ -93,6 +93,9 @@ func TestFormatNumbers(t *testing.T) {
 		got, err := nsEn.FormatCurrency(2, "USD", 20000)
 		c.Assert(err, qt.IsNil)
 		c.Assert(got, qt.Equals, "$20,000.00")
+		got, err = nsEn.FormatCurrency(2, "USD", -20000)
+		c.Assert(err, qt.IsNil)
+		c.Assert(got, qt.Equals, "-$20,000.00")
 	})
 
 	c.Run("FormatAccounting", func(c *qt.C) {
@@ -100,6 +103,9 @@ func TestFormatNumbers(t *testing.T) {
 		got, err := nsEn.FormatAccounting(2, "USD", 20000)
 		c.Assert(err, qt.IsNil)
 		c.Assert(got, qt.Equals, "$20,000.00")
+		got, err = nsEn.FormatAccounting(2, "USD", -20000)
+		c.Assert(err, qt.IsNil)
+		c.Assert(got, qt.Equals, "($20,000.00)")
 	})
 }
 
