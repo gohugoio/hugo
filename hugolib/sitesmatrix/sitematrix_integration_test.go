@@ -1953,3 +1953,80 @@ List.
 	// The member role should see both.
 	b.AssertFileContent("public/member/bundle/index.html", "Role: member|guestimg.txt|img._role_member_.txt|$")
 }
+
+// Issue 15624.
+func TestSharedPageResourcePublishPathIsStable(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home', 'rss', 'section', 'sitemap', 'taxonomy', 'term']
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = true
+defaultContentVersion = 'v2.0.0'
+defaultContentVersionInSubdir = true
+[languages.en]
+weight = 1
+[languages.de]
+weight = 2
+[versions.'v1.0.0']
+[versions.'v2.0.0']
+[[module.mounts]]
+source = 'content/de/v2'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = 'de'
+versions  = '>= v2.0.0'
+[[module.mounts]]
+source = 'content/en/v2'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = '**'
+versions  = '>= v2.0.0'
+[[module.mounts]]
+source = 'content/de/v1'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = 'de'
+versions  = '**'
+[[module.mounts]]
+source = 'content/en/v1'
+target = 'content'
+[module.mounts.sites.matrix]
+languages = '**'
+versions  = '**'
+-- content/de/v1/p1/index.md --
+---
+title: p1 de v1
+---
+-- content/en/v1/p1/index.md --
+---
+title: p1 en v1
+---
+-- content/en/v1/p1/a.txt --
+v1
+-- content/de/v2/p1/index.md --
+---
+title: p1 de v2
+---
+-- content/en/v2/p1/index.md --
+---
+title: p1 en v2
+---
+-- content/en/v2/p1/a.txt --
+v2
+-- layouts/page.html --
+{{ .Title }}|{{ with .Resources.Get "a.txt" }}{{ .RelPermalink }}|{{ .Content }}{{ end }}$
+`
+
+	for range 10 {
+		b := hugolib.Test(t, files)
+
+		b.AssertFileContent("public/v1.0.0/en/p1/index.html", "p1 en v1|/v1.0.0/en/p1/a.txt|v1")
+		b.AssertFileContent("public/v1.0.0/de/p1/index.html", "p1 de v1|/v1.0.0/en/p1/a.txt|v1")
+		b.AssertFileContent("public/v2.0.0/en/p1/index.html", "p1 en v2|/v2.0.0/en/p1/a.txt|v2")
+		b.AssertFileContent("public/v2.0.0/de/p1/index.html", "p1 de v2|/v2.0.0/en/p1/a.txt|v2")
+		b.AssertFileExists("public/v1.0.0/de/p1/a.txt", false)
+		b.AssertFileExists("public/v2.0.0/de/p1/a.txt", false)
+	}
+}

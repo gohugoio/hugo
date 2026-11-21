@@ -175,10 +175,18 @@ func (s *vectorStoreMap) VectorSample() Vector {
 	if len(s.sets) == 0 {
 		panic("no vectors available")
 	}
+	// Return the lowest vector to get a stable result (map iteration order is random).
+	var (
+		first  = true
+		sample Vector
+	)
 	for v := range s.sets {
-		return v
+		if first || v.Compare(sample) < 0 {
+			sample = v
+			first = false
+		}
 	}
-	panic("unreachable")
+	return sample
 }
 
 func (s *vectorStoreMap) ForEachVector(yield func(v Vector) bool) bool {
