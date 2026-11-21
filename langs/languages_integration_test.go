@@ -249,7 +249,9 @@ weight = 6
 -- layouts/home.html --
 Time: {{ "2026-04-01T20:11:31+08:00" | time.Format ":date_long" }}|
 FormatAccounting: {{ 512.5032 | lang.FormatAccounting 2 "USD" }}|
+FormatAccounting negative: {{ -512.5032 | lang.FormatAccounting 2 "USD" }}|
 FormatCurrency: {{ 512.5032 | lang.FormatCurrency 2 "USD" }}|
+FormatCurrency negative: {{ -512.5032 | lang.FormatCurrency 2 "USD" }}|
 `
 
 	b := hugolib.Test(t, files)
@@ -258,42 +260,54 @@ FormatCurrency: {{ 512.5032 | lang.FormatCurrency 2 "USD" }}|
 	b.AssertFileContent("public/de/index.html",
 		`Time: 1. April 2026|`,
 		"FormatAccounting: 512,50\u00a0$|",
+		"FormatAccounting negative: -512,50\u00a0$|",
 		"FormatCurrency: 512,50\u00a0$|",
+		"FormatCurrency negative: -512,50\u00a0$|",
 	)
 
 	// en: valid locale => localize with locale.
 	b.AssertFileContent("public/en/index.html",
 		`Time: April 1, 2026|`,
 		`FormatAccounting: $512.50|`,
+		`FormatAccounting negative: ($512.50)|`,
 		`FormatCurrency: $512.50|`,
+		`FormatCurrency negative: -$512.50|`,
 	)
 
 	// fr: invalid locale => localize with lang.
 	b.AssertFileContent("public/fr/index.html",
 		`Time: 1 avril 2026|`,
 		"FormatAccounting: 512,50\u00a0$US|",
+		"FormatAccounting negative: (512,50\u00a0$US)|",
 		"FormatCurrency: 512,50\u00a0$US|",
+		"FormatCurrency negative: -512,50\u00a0$US|",
 	)
 
 	// nn: no locale => localize with lang.
 	b.AssertFileContent("public/nn/index.html",
 		`Time: 1. april 2026|`,
-		"FormatAccounting: 512,50\u00a0USD|",
+		"FormatAccounting: USD\u00a0512,50|",
+		"FormatAccounting negative: (USD\u00a0512,50)|",
 		"FormatCurrency: 512,50\u00a0USD|",
+		"FormatCurrency negative: \u2212512,50\u00a0USD|",
 	)
 
 	// xx: invalid locale + invalid lang => localize with defaultContentLanguage.
 	b.AssertFileContent("public/xx/index.html",
 		`Time: 1. April 2026|`,
 		"FormatAccounting: 512,50\u00a0$|",
+		"FormatAccounting negative: -512,50\u00a0$|",
 		"FormatCurrency: 512,50\u00a0$|",
+		"FormatCurrency negative: -512,50\u00a0$|",
 	)
 
 	// zh-cn: invalid lang, but valid locale => localize with locale.
 	b.AssertFileContent("public/zh-cn/index.html",
 		`Time: 2026年4月1日|`,
 		`FormatAccounting: US$512.50|`,
+		`FormatAccounting negative: (US$512.50)|`,
 		`FormatCurrency: US$512.50|`,
+		`FormatCurrency negative: -US$512.50|`,
 	)
 }
 
@@ -404,7 +418,7 @@ hello = "Hallo"
 -- layouts/home.html --
 {{ range hugo.Sites -}}
 {{ with .Language -}}
-{{ .Lang }}: {{ .Translate "hello" }}|{{ .Translate "onlyen" }}|{{ .FormatNumber 2 1234.5 }}|{{ .FormatPercent 1 12.3 }}|{{ .FormatCurrency 2 "EUR" 12.3 }}|{{ .FormatAccounting 2 "EUR" -12.3 }}|
+{{ .Lang }}: {{ .Translate "hello" }}|{{ .Translate "onlyen" }}|{{ .FormatNumber 2 1234.5 }}|{{ .FormatPercent 1 12.3 }}|{{ .FormatCurrency 2 "EUR" 12.3 }}|{{ .FormatCurrency 2 "EUR" -12.3 }}|{{ .FormatAccounting 2 "EUR" 12.3 }}|{{ .FormatAccounting 2 "EUR" -12.3 }}|
 {{ end -}}
 {{ end -}}
 site: {{ site.Language.Translate "hello" }}|
@@ -412,9 +426,9 @@ site: {{ site.Language.Translate "hello" }}|
 	b := hugolib.Test(t, files)
 
 	expect := []string{
-		"en: Hello|Only English|1,234.50|12.3%|€12.30|€-12.30|",
-		"de: Hallo|Only English|1.234,50|12,3\u00a0%|12,30\u00a0€|-12,30\u00a0€|",
-		"nn: Hello|Only English|1 234,50|12,3 %|12,30 €|−12,30 €|",
+		"en: Hello|Only English|1,234.50|12.3%|€12.30|-€12.30|€12.30|(€12.30)|",
+		"de: Hallo|Only English|1.234,50|12,3\u00a0%|12,30\u00a0€|-12,30\u00a0€|12,30\u00a0€|-12,30\u00a0€|",
+		"nn: Hello|Only English|1\u00a0234,50|12,3\u00a0%|12,30\u00a0€|\u221212,30\u00a0€|€\u00a012,30|(€\u00a012,30)|",
 	}
 
 	b.AssertFileContent("public/en/index.html", append(expect, "site: Hello|")...)

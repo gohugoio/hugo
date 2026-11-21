@@ -100,30 +100,35 @@ weight=20
 FormatNumber: {{ 512.5032 | lang.FormatNumber 2 }}
 FormatPercent: {{ 512.5032 | lang.FormatPercent 2 }}
 FormatCurrency: {{ 512.5032 | lang.FormatCurrency 2 "USD" }}
+FormatCurrency negative: {{ -512.5032 | lang.FormatCurrency 2 "USD" }}
 FormatAccounting: {{ 512.5032 | lang.FormatAccounting 2 "NOK" }}
+FormatAccounting negative: {{ -512.5032 | lang.FormatAccounting 2 "NOK" }}
 FormatNumberCustom: {{ lang.FormatNumberCustom 2 12345.6789 }}
 -- content/p1.md --
 `
 
 	b := Test(t, files)
 
-	b.AssertFileContent("public/en/index.html", `
-FormatNumber: 512.50
-FormatPercent: 512.50%
-FormatCurrency: $512.50
-FormatAccounting: NOK512.50
-FormatNumberCustom: 12,345.68
-`,
+	b.AssertFileContent("public/en/index.html",
+		"FormatNumber: 512.50",
+		"FormatPercent: 512.50%",
+		"FormatCurrency: $512.50",
+		"FormatCurrency negative: -$512.50",
+		"FormatAccounting: NOK\u00a0512.50",
+		"FormatAccounting negative: (NOK\u00a0512.50)",
+		"FormatNumberCustom: 12,345.68",
 	)
 
-	b.AssertFileContent("public/nn/index.html", `
-FormatNumber: 512,50
-FormatPercent: 512,50 %
-FormatCurrency: 512,50 USD
-FormatAccounting: 512,50 kr
-FormatNumberCustom: 12,345.68
-
-`)
+	// nn uses U+2212 MINUS SIGN.
+	b.AssertFileContent("public/nn/index.html",
+		"FormatNumber: 512,50",
+		"FormatPercent: 512,50\u00a0%",
+		"FormatCurrency: 512,50\u00a0USD",
+		"FormatCurrency negative: \u2212512,50\u00a0USD",
+		"FormatAccounting: kr\u00a0512,50",
+		"FormatAccounting negative: (kr\u00a0512,50)",
+		"FormatNumberCustom: 12,345.68",
+	)
 }
 
 // Issue 11993.
