@@ -38,7 +38,7 @@ var (
 	_ contentNodeSourceEntryIDProvider = (*pageMetaSource)(nil)
 	_ contentNodeSourceEntryIDProvider = (*resourceSource)(nil)
 	_ contentNodeLookupContentNode     = (*contentNodesMap)(nil)
-	_ contentNodeLookupContentNode     = (contentNodes)(nil)
+	_ contentNodeLookupContentNode     = contentNodes(nil)
 	_ contentNodeSingle                = (*pageMetaSource)(nil)
 	_ contentNodeSingle                = (*pageState)(nil)
 	_ contentNodeSingle                = (*resourceSource)(nil)
@@ -467,8 +467,16 @@ func (n contentNodesMap) LenVectors() int {
 }
 
 func (n contentNodesMap) VectorSample() sitesmatrix.Vector {
+	// Return the lowest vector to get a stable result (map iteration order is random).
+	var (
+		first  = true
+		sample sitesmatrix.Vector
+	)
 	for v := range n {
-		return v
+		if first || v.Compare(sample) < 0 {
+			sample = v
+			first = false
+		}
 	}
-	panic("no vectors")
+	return sample
 }
