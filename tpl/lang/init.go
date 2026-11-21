@@ -35,7 +35,8 @@ func init() {
 		ns.AddMethodMapping(ctx.FormatAccounting,
 			nil,
 			[][2]string{
-				{`{{ 512.5032 | lang.FormatAccounting 2 "NOK" }}`, `NOK512.50`},
+				{`{{ 512.5032 | lang.FormatAccounting 2 "USD" }}`, `$512.50`},
+				{`{{ -512.5032 | lang.FormatAccounting 2 "USD" }}`, `($512.50)`},
 			},
 		)
 
@@ -43,6 +44,7 @@ func init() {
 			nil,
 			[][2]string{
 				{`{{ 512.5032 | lang.FormatCurrency 2 "USD" }}`, `$512.50`},
+				{`{{ -512.5032 | lang.FormatCurrency 2 "USD" }}`, `-$512.50`},
 			},
 		)
 
