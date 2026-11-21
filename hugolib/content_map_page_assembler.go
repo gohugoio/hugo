@@ -822,8 +822,13 @@ func (a *allPagesAssembler) doCreatePages(prefix string, depth int) error {
 						donor.s.siteVector[sitesmatrix.Version] != p.s.siteVector[sitesmatrix.Version] {
 						return true
 					}
-					if rs, ok := nodes[donor.s.siteVector]; ok {
-						nodes[p.s.siteVector] = rs.(*resourceSource).clone().assignSiteVector(p.s.siteVector)
+					if n, ok := nodes[donor.s.siteVector]; ok {
+						rs := n.(*resourceSource)
+						// A role set in the resource filename (e.g. foo._role_member_.txt) wins over the mount.
+						if len(rs.path.Roles()) > 0 && rs.fi != nil && !rs.fi.Meta().SitesMatrix.HasRole(p.s.siteVector.Role()) {
+							return true
+						}
+						nodes[p.s.siteVector] = rs.clone().assignSiteVector(p.s.siteVector)
 						return false
 					}
 					return true

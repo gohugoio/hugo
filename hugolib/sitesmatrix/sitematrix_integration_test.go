@@ -1953,3 +1953,42 @@ List.
 	// The member role should see both.
 	b.AssertFileContent("public/member/bundle/index.html", "Role: member|guestimg.txt|img._role_member_.txt|$")
 }
+
+// Issue 15627.
+func TestFilenameIdentifierRoleShouldWinOverMountWildcard(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['home', 'rss', 'section', 'sitemap', 'taxonomy', 'term']
+defaultContentRole = 'guest'
+defaultContentRoleInSubdir = true
+
+[roles.guest]
+weight = 100
+[roles.member]
+weight = 200
+
+[[module.mounts]]
+source = 'content'
+target = 'content'
+[module.mounts.sites.matrix]
+roles = '*'
+-- content/bundle/index.md --
+---
+title: Bundle
+---
+-- content/bundle/foo._role_member_.txt --
+foo
+-- layouts/page.html --
+Role: {{ .Site.Role.Name }}|{{ range .Resources }}{{ .Name }}|{{ end }}$
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/member/bundle/foo._role_member_.txt", true)
+	b.AssertFileExists("public/guest/bundle/foo._role_member_.txt", false)
+
+	b.AssertFileContent("public/member/bundle/index.html", "Role: member|foo._role_member_.txt|$")
+	b.AssertFileContent("public/guest/bundle/index.html", "Role: guest|$")
+}
