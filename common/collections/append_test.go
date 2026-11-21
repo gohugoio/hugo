@@ -127,6 +127,27 @@ func TestAppendToMultiDimensionalSlice(t *testing.T) {
 			[]any{[]int{1, 2}},
 			false,
 		},
+		// See issue 11131.
+		{
+			[][]int{{1, 2}},
+			[]any{[][]int{{3, 4}}},
+			[][]int{{1, 2}, {3, 4}},
+		},
+		{
+			[][]int{{1, 2}},
+			[]any{[][]string{{"a", "b"}}},
+			[]any{[]int{1, 2}, []string{"a", "b"}},
+		},
+		{
+			[][]int{{1, 2}},
+			[]any{[]map[string]any{{"k": "v"}}},
+			false,
+		},
+		{
+			[][]int{{1, 2}},
+			[]any{[][]map[string]any{{{"k": "v"}}}},
+			[]any{[]int{1, 2}, []map[string]any{{"k": "v"}}},
+		},
 	} {
 		result, err := Append(test.to, test.from...)
 		if b, ok := test.expected.(bool); ok && !b {

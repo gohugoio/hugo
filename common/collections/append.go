@@ -46,6 +46,16 @@ func Append(to any, from ...any) (any, error) {
 
 		tot = tov.Type().Elem()
 		if tot.Kind() == reflect.Slice {
+			if len(from) == 1 {
+				// E.g. [][]int | append (slice (slice 3 4)).
+				fromv := reflect.ValueOf(from[0])
+				if fromv.Kind() == reflect.Slice && fromv.Type().Elem().Kind() == reflect.Slice {
+					if fromv.Type().Elem().AssignableTo(tot) {
+						return reflect.AppendSlice(tov, fromv).Interface(), nil
+					}
+					return appendToInterfaceSliceFromValues(tov, fromv)
+				}
+			}
 			totvt := tot.Elem()
 			fromvs := make([]reflect.Value, len(from))
 			for i, f := range from {
