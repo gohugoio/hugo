@@ -79,3 +79,33 @@ func TestBaseURL(t *testing.T) {
 	c.Assert(b.String(), qt.Equals, "http://example.com/sub/")
 	c.Assert(b.HostURL(), qt.Equals, "http://example.com")
 }
+
+func TestBaseURLWithPort(t *testing.T) {
+	c := qt.New(t)
+
+	for _, test := range []struct {
+		base     string
+		port     int
+		expected string
+		hostURL  string
+	}{
+		{"http://example.com/", 1313, "http://example.com:1313/", "http://example.com:1313"},
+		{"http://example.com:8080/blog/", 1313, "http://example.com:1313/blog/", "http://example.com:1313"},
+		{"http://[::1]/blog/", 1313, "http://[::1]:1313/blog/", "http://[::1]:1313"},
+		{"http://[::1]:8080/blog/", 1313, "http://[::1]:1313/blog/", "http://[::1]:1313"},
+		{"http://[2001:db8::1]/", 1313, "http://[2001:db8::1]:1313/", "http://[2001:db8::1]:1313"},
+	} {
+		b, err := NewBaseURLFromString(test.base)
+		c.Assert(err, qt.IsNil)
+
+		p, err := b.WithPort(test.port)
+		c.Assert(err, qt.IsNil)
+		c.Assert(p.String(), qt.Equals, test.expected)
+		c.Assert(p.HostURL(), qt.Equals, test.hostURL)
+		c.Assert(p.Port(), qt.Equals, test.port)
+
+		reparsed, err := NewBaseURLFromString(p.String())
+		c.Assert(err, qt.IsNil)
+		c.Assert(reparsed.String(), qt.Equals, test.expected)
+	}
+}
