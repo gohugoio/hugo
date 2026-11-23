@@ -510,6 +510,13 @@ func (c *Config) CompileConfig(logger loggers.Logger) error {
 	if !slices.Contains(renderHookUseEmbeddedModes, c.Markup.Goldmark.RenderHooks.Link.UseEmbedded) {
 		return fmt.Errorf("project config markup.goldmark.renderHooks.link.useEmbedded must be one of %s", helpers.StringSliceToList(renderHookUseEmbeddedModes, "or"))
 	}
+	// "auto" is kept for backwards compatibility and is now an alias for "fallback".
+	if c.Markup.Goldmark.RenderHooks.Image.UseEmbedded == gc.RenderHookUseEmbeddedAuto {
+		c.Markup.Goldmark.RenderHooks.Image.UseEmbedded = gc.RenderHookUseEmbeddedFallback
+	}
+	if c.Markup.Goldmark.RenderHooks.Link.UseEmbedded == gc.RenderHookUseEmbeddedAuto {
+		c.Markup.Goldmark.RenderHooks.Link.UseEmbedded = gc.RenderHookUseEmbeddedFallback
+	}
 
 	c.C = &ConfigCompiled{
 		Timeout:             timeout,
@@ -1153,16 +1160,6 @@ func fromLoadConfigResult(fs afero.Fs, logger loggers.Logger, res config.LoadCon
 			}
 			if err := clone.CompileConfig(logger); err != nil {
 				return nil, err
-			}
-
-			// Adjust Goldmark config defaults for multilingual, single-host sites.
-			if len(languagesConfig) > 1 && !isMultihost && !clone.Markup.Goldmark.DuplicateResourceFiles {
-				if clone.Markup.Goldmark.RenderHooks.Image.UseEmbedded == gc.RenderHookUseEmbeddedAuto {
-					clone.Markup.Goldmark.RenderHooks.Image.UseEmbedded = gc.RenderHookUseEmbeddedFallback
-				}
-				if clone.Markup.Goldmark.RenderHooks.Link.UseEmbedded == gc.RenderHookUseEmbeddedAuto {
-					clone.Markup.Goldmark.RenderHooks.Link.UseEmbedded = gc.RenderHookUseEmbeddedFallback
-				}
 			}
 
 			langConfigMap[k] = clone

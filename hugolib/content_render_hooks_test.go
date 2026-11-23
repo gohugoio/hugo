@@ -332,7 +332,7 @@ Image: ![alt-"<>&](/destination-"<> 'title-"<>&')
 			b := Test(t, strings.ReplaceAll(files, "WHEN", fmt.Sprint(when)))
 
 			// The escaping is slightly different between the two.
-			if when == "always" || when == "fallback" {
+			if when != "never" {
 				b.AssertFileContent("public/index.html",
 					"Link: <a href=\"/destination-%22%3C%3E\" title=\"title-&#34;&lt;&gt;&amp;\">text-&quot;&lt;&gt;&amp;</a>",
 					"img src=\"/destination-%22%3C%3E\" alt=\"alt-&#34;&lt;&gt;&amp;\" title=\"title-&#34;&lt;&gt;&amp;\">",

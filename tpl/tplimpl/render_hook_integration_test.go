@@ -256,9 +256,9 @@ custom image render hook: {{ .Text }}|{{ .Destination }}
 		keyValuePair   string // the useEmbedded key-value pair
 		want           string // the expected content of public/s1/p1/index.html
 	}{
-		{"01", false, false, "", wantGoldmark},                         // monolingual
+		{"01", false, false, "", wantEmbedded},                         // monolingual
 		{"02", false, false, "useEmbedded = 'always'", wantEmbedded},   // monolingual, useEmbedded = 'always'
-		{"03", false, false, "useEmbedded = 'auto'", wantGoldmark},     // monolingual, useEmbedded = 'auto'
+		{"03", false, false, "useEmbedded = 'auto'", wantEmbedded},     // monolingual, useEmbedded = 'auto'
 		{"04", false, false, "useEmbedded = 'fallback'", wantEmbedded}, // monolingual, useEmbedded = 'fallback'
 		{"05", false, false, "useEmbedded = 'never'", wantGoldmark},    // monolingual, useEmbedded = 'never'
 		{"06", false, true, "", wantCustom},                            // monolingual, with custom hooks
