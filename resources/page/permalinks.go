@@ -507,7 +507,7 @@ func (l PermalinkExpander) toSliceFunc(cut string) func(s []string) []string {
 			return nil
 		}
 		n1, n2 := toN1(s), toN2(s)
-		if n1 < 0 || n2 < 0 {
+		if n1 < 0 || n2 < 0 || n1 > n2 {
 			return []string{}
 		}
 		return s[n1:n2]
