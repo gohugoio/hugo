@@ -15,6 +15,7 @@ package urls
 
 import (
 	"fmt"
+	"net"
 	"net/url"
 	"strconv"
 	"strings"
@@ -77,7 +78,7 @@ func (b BaseURL) WithProtocol(protocol string) (BaseURL, error) {
 
 func (b BaseURL) WithPort(port int) (BaseURL, error) {
 	u := b.URL()
-	u.Host = u.Hostname() + ":" + strconv.Itoa(port)
+	u.Host = net.JoinHostPort(u.Hostname(), strconv.Itoa(port))
 	return newBaseURLFromURL(u)
 }
 
