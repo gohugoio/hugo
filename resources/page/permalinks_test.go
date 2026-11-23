@@ -332,6 +332,13 @@ func TestPermalinkExpansionSliceSyntax(t *testing.T) {
 		c.Assert(fn4("[5:]"), qt.DeepEquals, []string{})
 		c.Assert(fn4("[5:]"), qt.DeepEquals, []string{})
 		c.Assert(fn4("[5:32]"), qt.DeepEquals, []string{})
+		c.Assert(fn4("[1:0]"), qt.DeepEquals, []string{})
+		c.Assert(fn4("[3:1]"), qt.DeepEquals, []string{})
+		c.Assert(fn4("[last:0]"), qt.DeepEquals, []string{})
+		c.Assert(fn4("[last:2]"), qt.DeepEquals, []string{})
+		c.Assert(fn4("[1:-1]"), qt.DeepEquals, []string{})
+		c.Assert(fn4("[last:last]"), qt.DeepEquals, []string{})
+		c.Assert(fn1("[last:0]"), qt.DeepEquals, []string{})
 		c.Assert(exp.toSliceFunc("[:1]")(nil), qt.DeepEquals, []string(nil))
 		c.Assert(exp.toSliceFunc("[:1]")([]string{}), qt.DeepEquals, []string(nil))
 
