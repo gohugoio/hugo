@@ -15,8 +15,6 @@
 package goldmark
 
 import (
-	"bytes"
-
 	"github.com/gohugoio/hugo-goldmark-extensions/extras"
 	"github.com/gohugoio/hugo/markup/goldmark/blockquotes"
 	"github.com/gohugoio/hugo/markup/goldmark/codeblocks"
@@ -288,7 +286,7 @@ func (c *goldmarkConverter) Parse(ctx converter.RenderContext) (converter.Result
 
 func (c *goldmarkConverter) Render(ctx converter.RenderContext, doc any) (converter.ResultRender, error) {
 	n := doc.(ast.Node)
-	buf := &render.BufWriter{Buffer: &bytes.Buffer{}}
+	buf := render.NewBufWriter()
 
 	rcx := &render.RenderContextDataHolder{
 		Rctx: ctx,

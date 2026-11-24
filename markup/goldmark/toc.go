@@ -14,8 +14,6 @@
 package goldmark
 
 import (
-	"bufio"
-	"bytes"
 	"regexp"
 	"strings"
 
@@ -26,6 +24,7 @@ import (
 
 	"github.com/gohugoio/hugo-goldmark-extensions/extras"
 	"github.com/gohugoio/hugo-goldmark-extensions/passthrough"
+	"github.com/gohugoio/hugo/markup/goldmark/internal/render"
 	"github.com/gohugoio/hugo/markup/tableofcontents"
 
 	"github.com/yuin/goldmark"
@@ -56,18 +55,8 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 		level       int
 		row         = -1
 		inHeading   bool
-		headingText bytes.Buffer
-		headingW    *bufio.Writer
+		headingText = render.NewBufWriter()
 	)
-
-	// Render wraps a writer that is not a util.BufWriter in a new bufio.Writer,
-	// so use one for the whole document.
-	render := func(n ast.Node) error {
-		if headingW == nil {
-			headingW = bufio.NewWriter(&headingText)
-		}
-		return t.r.Render(headingW, reader.Source(), n)
-	}
 
 	if ids := pc.IDs().(stringValuesProvider).StringValues(); len(ids) > 0 {
 		toc.SetIdentifiers(ids)
@@ -118,7 +107,7 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 			extras.KindMark,
 			extras.KindSubscript,
 			extras.KindSuperscript:
-			err := render(n)
+			err := t.r.Render(headingText, reader.Source(), n)
 			if err != nil {
 				return s, err
 			}
@@ -131,7 +120,7 @@ func (t *tocTransformer) Transform(n *ast.Document, reader text.Reader, pc parse
 			ast.KindString,
 			passthrough.KindPassthroughInline,
 			passthrough.KindPassthroughBlock:
-			err := render(n)
+			err := t.r.Render(headingText, reader.Source(), n)
 			if err != nil {
 				return s, err
 			}
