@@ -463,3 +463,28 @@ title: "Home"
 	s := b.H.Sites[0]
 	b.Assert(s.home.pageOutputTemplateVariationsState.Load() > 1, qt.IsTrue)
 }
+
+// Issue 15639.
+func TestContentOutputReuseEmbeddedTableRenderHook(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term"]
+-- layouts/home.html --
+HTML: {{ .Title }}|{{ .Content }}|
+-- layouts/index.xml --
+XML: {{ .Title }}|{{ .Content }}|
+-- content/_index.md --
+---
+title: "Home"
+---
+| a | b |
+|---|---|
+| 1 | 2 |
+`
+	b := Test(t, files)
+
+	s := b.H.Sites[0]
+	b.Assert(s.home.pageOutputTemplateVariationsState.Load(), qt.Equals, uint32(1))
+	b.AssertFileContent("public/index.html", "<table>")
+	b.AssertFileContent("public/index.xml", "<table>")
+}

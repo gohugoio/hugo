@@ -329,6 +329,7 @@ func (pco *pageContentOutput) initRenderHooks() error {
 
 			candidates := pco.po.p.s.renderFormats
 			var numCandidatesFound int
+			var embeddedCandidateFound bool
 			consider := func(candidate *tplimpl.TemplInfo) bool {
 				if layoutDescriptor.Variant1 != candidate.D.Variant1 {
 					return false
@@ -347,7 +348,15 @@ func (pco *pageContentOutput) initRenderHooks() error {
 					return true
 				}
 
-				if candidate.D.OutputFormat == "" {
+				if candidate.SubCategory() == tplimpl.SubCategoryEmbedded {
+					// Some embedded templates (e.g. the table render hook) are copied
+					// to each output format, but they're identical, so count them once.
+					// See issue 15639.
+					if !embeddedCandidateFound {
+						embeddedCandidateFound = true
+						numCandidatesFound++
+					}
+				} else if candidate.D.OutputFormat == "" {
 					numCandidatesFound++
 				} else if _, found := candidates.GetByName(candidate.D.OutputFormat); found {
 					numCandidatesFound++
