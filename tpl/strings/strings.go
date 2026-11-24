@@ -347,7 +347,7 @@ func (ns *Namespace) SliceString(a any, startEnd ...any) (string, error) {
 	}
 
 	if argNum == 2 {
-		if argEnd < 0 || argEnd > len(asRunes) {
+		if argEnd < argStart || argEnd > len(asRunes) {
 			return "", errors.New("slice bounds out of range")
 		}
 		return string(asRunes[argStart:argEnd]), nil
