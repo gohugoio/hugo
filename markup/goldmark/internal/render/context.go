@@ -31,6 +31,14 @@ import (
 	"github.com/yuin/goldmark/util"
 )
 
+// NewBufWriter creates a new BufWriter instance.
+// The returned BufWriter wraps a bytes.Buffer and implements the util.BufWriter interface.
+func NewBufWriter() *BufWriter {
+	return &BufWriter{
+		Buffer: &bytes.Buffer{},
+	}
+}
+
 type BufWriter struct {
 	*bytes.Buffer
 }
