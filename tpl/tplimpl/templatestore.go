@@ -266,6 +266,10 @@ type TemplInfo struct {
 	// processing state.
 	state          processingState
 	isLegacyMapped bool
+
+	// Other copies of the same template file, one per media type,
+	// set on the copy registered by path. See issue #15590.
+	mediaTypeVariants []*TemplInfo
 }
 
 func (ti *TemplInfo) SubCategory() SubCategory {
@@ -313,9 +317,11 @@ func (t *TemplInfo) IsProbablyDependency(other identity.Identity) bool {
 }
 
 func (t *TemplInfo) IsProbablyDependent(other identity.Identity) bool {
-	for _, overlay := range t.overlays {
-		if overlay.isProbablyTheSameIDAs(other) {
-			return true
+	for _, ti := range append([]*TemplInfo{t}, t.mediaTypeVariants...) {
+		for _, overlay := range ti.overlays {
+			if overlay.isProbablyTheSameIDAs(other) {
+				return true
+			}
 		}
 	}
 	return t.isProbablyTheSameIDAs(other)
@@ -829,16 +835,31 @@ func (t *TemplateStore) TextParse(name, tpl string) (*TemplInfo, error) {
 
 func (t *TemplateStore) UnusedTemplates() []*TemplInfo {
 	var unused []*TemplInfo
+	// A template file may be stored once per media type, see issue #15590.
+	// It's only unused if none of them were executed.
+	used := make(map[string]bool)
 
 	for vv := range t.templates() {
 		if vv.subCategory != SubCategoryMain || vv.isLegacyMapped {
 			// Skip inline partials and internal templates.
 			continue
 		}
-		if vv.executionCounter.Load() == 0 {
+		if vv.executionCounter.Load() > 0 {
+			used[vv.PathInfo.Path()] = true
+		} else {
 			unused = append(unused, vv)
 		}
 	}
+
+	seen := make(map[string]bool)
+	unused = slices.DeleteFunc(unused, func(ti *TemplInfo) bool {
+		p := ti.PathInfo.Path()
+		if used[p] || seen[p] {
+			return true
+		}
+		seen[p] = true
+		return false
+	})
 
 	sort.Sort(byPath(unused))
 	return unused
@@ -1204,6 +1225,15 @@ func (s *TemplateStore) setTemplateByPath(p string, ti *TemplInfo) {
 	s.templatesByPath.Set(p, ti)
 }
 
+func (s *TemplateStore) registerTemplateByPath(pi *paths.Path, fi hugofs.FileMetaInfo, ti *TemplInfo) {
+	s.setTemplateByPath(pi.Path(), ti)
+	if fi != nil {
+		if pi2 := fi.Meta().PathInfo; pi2 != pi {
+			s.setTemplateByPath(pi2.Path(), ti)
+		}
+	}
+}
+
 func (s *TemplateStore) insertShortcode(pi *paths.Path, fi hugofs.FileMetaInfo, replace bool, tree doctree.Tree[map[string]map[TemplateDescriptor]*TemplInfo]) (*TemplInfo, error) {
 	k1, k2, _, d, matrix, err := s.toKeyCategoryAndDescriptor(pi, fi)
 	if err != nil {
@@ -1240,21 +1270,67 @@ func (s *TemplateStore) insertShortcode(pi *paths.Path, fi hugofs.FileMetaInfo, 
 	m1[d] = ti
 
 	s.shortcodesByName.Set(k2, ti)
-	s.setTemplateByPath(pi.Path(), ti)
-
-	if fi != nil {
-		if pi2 := fi.Meta().PathInfo; pi2 != pi {
-			s.setTemplateByPath(pi2.Path(), ti)
-		}
-	}
+	s.registerTemplateByPath(pi, fi, ti)
 
 	return ti, nil
 }
 
 func (s *TemplateStore) insertTemplate(pi *paths.Path, fi hugofs.FileMetaInfo, subCategory SubCategory, replace bool, tree doctree.Tree[map[nodeKey]*TemplInfo]) (*TemplInfo, error) {
+	key, category, d, matrix, ok := s.toKeyCategoryAndDescriptorOrWarn(pi, fi)
+	if !ok {
+		return nil, nil
+	}
+	return s.insertTemplate2(pi, fi, key, category, subCategory, d, matrix, replace, false, true, tree)
+}
+
+// insertTemplateAllMediaTypes inserts the template file in pi, and if its file
+// name has no output format, a copy for each additional media type its suffix
+// is used by, e.g. list.xml for both RSS (application/rss+xml) and a custom
+// Atom format (application/atom+xml). See issue #15590.
+func (s *TemplateStore) insertTemplateAllMediaTypes(pi *paths.Path, fi hugofs.FileMetaInfo, replace bool, tree doctree.Tree[map[nodeKey]*TemplInfo]) ([]*TemplInfo, error) {
+	key, category, d, matrix, ok := s.toKeyCategoryAndDescriptorOrWarn(pi, fi)
+	if !ok {
+		return nil, nil
+	}
+
+	descs := []TemplateDescriptor{d}
+	if pi.OutputFormat() == "" && pi.Ext() != "" {
+		for _, mt := range s.outputMediaTypesBySuffix(pi.Ext()) {
+			if mt.Type == d.MediaType {
+				continue
+			}
+			d2 := d
+			d2.MediaType = mt.Type
+			d2.IsPlainText = s.isPlainTextMediaType(mt.Type)
+			descs = append(descs, d2)
+		}
+	}
+
+	var tis []*TemplInfo
+	for _, d := range descs {
+		ti, err := s.insertTemplate2(pi, fi, key, category, SubCategoryMain, d, matrix, replace, false, false, tree)
+		if err != nil {
+			return nil, err
+		}
+		if ti != nil {
+			tis = append(tis, ti)
+		}
+	}
+
+	if len(tis) > 0 {
+		// Any of the copies may have been rejected in favour of another template,
+		// so register the first one accepted.
+		tis[0].mediaTypeVariants = tis[1:]
+		s.registerTemplateByPath(pi, fi, tis[0])
+	}
+
+	return tis, nil
+}
+
+func (s *TemplateStore) toKeyCategoryAndDescriptorOrWarn(pi *paths.Path, fi hugofs.FileMetaInfo) (string, Category, TemplateDescriptor, sitesmatrix.VectorStore, bool) {
 	key, _, category, d, matrix, err := s.toKeyCategoryAndDescriptor(pi, fi)
-	// See #13577. Warn for now.
 	if err != nil {
+		// See #13577. Warn for now.
 		var loc string
 		if fi != nil {
 			loc = fmt.Sprintf("file %q", fi.Meta().Filename)
@@ -1262,10 +1338,43 @@ func (s *TemplateStore) insertTemplate(pi *paths.Path, fi hugofs.FileMetaInfo, s
 			loc = fmt.Sprintf("path %q", pi.Path())
 		}
 		s.opts.Log.Warnf("skipping template %s: %s", loc, err)
-		return nil, nil
+		return "", 0, TemplateDescriptor{}, nil, false
 	}
+	return key, category, d, matrix, true
+}
 
-	return s.insertTemplate2(pi, fi, key, category, subCategory, d, matrix, replace, false, tree)
+// outputMediaTypesBySuffix returns the distinct media types of the configured
+// output formats that use the given suffix, in output format order.
+func (s *TemplateStore) outputMediaTypesBySuffix(suffix string) []media.Type {
+	var mts []media.Type
+	for _, of := range s.opts.OutputFormats {
+		if !of.MediaType.HasSuffix(suffix) {
+			continue
+		}
+		if slices.ContainsFunc(mts, func(mt media.Type) bool { return mt.Type == of.MediaType.Type }) {
+			continue
+		}
+		mts = append(mts, of.MediaType)
+	}
+	return mts
+}
+
+// isPlainTextMediaType reports whether a template without an output format in
+// its file name should be parsed as plain text for the given media type. This
+// is only the case if all output formats using that media type are plain text;
+// if they disagree, we choose html/template.
+func (s *TemplateStore) isPlainTextMediaType(mediaType string) bool {
+	var found bool
+	for _, of := range s.opts.OutputFormats {
+		if of.MediaType.Type != mediaType {
+			continue
+		}
+		if !of.IsPlainText {
+			return false
+		}
+		found = true
+	}
+	return found
 }
 
 func (s *TemplateStore) insertTemplate2(
@@ -1276,7 +1385,7 @@ func (s *TemplateStore) insertTemplate2(
 	subCategory SubCategory,
 	d TemplateDescriptor,
 	matrix sitesmatrix.VectorStore,
-	replace, isLegacyMapped bool,
+	replace, isLegacyMapped, registerByPath bool,
 	tree doctree.Tree[map[nodeKey]*TemplInfo],
 ) (*TemplInfo, error) {
 	if category == 0 {
@@ -1370,13 +1479,8 @@ func (s *TemplateStore) insertTemplate2(
 
 	m[nk] = ti
 
-	if !isLegacyMapped {
-		s.setTemplateByPath(pi.Path(), ti)
-		if fi != nil {
-			if pi2 := fi.Meta().PathInfo; pi2 != pi {
-				s.setTemplateByPath(pi2.Path(), ti)
-			}
-		}
+	if registerByPath {
+		s.registerTemplateByPath(pi, fi, ti)
 	}
 
 	return ti, nil
@@ -1568,18 +1672,20 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 			resetBaseVariants = true
 		}
 
-		var ti *TemplInfo
-		var err error
-		var insertFunc func() (*TemplInfo, error)
+		var insertFunc func() ([]*TemplInfo, error)
 
-		insertFunc = func() (*TemplInfo, error) {
-			return s.insertTemplate(pi, fi, SubCategoryMain, partialRebuild, s.treeMain)
+		insertFunc = func() ([]*TemplInfo, error) {
+			return s.insertTemplateAllMediaTypes(pi, fi, partialRebuild, s.treeMain)
 		}
 
 		switch pi.Type() {
 		case paths.TypeShortcode:
-			insertFunc = func() (*TemplInfo, error) {
-				return s.insertShortcode(pi, fi, partialRebuild, s.treeShortcodes)
+			insertFunc = func() ([]*TemplInfo, error) {
+				ti, err := s.insertShortcode(pi, fi, partialRebuild, s.treeShortcodes)
+				if err != nil || ti == nil {
+					return nil, err
+				}
+				return []*TemplInfo{ti}, nil
 			}
 		case paths.TypeMarkup:
 			skipImageRenderHook := pi.Name() == "render-image.html" && s.opts.RenderHooks.Image.UseEmbedded == "always"
@@ -1589,14 +1695,16 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 			}
 		}
 
-		if insertFunc != nil {
-			ti, err = insertFunc()
-			if err != nil || ti == nil {
-				return err
-			}
+		if insertFunc == nil {
+			return nil
 		}
 
-		if ti != nil {
+		tis, err := insertFunc()
+		if err != nil {
+			return err
+		}
+
+		for _, ti := range tis {
 			if err := s.tns.readTemplateInto(ti); err != nil {
 				return err
 			}
@@ -1626,7 +1734,7 @@ func (s *TemplateStore) insertTemplates(include func(fi hugofs.FileMetaInfo) boo
 		desc.MediaType = mediaType.Type
 		desc.SitesHash = fi.Meta().SitesMatrix.MustHash()
 
-		ti, err := s.insertTemplate2(pi, fi, targetPath, category, SubCategoryMain, desc, fi.Meta().SitesMatrix, true, true, s.treeMain)
+		ti, err := s.insertTemplate2(pi, fi, targetPath, category, SubCategoryMain, desc, fi.Meta().SitesMatrix, true, true, false, s.treeMain)
 		if err != nil {
 			return err
 		}
@@ -1857,13 +1965,20 @@ func (s *TemplateStore) toKeyCategoryAndDescriptor(p *paths.Path, fi hugofs.File
 		vactorStore = s.opts.PathParser.SitesMatrixFromPath(p)
 	}
 
+	isPlainText := outputFormat.IsPlainText
+	if p.OutputFormat() == "" && !mediaType.IsZero() {
+		// The output format is guessed from the suffix,
+		// and there may be several with this media type.
+		isPlainText = s.isPlainTextMediaType(mediaType.Type)
+	}
+
 	d := TemplateDescriptor{
 		SitesHash:          vactorStore.MustHash(),
 		OutputFormat:       p.OutputFormat(),
 		MediaType:          mediaType.Type,
 		Kind:               p.Kind(),
 		LayoutFromTemplate: p.Layout(),
-		IsPlainText:        outputFormat.IsPlainText,
+		IsPlainText:        isPlainText,
 	}
 
 	d.normalizeFromFile()
