@@ -126,6 +126,12 @@ func (this TemplateDescriptor) doCompare(category Category, other TemplateDescri
 		return w
 	}
 
+	if category == CategoryLayout && this.Kind == "" && other.OutputFormat != this.OutputFormat {
+		// No page kind means a special purpose template, e.g. sitemap.xml or robots.txt,
+		// which must be selected by output format, e.g. not by all.xml or all.txt.
+		return w
+	}
+
 	if other.LayoutFromTemplate != "" && other.LayoutFromTemplate != layoutAll {
 		if this.LayoutFromUser == "" || this.LayoutFromUser != other.LayoutFromTemplate {
 			if other.LayoutFromTemplate != this.LayoutFromTemplate {

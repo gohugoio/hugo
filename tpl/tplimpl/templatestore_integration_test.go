@@ -1705,3 +1705,239 @@ USER CODEBLOCK HOOK
 		b.AssertFileContent("public/index.json", "<svg")
 	}
 }
+
+// Issue #15590.
+func TestTemplatesBySuffixWithOutputFormatsSharingSuffix(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.com'
+disableKinds = ['taxonomy', 'term', 'sitemap', 'robotsTXT']
+[mediatypes.'application/atom+xml']
+suffixes = ['xml']
+[outputformats.atom]
+basename = 'atom'
+mediatype = 'application/atom+xml'
+[outputs]
+home = ['html', 'atom', 'rss']
+section = ['atom', 'rss']
+-- content/_index.md --
+---
+title: "Home"
+---
+-- content/s1/_index.md --
+---
+title: "S1"
+---
+-- layouts/home.html --
+Home.
+-- layouts/baseof.xml --
+Baseof: {{ block "main" . }}{{ end }}
+-- layouts/home.atom.xml --
+{{ define "main" }}ATOM{{ end }}
+-- layouts/home.rss.xml --
+{{ define "main" }}RSS{{ end }}
+-- layouts/section.xml --
+Section: {{ partial "p.xml" . }}
+-- layouts/_partials/p.xml --
+Partial: {{ .Title }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/atom.xml", "Baseof: ATOM")
+	b.AssertFileContent("public/index.xml", "Baseof: RSS")
+	b.AssertFileContent("public/s1/atom.xml", "Section: Partial: S1")
+	b.AssertFileContent("public/s1/index.xml", "Section: Partial: S1")
+}
+
+// Issue #15590.
+func TestTemplatesBySuffixOutputFormatSpecificWins(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.com'
+disableKinds = ['taxonomy', 'term', 'page', 'section', 'sitemap', 'robotsTXT']
+[mediatypes.'application/atom+xml']
+suffixes = ['xml']
+[outputformats.atom]
+basename = 'atom'
+mediatype = 'application/atom+xml'
+[outputs]
+home = ['atom', 'rss']
+-- layouts/baseof.xml --
+Baseof: {{ block "main" . }}{{ end }}
+-- layouts/baseof.rss.xml --
+BaseofRSS: {{ block "main" . }}{{ end }}
+-- layouts/home.xml --
+{{ define "main" }}HOME{{ end }}
+-- layouts/home.rss.xml --
+{{ define "main" }}HOMERSS{{ end }}
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/atom.xml", "Baseof: HOME")
+	b.AssertFileContent("public/index.xml", "BaseofRSS: HOMERSS")
+}
+
+// Issue #15590.
+func TestTemplatesBySuffixDoesNotOverrideSpecialPurposeTemplates(t *testing.T) {
+	t.Parallel()
+
+	filesTemplate := `
+-- hugo.toml --
+baseURL = 'https://example.com'
+disableKinds = ['taxonomy', 'term', 'page', 'section']
+enableRobotsTXT = true
+defaultContentLanguageInSubdir = true
+[languages.en]
+weight = 1
+[languages.nn]
+weight = 2
+-- layouts/home.html --
+Home.
+-- layouts/NAME.xml --
+SUFFIXONLY
+-- layouts/NAME.txt --
+SUFFIXONLY
+`
+
+	for _, name := range []string{"home", "list", "all"} {
+		t.Run(name, func(t *testing.T) {
+			b := hugolib.Test(t, strings.ReplaceAll(filesTemplate, "NAME", name))
+
+			b.AssertFileContent("public/en/index.xml", "SUFFIXONLY")
+			b.AssertFileContent("public/en/sitemap.xml", "<urlset", "! SUFFIXONLY")
+			b.AssertFileContent("public/sitemap.xml", "<sitemapindex", "! SUFFIXONLY")
+			b.AssertFileContent("public/robots.txt", "User-agent", "! SUFFIXONLY")
+		})
+	}
+}
+
+// Issue #15590.
+func TestTemplatesSpecialPurposeOverrides(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.com'
+disableKinds = ['taxonomy', 'term', 'page', 'section']
+enableRobotsTXT = true
+-- layouts/home.html --
+Home.
+-- layouts/all.xml --
+ALLXML
+-- layouts/sitemap.xml --
+MYSITEMAP
+-- layouts/robots.txt --
+MYROBOTS
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.xml", "ALLXML")
+	b.AssertFileContent("public/sitemap.xml", "MYSITEMAP")
+	b.AssertFileContent("public/robots.txt", "MYROBOTS")
+}
+
+// Issue #15590.
+func TestTemplatesBySuffixIsPlainTextMismatch(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.com'
+disableKinds = ['taxonomy', 'term', 'page', 'section', 'rss', 'sitemap', 'robotsTXT']
+[outputformats.plain1]
+basename = 'plain1'
+mediatype = 'text/plain'
+isPlainText = true
+[outputformats.plain2]
+basename = 'plain2'
+mediatype = 'text/plain'
+isPlainText = false
+[outputs]
+home = ['plain1', 'plain2']
+-- layouts/home.txt --
+{{ "<b>" }}
+`
+
+	for range 3 {
+		b := hugolib.Test(t, files)
+		b.AssertFileContent("public/plain1.txt", "&lt;b&gt;")
+		b.AssertFileContent("public/plain2.txt", "&lt;b&gt;")
+	}
+}
+
+// Issue #15590.
+func TestTemplatesBySuffixUnusedTemplates(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.com'
+disableKinds = ['taxonomy', 'term', 'page', 'sitemap', 'robotsTXT']
+[mediatypes.'application/atom+xml']
+suffixes = ['xml']
+[outputformats.atom]
+basename = 'atom'
+mediatype = 'application/atom+xml'
+[outputs]
+home = ['rss']
+section = ['rss']
+-- content/s1/_index.md --
+-- layouts/home.xml --
+Home.
+-- layouts/section.xml --
+{{ define "main" }}Section.{{ end }}
+-- layouts/baseof.xml --
+{{ block "main" . }}{{ end }}
+-- layouts/term.xml --
+Unused.
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/index.xml", "Home.")
+	b.AssertFileContent("public/s1/index.xml", "Section.")
+
+	var names []string
+	for _, tmpl := range b.H.GetTemplateStore().UnusedTemplates() {
+		names = append(names, tmpl.PathInfo.PathNoLeadingSlash())
+	}
+
+	b.Assert(names, qt.DeepEquals, []string{"term.xml"})
+}
+
+// Issue #15590.
+func TestTemplatesBySuffixExistsWhenFirstCopyIsRejected(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.com'
+disableKinds = ['taxonomy', 'term', 'page', 'section', 'sitemap', 'robotsTXT']
+[mediatypes.'application/atom+xml']
+suffixes = ['zatom', 'xml']
+[outputformats.atom]
+basename = 'atom'
+mediatype = 'application/atom+xml'
+[outputs]
+home = ['html', 'atom', 'rss']
+-- layouts/home.html --
+Exists: {{ templates.Exists "home.xml" }}|
+-- layouts/home.zatom --
+ATOM
+-- layouts/home.xml --
+XML
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileContent("public/atom.zatom", "ATOM")
+	b.AssertFileContent("public/index.xml", "XML")
+	b.AssertFileContent("public/index.html", "Exists: true|")
+}

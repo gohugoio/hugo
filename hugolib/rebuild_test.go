@@ -562,6 +562,64 @@ Home: {{ .Title }}|{{ .Content }}|
 	})
 }
 
+// Issue #15590.
+func TestRebuildBaseofSharedSuffix(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["term", "taxonomy", "page", "section", "sitemap", "robotstxt", "404"]
+disableLiveReload = true
+[mediatypes.'application/atom+xml']
+suffixes = ['xml']
+[outputformats.atom]
+basename = 'atom'
+mediatype = 'application/atom+xml'
+[outputs]
+home = ['atom', 'rss']
+-- layouts/baseof.xml --
+Baseof: {{ block "main" . }}{{ end }}
+-- layouts/home.atom.xml --
+{{ define "main" }}ATOM{{ end }}
+-- layouts/home.rss.xml --
+{{ define "main" }}RSS{{ end }}
+`
+	testRebuildBothWatchingAndRunning(t, files, func(b *IntegrationTestBuilder) {
+		b.AssertFileContent("public/atom.xml", "Baseof: ATOM")
+		b.AssertFileContent("public/index.xml", "Baseof: RSS")
+		b.EditFileReplaceAll("layouts/baseof.xml", "Baseof", "Baseof Edited").Build()
+		b.AssertFileContent("public/atom.xml", "Baseof Edited: ATOM")
+		b.AssertFileContent("public/index.xml", "Baseof Edited: RSS")
+	})
+}
+
+// Issue #15590.
+func TestRebuildLayoutSharedSuffix(t *testing.T) {
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com"
+disableKinds = ["term", "taxonomy", "page", "section", "sitemap", "robotstxt", "404"]
+disableLiveReload = true
+[mediatypes.'application/atom+xml']
+suffixes = ['xml']
+[outputformats.atom]
+basename = 'atom'
+mediatype = 'application/atom+xml'
+[outputs]
+home = ['atom', 'rss']
+-- layouts/baseof.xml --
+Baseof: {{ block "main" . }}{{ end }}
+-- layouts/home.xml --
+{{ define "main" }}Home{{ end }}
+`
+	testRebuildBothWatchingAndRunning(t, files, func(b *IntegrationTestBuilder) {
+		b.AssertFileContent("public/atom.xml", "Baseof: Home")
+		b.AssertFileContent("public/index.xml", "Baseof: Home")
+		b.EditFileReplaceAll("layouts/home.xml", "Home", "Home Edited").Build()
+		b.AssertFileContent("public/atom.xml", "Baseof: Home Edited")
+		b.AssertFileContent("public/index.xml", "Baseof: Home Edited")
+	})
+}
+
 func TestRebuildSingle(t *testing.T) {
 	t.Parallel()
 
