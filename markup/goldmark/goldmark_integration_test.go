@@ -439,6 +439,8 @@ func TestQuotesInImgAltAttr(t *testing.T) {
 -- hugo.toml --
 [markup.goldmark.extensions]
   typographer = false
+[markup.goldmark.renderHooks.image]
+useEmbedded = 'never'
 -- content/p1.md --
 ---
 title: "p1"
@@ -462,6 +464,8 @@ func TestLinkifyProtocol(t *testing.T) {
 		files := `
 -- hugo.toml --
 [markup.goldmark]
+[markup.goldmark.renderHooks.link]
+useEmbedded = 'never'
 [markup.goldmark.extensions]
 linkify = true
 linkifyProtocol = "PROTOCOL"

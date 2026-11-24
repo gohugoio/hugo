@@ -97,10 +97,10 @@ var Default = Config{
 	},
 	RenderHooks: RenderHooks{
 		Image: ImageRenderHook{
-			UseEmbedded: RenderHookUseEmbeddedAuto,
+			UseEmbedded: RenderHookUseEmbeddedFallback,
 		},
 		Link: LinkRenderHook{
-			UseEmbedded: RenderHookUseEmbeddedAuto,
+			UseEmbedded: RenderHookUseEmbeddedFallback,
 		},
 	},
 }
@@ -138,7 +138,8 @@ type ImageRenderHook struct {
 	EnableDefault *bool
 
 	// When to use the embedded image render hook.
-	// One of auto, never, always, or fallback. Default is auto.
+	// One of never, always, or fallback. Default is fallback.
+	// The value auto is an alias for fallback (kept for backwards compatibility).
 	UseEmbedded string
 }
 
@@ -150,7 +151,8 @@ type LinkRenderHook struct {
 	EnableDefault *bool
 
 	// When to use the embedded link render hook.
-	// One of auto, never, always, or fallback. Default is auto.
+	// One of never, always, or fallback. Default is fallback.
+	// The value auto is an alias for fallback (kept for backwards compatibility).
 	UseEmbedded string
 }
 

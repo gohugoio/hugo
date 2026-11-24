@@ -320,15 +320,11 @@ func (pco *pageContentOutput) initRenderHooks() error {
 			renderHookConfig := pco.po.p.s.conf.Markup.Goldmark.RenderHooks
 			var ignoreEmbedded bool
 
-			// For multilingual single-host sites, "auto" becomes "fallback"
-			// earlier in the process.
 			switch layoutDescriptor.Variant1 {
 			case "link":
-				ignoreEmbedded = renderHookConfig.Link.UseEmbedded == gc.RenderHookUseEmbeddedNever ||
-					renderHookConfig.Link.UseEmbedded == gc.RenderHookUseEmbeddedAuto
+				ignoreEmbedded = renderHookConfig.Link.UseEmbedded == gc.RenderHookUseEmbeddedNever
 			case "image":
-				ignoreEmbedded = renderHookConfig.Image.UseEmbedded == gc.RenderHookUseEmbeddedNever ||
-					renderHookConfig.Image.UseEmbedded == gc.RenderHookUseEmbeddedAuto
+				ignoreEmbedded = renderHookConfig.Image.UseEmbedded == gc.RenderHookUseEmbeddedNever
 			}
 
 			candidates := pco.po.p.s.renderFormats
