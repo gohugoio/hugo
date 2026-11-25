@@ -122,9 +122,7 @@ var (
 			if p1.Date().Unix() == p2.Date().Unix() {
 				c := compare.Strings(p1.LinkTitle(), p2.LinkTitle())
 				if c == 0 {
-					if p1.File() != nil && p2.File() != nil {
-						return compare.LessStrings(p1.File().Filename(), p2.File().Filename())
-					}
+					return compare.LessStrings(p1.Language().Lang, p2.Language().Lang)
 				}
 				return c < 0
 			}
