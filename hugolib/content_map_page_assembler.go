@@ -1424,7 +1424,12 @@ func (a *allPagesAssembler) createMissingStandalonePages() error {
 	oneSiteStore := (sitesmatrix.Vectors{sitesmatrix.Vector{0, 0, 0}: struct{}{}}).ToVectorStore()
 
 	addStandalone := func(key, kind string, f output.Format) {
-		if !a.h.Conf.IsKindEnabled(kind) || tree.Has(key) {
+		if !a.h.Conf.IsKindEnabled(kind) {
+			return
+		}
+
+		if n, found := tree.GetRaw(key); found && cnh.hasAutoContentNode(n) {
+			// Already added, e.g. on rebuild.
 			return
 		}
 
@@ -1449,7 +1454,10 @@ func (a *allPagesAssembler) createMissingStandalonePages() error {
 			},
 		}
 
-		tree.InsertRaw(key, p)
+		// A content file may already exist at this path in some sites, e.g. content/404.de.md.
+		// Append rather than skip, so the sites without that content still get the standalone page.
+		// The file-backed page wins in the sites where both exist, see contentWeight.
+		tree.AppendRaw(key, p)
 	}
 
 	addStandalone("/404", kinds.KindStatus404, output.HTTPStatus404HTMLFormat)
