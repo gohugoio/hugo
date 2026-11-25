@@ -270,6 +270,18 @@ func toLeftRight(c int) (float64, float64) {
 	return 0, 0
 }
 
+// asTime returns v as a time.Time if it is one or provides one via
+// AsTimeProvider. It does not accept string dates.
+func asTime(v any, loc *time.Location) (time.Time, bool) {
+	switch t := v.(type) {
+	case time.Time:
+		return t, true
+	case htime.AsTimeProvider:
+		return t.AsTime(loc), true
+	}
+	return time.Time{}, false
+}
+
 func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b any) (float64, float64) {
 	if ac, ok := a.(compare.Comparer); ok {
 		return toLeftRight(-ac.Compare(b))
@@ -283,6 +295,14 @@ func (ns *Namespace) compareGetWithCollator(collator *langs.Collator, a any, b a
 	if as, aOk := a.(string); aOk {
 		if bs, bOk := b.(string); bOk {
 			return ns.compareTwoStrings(collator, as, bs)
+		}
+	}
+
+	// Compare two times by instant, consistent with Eq; the
+	// toTimeUnix path below would truncate them to whole seconds.
+	if at, ok := asTime(a, ns.loc); ok {
+		if bt, ok := asTime(b, ns.loc); ok {
+			return toLeftRight(at.Compare(bt))
 		}
 	}
 

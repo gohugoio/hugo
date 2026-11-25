@@ -541,3 +541,34 @@ func TestComparisonArgCount(t *testing.T) {
 	c.Assert(func() { ns.Lt(1) }, qt.PanicMatches, panicMsg)
 	c.Assert(func() { ns.Ne(1) }, qt.PanicMatches, panicMsg)
 }
+
+// TestCompareTimeOrderingByInstant checks that the ordering operators
+// compare time.Time values by instant, consistent with Eq, also when
+// the two times fall within the same second.
+func TestCompareTimeOrderingByInstant(t *testing.T) {
+	t.Parallel()
+	c := qt.New(t)
+	n := New(time.UTC, false)
+
+	earlier := time.Date(2026, 1, 2, 10, 0, 0, 100_000_000, time.UTC)
+	later := time.Date(2026, 1, 2, 10, 0, 0, 600_000_000, time.UTC)
+
+	c.Assert(n.Eq(earlier, later), qt.IsFalse)
+	c.Assert(n.Ne(earlier, later), qt.IsTrue)
+	c.Assert(n.Gt(later, earlier), qt.IsTrue)
+	c.Assert(n.Gt(earlier, later), qt.IsFalse)
+	c.Assert(n.Lt(earlier, later), qt.IsTrue)
+	c.Assert(n.Lt(later, earlier), qt.IsFalse)
+	c.Assert(n.Ge(later, earlier), qt.IsTrue)
+	c.Assert(n.Ge(earlier, later), qt.IsFalse)
+	c.Assert(n.Le(earlier, later), qt.IsTrue)
+	c.Assert(n.Le(later, earlier), qt.IsFalse)
+
+	// The same instant in two different locations is neither
+	// greater nor less, but is both >= and <=.
+	sameInstant := earlier.In(time.FixedZone("CET", 3600))
+	c.Assert(n.Gt(earlier, sameInstant), qt.IsFalse)
+	c.Assert(n.Lt(earlier, sameInstant), qt.IsFalse)
+	c.Assert(n.Ge(earlier, sameInstant), qt.IsTrue)
+	c.Assert(n.Le(earlier, sameInstant), qt.IsTrue)
+}
