@@ -873,7 +873,7 @@ T1: {{ $r.Content }}|{{ hugo.IsExtended }}
 `
 
 	b := hugolib.Test(t, files)
-	b.AssertFileContent("public/index.html", "T1: body{width:5px}|false")
+	b.AssertFileContent("public/index.html", "T1: body{width:5px}|true")
 }
 
 // See issue 13003.

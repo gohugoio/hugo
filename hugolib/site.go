@@ -549,6 +549,7 @@ func newHugoSites(
 	opts := page.HugoInfoOptions{
 		Conf:                      h.Configs.GetFirstLanguageConfig(),
 		HugoInfoHugoSitesProvider: sp,
+		Log:                       d.Log,
 		Deps:                      dependencies,
 	}
 
