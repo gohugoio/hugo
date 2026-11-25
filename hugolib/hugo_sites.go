@@ -104,6 +104,9 @@ type HugoSites struct {
 	previousPageTreesWalkContext *doctree.WalkContext[contentNode]                    // Set for rebuilds only.
 	previousSeenTerms            *maphelpers.ConcurrentMap[term, sitesmatrix.Vectors] // Set for rebuilds only.
 
+	// Aliases to publish after all pages are rendered, see #15645.
+	pendingAliases *pendingAliases
+
 	printUnusedTemplatesInit            sync.Once
 	printPathWarningsInit               sync.Once
 	printSiteSitesDeprecationInit       sync.Once

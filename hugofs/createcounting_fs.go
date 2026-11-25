@@ -16,6 +16,7 @@ package hugofs
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
@@ -82,6 +83,10 @@ func (c *createCountingFs) Reset() {
 }
 
 func (fs *createCountingFs) onCreate(filename string) {
+	// Pages are written with a leading separator (/a/index.html), aliases
+	// without one (a/index.html). Count them as the same file.
+	filename = string(filepath.Separator) + strings.TrimLeft(filepath.Clean(filename), string(filepath.Separator)+"/")
+
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 

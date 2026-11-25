@@ -912,3 +912,94 @@ aliases: [a, b.foo, c.html, d.htm, e.foo.html, f.foo.htm]
 	b.AssertFileContent("public/s1/e.foo.html", "url=/s1/p1.htm")
 	b.AssertFileContent("public/s1/f.foo.htm", "url=/s1/p1.htm")
 }
+
+func TestAliasSameTargetPathAsPageIssue15645(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["home", "rss", "section", "sitemap", "taxonomy", "term"]
+-- layouts/single.html --
+Single: {{ .Title }}|
+-- content/a.md --
+---
+title: "A"
+---
+-- content/b.md --
+---
+title: "B"
+aliases: ["/a/", "/old-b/"]
+---
+-- content/c.md --
+---
+title: "C"
+url: "/new-c/"
+---
+-- content/d.md --
+---
+title: "D"
+aliases: ["/new-c/"]
+---
+`
+
+	// Pages and aliases used to be written concurrently, so the result
+	// depended on timing. Build a few times to make sure the page always wins.
+	for range 5 {
+		b := Test(t, files, TestOptWarn())
+
+		b.AssertFileContent("public/a/index.html", "Single: A|")
+		b.AssertFileContent("public/new-c/index.html", "Single: C|")
+		b.AssertFileContent("public/b/index.html", "Single: B|")
+		b.AssertFileContent("public/old-b/index.html", "<meta http-equiv=\"refresh\" content=\"0; url=https://example.org/b/\">")
+		b.AssertLogContains(
+			"WARN  Alias \"/a\" of page \"/b\" was not published: a page is already published to \"a/index.html\".",
+			"WARN  Alias \"/new-c\" of page \"/d\" was not published: a page is already published to \"new-c/index.html\".",
+		)
+	}
+}
+
+func TestAliasSameTargetPathAsPageMultilingualIssue15645(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["home", "rss", "section", "sitemap", "taxonomy", "term"]
+defaultContentLanguage = "en"
+[languages.en]
+weight = 1
+[languages.es]
+weight = 2
+-- layouts/single.html --
+Single: {{ .Title }}|
+-- content/a.en.md --
+---
+title: "A en"
+---
+-- content/a.es.md --
+---
+title: "A es"
+---
+-- content/b.en.md --
+---
+title: "B en"
+aliases: ["/c/"]
+---
+-- content/b.es.md --
+---
+title: "B es"
+aliases: ["/a/"]
+---
+`
+
+	for range 5 {
+		b := Test(t, files, TestOptWarn())
+
+		// The alias of the Spanish page is published below /es/, the same path as the Spanish page A.
+		b.AssertFileContent("public/es/a/index.html", "Single: A es|")
+		b.AssertFileContent("public/a/index.html", "Single: A en|")
+		b.AssertFileContent("public/c/index.html", "<meta http-equiv=\"refresh\" content=\"0; url=https://example.org/b/\">")
+		b.AssertLogContains("WARN  Alias \"/es/a\" of page \"/b\" was not published: a page is already published to \"es/a/index.html\".")
+	}
+}

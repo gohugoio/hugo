@@ -421,6 +421,8 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 
 	i := 0
 
+	h.pendingAliases = newPendingAliases()
+
 	for s := range h.allSites(nil) {
 		if s.conf.Segments.Config.SegmentFilter.ShouldExcludeCoarse(segments.SegmentQuery{Site: s.siteVector}) {
 			l.Logf("skip site %s not matching segments set in --renderSegments", s.resolveDimensionNames())
@@ -478,6 +480,12 @@ func (h *HugoSites) render(l logg.LevelLogger, config *BuildCfg) error {
 
 		}
 
+	}
+
+	// Publish the aliases last, so a page always wins over an alias with the
+	// same target path.
+	if err := h.publishPendingAliases(); err != nil {
+		return renderErr(err)
 	}
 
 	return nil

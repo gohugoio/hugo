@@ -1655,6 +1655,10 @@ func (s *Site) renderAndWritePage(statCounter *uint64, targetPath string, p *pag
 		return nil
 	}
 
+	if pa := s.h.pendingAliases; pa != nil {
+		pa.addPagePath(targetPath)
+	}
+
 	isHTML := of.IsHTML
 	isRSS := of.Name == "rss"
 

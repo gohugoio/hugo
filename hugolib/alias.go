@@ -101,6 +101,32 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFo
 		return err
 	}
 
+	return s.publishAliasToTargetPath(handler, targetPath, permalink, outputFormat, p)
+}
+
+// queueDestAlias validates the alias and queues it for publishing after all
+// pages have been rendered, see publishPendingAliases.
+func (s *Site) queueDestAlias(path, permalink string, outputFormat output.Format, p page.Page) error {
+	handler := newAliasHandler(s.GetTemplateStore(), s.Log, false)
+
+	targetPath, err := handler.targetPathAlias(path, outputFormat)
+	if err != nil {
+		return err
+	}
+
+	s.h.pendingAliases.add(pendingAlias{
+		s:            s,
+		alias:        path,
+		targetPath:   targetPath,
+		permalink:    permalink,
+		outputFormat: outputFormat,
+		p:            p,
+	})
+
+	return nil
+}
+
+func (s *Site) publishAliasToTargetPath(handler aliasHandler, targetPath, permalink string, outputFormat output.Format, p page.Page) error {
 	aliasContent, err := handler.renderAlias(permalink, p, s.siteVector)
 	if err != nil {
 		return err

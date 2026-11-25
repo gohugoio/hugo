@@ -318,7 +318,7 @@ func (s *Site) renderAliasesForPage(p *pageState) error {
 	f := po.f
 	plink := p.Permalink()
 	for _, a := range p.Aliases() {
-		err := s.writeDestAlias(a, plink, f, p)
+		err := s.queueDestAlias(a, plink, f, p)
 		if err != nil {
 			return err
 		}
