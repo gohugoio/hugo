@@ -19,6 +19,7 @@ import (
 
 	"github.com/gohugoio/hugo/common/hstore"
 	"github.com/gohugoio/hugo/common/hugo"
+	"github.com/gohugoio/hugo/common/loggers"
 	"github.com/gohugoio/hugo/common/version"
 	"github.com/gohugoio/hugo/identity"
 	"github.com/gohugoio/hugo/resources/page/siteidentities"
@@ -81,10 +82,12 @@ func (i HugoInfo) IsServer() bool {
 	return i.opts.Conf.Running()
 }
 
-// IsExtended always returns false.
+// IsExtended always returns true.
 // The extended edition of Hugo was removed in v0.170.0.
+// Deprecated: All editions now include the features of the former extended edition.
 func (i HugoInfo) IsExtended() bool {
-	return false
+	hugo.DeprecateWithLogger("hugo.IsExtended", "It now always returns true because all editions include the features of the former extended edition.", "v0.171.0", i.opts.Log.Logger())
+	return true
 }
 
 // WorkingDir returns the project working directory.
@@ -139,6 +142,7 @@ type HugoInfoHugoSitesProvider interface {
 type HugoInfoOptions struct {
 	Conf                      HugoInfoConfigProvider
 	HugoInfoHugoSitesProvider HugoInfoHugoSitesProvider
+	Log                       loggers.Logger
 
 	Deps       []*hugo.Dependency
 	CommitHash string
@@ -156,6 +160,9 @@ func NewHugoInfo(opts HugoInfoOptions) HugoInfo {
 	}
 	if opts.HugoInfoHugoSitesProvider == nil {
 		opts.HugoInfoHugoSitesProvider = nopHugoSitesProvider{}
+	}
+	if opts.Log == nil {
+		opts.Log = loggers.Log()
 	}
 
 	return HugoInfo{

@@ -76,6 +76,23 @@ multihost={{ hugo.IsMultihost }}
 	)
 }
 
+// See issue 15508.
+func TestIsExtendedDeprecated(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['page','rss','section','sitemap','taxonomy','term']
+-- layouts/home.html --
+extended={{ hugo.IsExtended }}
+`
+
+	b := hugolib.Test(t, files, hugolib.TestOptInfo())
+
+	b.AssertFileContent("public/index.html", "extended=true")
+	b.AssertLogContains("hugo.IsExtended was deprecated in Hugo v0.171.0 and will be removed in a future release. It now always returns true")
+}
+
 func TestHugoSites(t *testing.T) {
 	t.Parallel()
 
