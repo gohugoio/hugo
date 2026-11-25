@@ -210,3 +210,38 @@ func BenchmarkAssembleDeepSiteWithManySections(b *testing.B) {
 	runOne(2, 6, 100)
 	runOne(4, 2, 100)
 }
+
+func TestTranslationsOrderSameLanguageWeightIssue15644(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["rss", "section", "sitemap", "taxonomy", "term", "404"]
+defaultContentLanguage = "en"
+[languages.en]
+weight = 1
+[languages.pt]
+weight = 2
+[languages.es]
+weight = 2
+[languages.fr]
+weight = 2
+-- layouts/home.html --
+Sites: {{ range hugo.Sites }}{{ .Language.Name }} {{ end }}|
+AllTranslations: {{ range .AllTranslations }}{{ .Language.Name }} {{ end }}|
+Translations: {{ range .Translations }}{{ .Language.Name }} {{ end }}|
+`
+
+	// The order used to depend on timing, so build several times.
+	for range 10 {
+		b := Test(t, files)
+
+		b.AssertFileContent("public/index.html",
+			"Sites: en es fr pt |",
+			"AllTranslations: en es fr pt |",
+			"Translations: es fr pt |",
+		)
+		b.AssertFileContent("public/fr/index.html", "Translations: en es pt |")
+	}
+}

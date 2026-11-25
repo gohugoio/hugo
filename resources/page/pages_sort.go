@@ -123,8 +123,13 @@ var (
 				c := compare.Strings(p1.LinkTitle(), p2.LinkTitle())
 				if c == 0 {
 					if p1.File() != nil && p2.File() != nil {
-						return compare.LessStrings(p1.File().Filename(), p2.File().Filename())
+						if f1, f2 := p1.File().Filename(), p2.File().Filename(); f1 != f2 {
+							return compare.LessStrings(f1, f2)
+						}
 					}
+					// Same weight, date and title, e.g. the home pages of languages
+					// without content: sort by language name to get a stable order.
+					return compare.LessStrings(p1.Language().Lang, p2.Language().Lang)
 				}
 				return c < 0
 			}
