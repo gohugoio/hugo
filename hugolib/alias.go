@@ -101,6 +101,14 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFo
 		return err
 	}
 
+	// A page always wins over an alias targeting the same path. Without
+	// this, the page and the redirect are written concurrently and whichever
+	// is written last wins. See #15645.
+	if owner, found := s.pageTargetPaths[normalizeTargetPathForAliasCheck(targetPath)]; found {
+		s.Log.Warnf("Alias %q for page %q would overwrite page %q at %q; skipping alias", path, p.RelPermalink(), owner.RelPermalink(), targetPath)
+		return nil
+	}
+
 	aliasContent, err := handler.renderAlias(permalink, p, s.siteVector)
 	if err != nil {
 		return err
@@ -118,6 +126,13 @@ func (s *Site) publishDestAlias(allowRoot bool, path, permalink string, outputFo
 	}
 
 	return s.publisher.Publish(pd)
+}
+
+// normalizeTargetPathForAliasCheck normalizes a target path for comparison,
+// removing any leading slash, so page target paths (e.g. "/a/index.html")
+// and alias target paths (e.g. "a/index.html") compare equal.
+func normalizeTargetPathForAliasCheck(p string) string {
+	return strings.TrimPrefix(filepath.ToSlash(p), "/")
 }
 
 func (a aliasHandler) targetPathAlias(src string, of output.Format) (string, error) {

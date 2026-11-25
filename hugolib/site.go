@@ -117,6 +117,11 @@ type Site struct {
 
 	publisher          publisher.Publisher
 	frontmatterHandler pagemeta.FrontMatterHandler
+
+	// Target paths of the pages that will be rendered in the current output
+	// format, keyed by normalized target path (no leading slash). Built in
+	// preparePagesForRender. Used to detect aliases that would overwrite a page.
+	pageTargetPaths map[string]*pageState
 }
 
 func (s Site) cloneForVersionAndRole(version, role int) (*Site, error) {

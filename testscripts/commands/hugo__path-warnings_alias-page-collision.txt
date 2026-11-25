@@ -1,0 +1,20 @@
+hugo --printPathWarnings
+
+# The page must win over an alias that targets the same path. See #15645.
+grep 'Single: A' public/a/index.html
+stderr 'Alias "/a" for page "/b/" would overwrite page "/a/" at "a/index.html"; skipping alias'
+
+-- hugo.toml --
+baseURL = 'https://example.org/'
+disableKinds = ['home', 'rss', 'section', 'sitemap', 'taxonomy', 'term']
+-- layouts/single.html --
+Single: {{ .Title }}|
+-- content/a.md --
+---
+title: A
+---
+-- content/b.md --
+---
+title: B
+aliases: [/a/]
+---
