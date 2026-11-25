@@ -828,3 +828,28 @@ p1.txt
 	b.AssertFileExists("public/fr/s1/p1/index.html", false)
 	b.AssertFileExists("public/fr/s1/p1.txt", false) // failing test
 }
+
+func TestBranchBundleWithURLPublishesResourcesAtURL(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.org/"
+disableKinds = ["home", "rss", "sitemap", "taxonomy", "term"]
+-- layouts/section.html --
+{{ .Title }}|{{ with .Resources.Get "datasheet.pdf" }}{{ .RelPermalink }}{{ end }}|
+-- content/products/folder-name/_index.md --
+---
+title: "Product"
+url: /products/published-name/
+---
+-- content/products/folder-name/datasheet.pdf --
+PDF
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/products/published-name/index.html", "Product|/products/published-name/datasheet.pdf|")
+	b.AssertFileContent("public/products/published-name/datasheet.pdf", "PDF")
+	b.AssertFileExists("public/products/folder-name/datasheet.pdf", false)
+}

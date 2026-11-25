@@ -1,0 +1,21 @@
+# Two pages that declare the same alias write the same redirect file.
+
+hugo --printPathWarnings
+
+stderr 'Duplicate target paths: old.index\.html \(2\)'
+
+-- hugo.toml --
+disableKinds = ["home", "rss", "section", "sitemap", "taxonomy", "term", "404"]
+baseURL = "https://example.org/"
+-- layouts/single.html --
+Single.
+-- content/a.md --
+---
+title: "A"
+aliases: ["/old/"]
+---
+-- content/b.md --
+---
+title: "B"
+aliases: ["/old/"]
+---
