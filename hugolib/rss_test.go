@@ -14,8 +14,55 @@
 package hugolib
 
 import (
+	"strings"
 	"testing"
 )
+
+// See issue 10393.
+func TestRSSWithExplicitSectionURL(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/'
+disableKinds = ['home', 'sitemap', 'taxonomy', 'term']
+CONFIG
+[outputs]
+section = ['HTML', 'RSS', 'JSON']
+-- content/posts/_index.md --
++++
+title = 'Posts'
+url = 'FRONTMATTER_URL'
++++
+-- layouts/list.html --
+HTML: {{ .Title }}
+{{ range .OutputFormats }}{{ .Name }}: {{ .RelPermalink }}|{{ end }}
+-- layouts/list.rss.xml --
+<rss>{{ .Title }}</rss>
+-- layouts/list.json.json --
+{"title": "{{ .Title }}"}
+`
+	for _, test := range []struct {
+		name   string
+		config string
+		url    string
+		prefix string
+		suffix string
+	}{
+		{"html", "", "/posts/custom.html", "", ".html"},
+		{"custom suffix", "", "/posts/custom.php", "", ".php"},
+		{"language prefix with ugly URLs", "uglyURLs = true\ndefaultContentLanguageInSubdir = true", "posts/custom.php", "en/", ".php"},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			b := Test(t, strings.NewReplacer("CONFIG", test.config, "FRONTMATTER_URL", test.url).Replace(files))
+			base := test.prefix + "posts/custom"
+			b.AssertFileContent("public/"+base+test.suffix,
+				"HTML: Posts", "html: /"+base+test.suffix+"|", "rss: /"+base+".xml|", "json: /"+base+".json|")
+			b.AssertFileContent("public/"+base+".xml", "<rss>Posts</rss>")
+			b.AssertFileContent("public/"+base+".json", `{"title": "Posts"}`)
+		})
+	}
+}
 
 // Before Hugo 0.49 we set the pseudo page kind RSS on the page when output to RSS.
 // This had some unintended side effects, esp. when the only output format for that page
