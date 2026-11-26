@@ -293,11 +293,11 @@ func (l PermalinkExpander) pageToPermalinkDate(p Page, dateField string) (string
 	return p.Date().Format(dateField), nil
 }
 
-// segmentReplacer replaces path separators in a title before it's used to
-// build a single path segment (e.g. an automatically derived slug). Without
-// this, a title containing a "/" would silently introduce an extra, unintended
-// path segment in the resulting URL. See #3577.
-var segmentReplacer = strings.NewReplacer("/", "-", "\\", "-")
+// segmentReplacer replaces the characters in a title that would otherwise
+// break the single path segment derived from it: "/" would add a segment
+// (#3577) and "#" ends the URL at its fragment and is rejected as a filename by
+// some hosts (#15663).
+var segmentReplacer = strings.NewReplacer("/", "-", "\\", "-", "#", "")
 
 // pageToPermalinkTitle returns the URL-safe form of the title.
 func (l PermalinkExpander) pageToPermalinkTitle(p Page, _ string) (string, error) {

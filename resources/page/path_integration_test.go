@@ -48,11 +48,42 @@ title: p#2
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileExists("public/s1/p#1/index.html", true)
+	b.AssertFileExists("public/s1/p1/index.html", true)
 	b.AssertFileExists("public/s2/p#2/index.html", true)
 	b.AssertFileExists("public/tags/test#tag#/index.html", true)
 
-	b.AssertFileContentExact("public/index.html", "/|/s1/p%231/|/s2/p%232/|/tags/test%23tag%23/|")
+	b.AssertFileContentExact("public/index.html", "/|/s1/p1/|/s2/p%232/|/tags/test%23tag%23/|")
+}
+
+// Issue 15663.
+func TestHashInTitleDerivedSlug(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+disableKinds = ['section','rss','sitemap','taxonomy']
+[permalinks.page]
+posts = '/posts/:slug/'
+-- layouts/list.html --
+{{ range site.Pages }}{{ .RelPermalink }}|{{ end }}
+-- layouts/single.html --
+{{ .Title }}
+-- content/posts/a.md --
+---
+title: 'Newsletter - Shipping Insights #2'
+---
+-- content/posts/b.md --
+---
+title: 'Explicit slug keeps the hash'
+slug: 'explicit#slug'
+---
+`
+
+	b := hugolib.Test(t, files)
+
+	b.AssertFileExists("public/posts/newsletter-shipping-insights-2/index.html", true)
+	b.AssertFileExists("public/posts/explicit#slug/index.html", true)
+	b.AssertFileContentExact("public/index.html", "/|/posts/explicit%23slug/|/posts/newsletter-shipping-insights-2/|")
 }
 
 // Issues: 13829, 4428, 7497.
