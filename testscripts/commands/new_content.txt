@@ -24,6 +24,7 @@ cd issue-12602
 hugo new content about/_index.md
 ! hugo new content about.md
 stderr 'the target path conflicts with existing content'
+! exists content/about.md
 
 # Issue 12786
 
@@ -33,6 +34,7 @@ cd issue-12786
 hugo new content content/p1/index.md
 ! hugo new content content/p1/p2.md
 stderr 'the target path conflicts with existing content'
+! exists content/p1/p2.md
 
 # Issue 14112
 
@@ -43,6 +45,16 @@ hugo new content P1.md
 ! hugo new content p1.md
 stderr 'the target path conflicts with existing content'
 
+# Issue 12504
+
+cd $WORK/issue-12504
+! hugo new content p1.md
+stderr 'the target path conflicts with existing content'
+! exists content/p1.md
+! hugo new content --force p2.md
+stderr 'the target path conflicts with existing content'
+grep 'title: ORIGINAL' content/p2.md
+
 -- hugo.toml --
 disableKinds = ['home','rss','section','sitemap','taxonomy','term']
 [frontmatter]
@@ -52,3 +64,12 @@ publishDate = [':filename', ':default']
 DATE _{{ .Date.Format "2006-01-02" }}_
 SLUG _{{ .Slug }}_
 TITLE _{{ .Title }}_
+-- issue-12504/hugo.toml --
+disableKinds = ['home','rss','section','sitemap','taxonomy','term']
+-- issue-12504/content/_content.gotmpl --
+{{ .AddPage (dict "path" "p1" "title" "p1" "content" (dict "mediaType" "text/markdown" "value" "p1")) }}
+{{ .AddPage (dict "path" "p2" "title" "p2" "content" (dict "mediaType" "text/markdown" "value" "p2")) }}
+-- issue-12504/content/p2.md --
+---
+title: ORIGINAL
+---
