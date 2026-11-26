@@ -18,9 +18,11 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"math"
 	"sort"
 	"strings"
 	"sync/atomic"
+	"unicode"
 	"unicode/utf8"
 
 	maps0 "maps"
@@ -792,7 +794,20 @@ func (c *cachedContentScope) contentPlain(ctx context.Context) (contentPlainPlai
 
 		if isCJKLanguage {
 			result.wordCount = 0
+			var nonCJK, cjk int
 			for _, word := range result.plainWords {
+				var wordCJK, wordNonCJK int
+				for _, r := range word {
+					if isCJKRune(r) {
+						wordCJK++
+					} else {
+						wordNonCJK++
+					}
+				}
+				cjk += wordCJK
+				if wordNonCJK > 0 {
+					nonCJK++
+				}
 				runeCount := utf8.RuneCountInString(word)
 				if len(word) == runeCount {
 					result.wordCount++
@@ -800,19 +815,15 @@ func (c *cachedContentScope) contentPlain(ctx context.Context) (contentPlainPlai
 					result.wordCount += runeCount
 				}
 			}
+			result.readingTime = readingTimeMinutes(nonCJK, cjk)
 		} else {
 			result.wordCount = helpers.TotalWords(result.plain)
+			result.readingTime = (result.wordCount + 211) / 212
 		}
 
 		// TODO(bep) is set in a test. Fix that.
 		if result.fuzzyWordCount == 0 {
 			result.fuzzyWordCount = (result.wordCount + 99) / 100 * 100
-		}
-
-		if isCJKLanguage {
-			result.readingTime = (result.wordCount + 499) / 500
-		} else {
-			result.readingTime = (result.wordCount + 211) / 212
 		}
 
 		rs.Value = result
@@ -826,6 +837,24 @@ func (c *cachedContentScope) contentPlain(ctx context.Context) (contentPlainPlai
 		return contentPlainPlainWords{}, err
 	}
 	return v.Value, nil
+}
+
+func isCJKRune(r rune) bool {
+	return unicode.In(r, unicode.Han, unicode.Hangul, unicode.Hiragana, unicode.Katakana)
+}
+
+// readingTimeMinutes estimates minutes from mixed CJK/non-CJK counts.
+// Non-CJK words are counted at 212 wpm, CJK runes at 500 cpm.
+func readingTimeMinutes(nonCJKWords, cjkCount int) int {
+	if nonCJKWords == 0 && cjkCount == 0 {
+		return 0
+	}
+	minutes := float64(nonCJKWords)/212.0 + float64(cjkCount)/500.0
+	rt := int(math.Ceil(minutes - 1e-12))
+	if rt < 1 {
+		return 1
+	}
+	return rt
 }
 
 type cachedContentScope struct {
