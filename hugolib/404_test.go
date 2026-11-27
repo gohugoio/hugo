@@ -113,3 +113,36 @@ This is the 404 branch.
 
 	b.AssertFileContent("public/404/index.html", "All. section. 404 branch|")
 }
+
+func Test404ContentInOneLanguageIssue15641(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "http://example.com/"
+disableKinds = ["rss", "sitemap", "taxonomy", "term"]
+defaultContentLanguage = "en"
+[languages.en]
+weight = 1
+[languages.de]
+weight = 2
+-- layouts/all.html --
+All. {{ .Kind }}. {{ .Title }}|
+-- layouts/404.html --
+404. {{ .Language.Name }}|
+-- content/_index.md --
+---
+title: "Home"
+---
+-- content/404.de.md --
+---
+title: "Nicht gefunden"
+---
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContent("public/404.html", "404. en|")
+	b.AssertFileContent("public/de/404/index.html", "All. page. Nicht gefunden|")
+	b.AssertFileExists("public/de/404.html", false)
+}
