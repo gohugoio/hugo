@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 
@@ -75,16 +76,6 @@ func TestCache(t *testing.T) {
 	c.Assert(p3, qt.Not(qt.Equals), p1)
 
 	c.Assert(func() { New(Options{}) }, qt.PanicMatches, ".*nil Log.*")
-}
-
-func TestCalculateMaxSizePerPartition(t *testing.T) {
-	t.Parallel()
-	c := qt.New(t)
-
-	c.Assert(calculateMaxSizePerPartition(1000, 500, 5), qt.Equals, 200)
-	c.Assert(calculateMaxSizePerPartition(1000, 250, 5), qt.Equals, 400)
-	c.Assert(func() { calculateMaxSizePerPartition(1000, 250, 0) }, qt.PanicMatches, ".*must be > 0.*")
-	c.Assert(func() { calculateMaxSizePerPartition(1000, 0, 1) }, qt.PanicMatches, ".*must be > 0.*")
 }
 
 func TestCleanKey(t *testing.T) {
@@ -165,7 +156,7 @@ func TestClear(t *testing.T) {
 
 	c.Assert(cache.Keys(predicateAll), qt.HasLen, 3)
 
-	cache.adjustCurrentMaxSize()
+	cache.checkMemory()
 }
 
 func TestPanicInCreate(t *testing.T) {
@@ -220,11 +211,69 @@ func TestPanicInCreate(t *testing.T) {
 	}
 }
 
-func TestAdjustCurrentMaxSize(t *testing.T) {
+func TestAdjustMaxSize(t *testing.T) {
 	t.Parallel()
 	c := qt.New(t)
-	cache := newTestCache(t)
-	alloc := cache.stats.memstatsCurrent.Alloc
-	cache.adjustCurrentMaxSize()
-	c.Assert(cache.stats.memstatsCurrent.Alloc, qt.Not(qt.Equals), alloc)
+
+	const limit uint64 = 1000
+
+	cache := New(Options{
+		Log:           loggers.NewDefault(),
+		CheckInterval: time.Hour,
+	})
+	t.Cleanup(func() {
+		cache.Stop()
+	})
+	cache.availableMemory = limit
+
+	pLow := GetOrCreatePartition[string, int](cache, "/aaaa/low", OptionsPartition{Weight: 30})
+	pHigh := GetOrCreatePartition[string, int](cache, "/aaaa/high", OptionsPartition{Weight: 70})
+	pEmpty := GetOrCreatePartition[string, int](cache, "/aaaa/empty", OptionsPartition{Weight: 30})
+
+	c.Assert(pLow.getMaxSize(), qt.Equals, 30*maxEntriesPerWeight)
+	c.Assert(pHigh.getMaxSize(), qt.Equals, 70*maxEntriesPerWeight)
+	c.Assert(pEmpty.getMaxSize(), qt.Equals, 30*maxEntriesPerWeight)
+
+	for i := range 100 {
+		key := fmt.Sprintf("k%d", i)
+		_, err := pLow.GetOrCreate(key, func(string) (int, error) { return i, nil })
+		c.Assert(err, qt.IsNil)
+		_, err = pHigh.GetOrCreate(key, func(string) (int, error) { return i, nil })
+		c.Assert(err, qt.IsNil)
+	}
+
+	// Over limit: shrinks immediately from actual occupancy (100), weighted by Weight.
+	// Weight 30 -> retain 0.40 -> 40; Weight 70 -> retain 0.60 -> 60; empty untouched.
+	cache.adjustMaxSize(runtime.MemStats{Alloc: limit + 1})
+	c.Assert(pLow.getMaxSize(), qt.Equals, 40)
+	c.Assert(pLow.c.Len(), qt.Equals, 40)
+	c.Assert(pHigh.getMaxSize(), qt.Equals, 60)
+	c.Assert(pHigh.c.Len(), qt.Equals, 60)
+	c.Assert(pEmpty.getMaxSize(), qt.Equals, 30*maxEntriesPerWeight)
+
+	// Deadband [80%, 100%] of limit: holds steady without shrinking or growing.
+	cache.adjustMaxSize(runtime.MemStats{Alloc: limit * 9 / 10})
+	c.Assert(pLow.getMaxSize(), qt.Equals, 40)
+	c.Assert(pHigh.getMaxSize(), qt.Equals, 60)
+
+	// Below 80% of limit: grows smoothly by 1.5x.
+	cache.adjustMaxSize(runtime.MemStats{Alloc: limit / 2})
+	c.Assert(pLow.getMaxSize(), qt.Equals, 60)
+	c.Assert(pHigh.getMaxSize(), qt.Equals, 90)
+
+	// Repeated over-limit ticks shrink all the way down to minMaxSize.
+	for range 20 {
+		cache.adjustMaxSize(runtime.MemStats{Alloc: limit + 1})
+	}
+	c.Assert(pLow.getMaxSize(), qt.Equals, minMaxSize)
+	c.Assert(pLow.c.Len(), qt.Equals, minMaxSize)
+	c.Assert(pHigh.getMaxSize(), qt.Equals, minMaxSize)
+	c.Assert(pHigh.c.Len(), qt.Equals, minMaxSize)
+
+	// Repeated healthy ticks recover back to defaultMaxSize without overshooting.
+	for range 100 {
+		cache.adjustMaxSize(runtime.MemStats{Alloc: limit / 2})
+	}
+	c.Assert(pLow.getMaxSize(), qt.Equals, 30*maxEntriesPerWeight)
+	c.Assert(pHigh.getMaxSize(), qt.Equals, 70*maxEntriesPerWeight)
 }

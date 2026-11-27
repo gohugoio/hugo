@@ -36,7 +36,10 @@ import (
 	"github.com/gohugoio/hugo/resources/resource"
 )
 
-const minMaxSize = 10
+const (
+	minMaxSize          = 1
+	maxEntriesPerWeight = 10000
+)
 
 type KeyIdentity struct {
 	Key      any
@@ -46,25 +49,11 @@ type KeyIdentity struct {
 // New creates a new cache.
 func New(opts Options) *Cache {
 	if opts.CheckInterval == 0 {
-		opts.CheckInterval = time.Second * 2
+		opts.CheckInterval = time.Second
 	}
 
-	if opts.MaxSize == 0 {
-		opts.MaxSize = 100000
-	}
 	if opts.Log == nil {
 		panic("nil Log")
-	}
-
-	if opts.MinMaxSize == 0 {
-		opts.MinMaxSize = 30
-	}
-
-	stats := &stats{
-		opts:             opts,
-		adjustmentFactor: 1.0,
-		currentMaxSize:   opts.MaxSize,
-		availableMemory:  config.GetMemoryLimit(),
 	}
 
 	infol := opts.Log.InfoCommand("dynacache")
@@ -87,7 +76,7 @@ func New(opts Options) *Cache {
 		onEvict:           onEvict,
 		evictedIdentities: evictedIdentities,
 		opts:              opts,
-		stats:             stats,
+		availableMemory:   config.GetMemoryLimit(),
 		infol:             infol,
 	}
 
@@ -100,26 +89,16 @@ func New(opts Options) *Cache {
 type Options struct {
 	Log           loggers.Logger
 	CheckInterval time.Duration
-	MaxSize       int
-	MinMaxSize    int
 	Watching      bool
 }
 
 // Options for a partition.
 type OptionsPartition struct {
-	// When to clear the this partition.
+	// When to clear this partition.
 	ClearWhen ClearWhen
 
-	// Weight is a number between 1 and 100 that indicates how, in general, how big this partition may get.
+	// Weight is a number between 1 and 100 that indicates how important/large this partition may get.
 	Weight int
-}
-
-func (o OptionsPartition) WeightFraction() float64 {
-	return float64(o.Weight) / 100
-}
-
-func (o OptionsPartition) CalculateMaxSize(maxSizePerPartition int) int {
-	return int(math.Floor(float64(maxSizePerPartition) * o.WeightFraction()))
 }
 
 // A dynamic partitioned cache.
@@ -131,10 +110,10 @@ type Cache struct {
 	onEvict           func(k, v any)
 	evictedIdentities *collections.StackThreadSafe[KeyIdentity]
 
-	opts  Options
-	infol logg.LevelLogger
+	opts            Options
+	availableMemory uint64
+	infol           logg.LevelLogger
 
-	stats    *stats
 	stopOnce sync.Once
 	stop     func()
 }
@@ -231,18 +210,6 @@ func (c *Cache) Keys(predicate func(s string) bool) []string {
 	return keys
 }
 
-func calculateMaxSizePerPartition(maxItemsTotal, totalWeightQuantity, numPartitions int) int {
-	if numPartitions == 0 {
-		panic("numPartitions must be > 0")
-	}
-	if totalWeightQuantity == 0 {
-		panic("totalWeightQuantity must be > 0")
-	}
-
-	avgWeight := float64(totalWeightQuantity) / float64(numPartitions)
-	return int(math.Floor(float64(maxItemsTotal) / float64(numPartitions) * (100.0 / avgWeight)))
-}
-
 // Stop stops the cache.
 func (c *Cache) Stop() {
 	c.stopOnce.Do(func() {
@@ -250,46 +217,33 @@ func (c *Cache) Stop() {
 	})
 }
 
-func (c *Cache) adjustCurrentMaxSize() {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+func (c *Cache) checkMemory() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	c.adjustMaxSize(m)
+}
+
+func (c *Cache) adjustMaxSize(m runtime.MemStats) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	if len(c.partitions) == 0 {
 		return
 	}
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-	s := c.stats
-	s.memstatsCurrent = m
-	// fmt.Printf("\n\nAvailable = %v\nAlloc = %v\nTotalAlloc = %v\nSys = %v\nNumGC = %v\nMaxSize = %d\nAdjustmentFactor=%f\n\n", helpers.FormatByteCount(s.availableMemory), helpers.FormatByteCount(m.Alloc), helpers.FormatByteCount(m.TotalAlloc), helpers.FormatByteCount(m.Sys), m.NumGC, c.stats.currentMaxSize, s.adjustmentFactor)
 
-	if s.availableMemory >= s.memstatsCurrent.Alloc {
-		if s.adjustmentFactor <= 1.0 {
-			s.adjustmentFactor += 0.2
-		}
-	} else {
-		// We're low on memory.
-		s.adjustmentFactor -= 0.4
-	}
-
-	if s.adjustmentFactor <= 0 {
-		s.adjustmentFactor = 0.05
-	}
-
-	if !s.adjustCurrentMaxSize() {
-		return
-	}
-
-	totalWeight := 0
-	for _, pm := range c.partitions {
-		totalWeight += pm.getOptions().Weight
-	}
-
-	maxSizePerPartition := calculateMaxSizePerPartition(c.stats.currentMaxSize, totalWeight, len(c.partitions))
+	limit := c.availableMemory
+	// Hysteresis: shrink above limit, grow below 80% of limit, hold steady in between.
+	growThreshold := limit * 4 / 5
 
 	evicted := 0
-	for _, p := range c.partitions {
-		evicted += p.adjustMaxSize(p.getOptions().CalculateMaxSize(maxSizePerPartition))
+	if m.Alloc > limit {
+		for _, p := range c.partitions {
+			evicted += p.shrink()
+		}
+	} else if m.Alloc < growThreshold {
+		for _, p := range c.partitions {
+			p.grow()
+		}
 	}
 
 	if evicted > 0 {
@@ -298,7 +252,7 @@ func (c *Cache) adjustCurrentMaxSize() {
 				logg.Fields{
 					{Name: "evicted", Value: evicted},
 					{Name: "numGC", Value: m.NumGC},
-					{Name: "limit", Value: helpers.FormatByteCount(c.stats.availableMemory)},
+					{Name: "limit", Value: helpers.FormatByteCount(limit)},
 					{Name: "alloc", Value: helpers.FormatByteCount(m.Alloc)},
 					{Name: "totalAlloc", Value: helpers.FormatByteCount(m.TotalAlloc)},
 				},
@@ -314,7 +268,7 @@ func (c *Cache) start() func() {
 		for {
 			select {
 			case <-ticker.C:
-				c.adjustCurrentMaxSize()
+				c.checkMemory()
 				// Reset the ticker to avoid drift.
 				ticker.Reset(c.opts.CheckInterval)
 			case <-quit:
@@ -360,10 +314,7 @@ func GetOrCreatePartition[K comparable, V any](c *Cache, name string, opts Optio
 		return p.(*Partition[K, V])
 	}
 
-	// At this point, we don't know the number of partitions or their configuration, but
-	// this will be re-adjusted later.
-	const numberOfPartitionsEstimate = 10
-	maxSize := opts.CalculateMaxSize(c.opts.MaxSize / numberOfPartitionsEstimate)
+	defaultMaxSize := opts.Weight * maxEntriesPerWeight
 
 	onEvict := func(k K, v V) {
 		c.onEvict(k, v)
@@ -371,10 +322,11 @@ func GetOrCreatePartition[K comparable, V any](c *Cache, name string, opts Optio
 
 	// Create a new partition and cache it.
 	partition := &Partition[K, V]{
-		c:       lazycache.New(lazycache.Options[K, V]{MaxEntries: maxSize, OnEvict: onEvict}),
-		maxSize: maxSize,
-		trace:   c.opts.Log.Logger().WithLevel(logg.LevelTrace).WithField("partition", name),
-		opts:    opts,
+		c:              lazycache.New(lazycache.Options[K, V]{MaxEntries: defaultMaxSize, OnEvict: onEvict}),
+		defaultMaxSize: defaultMaxSize,
+		maxSize:        defaultMaxSize,
+		trace:          c.opts.Log.Logger().WithLevel(logg.LevelTrace).WithField("partition", name),
+		opts:           opts,
 	}
 
 	c.partitions[name] = partition
@@ -391,7 +343,8 @@ type Partition[K comparable, V any] struct {
 	trace logg.LevelLogger
 	opts  OptionsPartition
 
-	maxSize int
+	defaultMaxSize int
+	maxSize        int
 }
 
 // GetOrCreate gets or creates a value for the given key.
@@ -486,12 +439,11 @@ func (p *Partition[K, V]) clearOnRebuild(predicate func(k, v any) bool, changese
 			return false
 		}
 	}
-	opts := p.getOptions()
-	if opts.ClearWhen == ClearNever {
+	if p.opts.ClearWhen == ClearNever {
 		return
 	}
 
-	if opts.ClearWhen == ClearOnRebuild {
+	if p.opts.ClearWhen == ClearOnRebuild {
 		// Clear all.
 		p.Clear()
 		return
@@ -571,26 +523,40 @@ func (p *Partition[K, V]) clearStale() {
 	})
 }
 
-// adjustMaxSize adjusts the max size of the and returns the number of items evicted.
+func (p *Partition[K, V]) shrink() int {
+	n := p.c.Len()
+	if n == 0 {
+		return 0
+	}
+	// Weight in [1, 100] maps to retain factor in [0.255, 0.75].
+	retain := 0.25 + 0.5*(float64(p.opts.Weight)/100.0)
+	base := min(p.maxSize, n)
+	newMaxSize := max(minMaxSize, int(math.Floor(float64(base)*retain)))
+	return p.adjustMaxSize(newMaxSize)
+}
+
+func (p *Partition[K, V]) grow() {
+	if p.maxSize >= p.defaultMaxSize {
+		return
+	}
+	newMaxSize := min(p.defaultMaxSize, int(math.Ceil(float64(p.maxSize)*1.5)))
+	p.adjustMaxSize(newMaxSize)
+}
+
+// adjustMaxSize adjusts the max size of the partition and returns the number of items evicted.
 func (p *Partition[K, V]) adjustMaxSize(newMaxSize int) int {
 	if newMaxSize < minMaxSize {
 		newMaxSize = minMaxSize
 	}
-	oldMaxSize := p.maxSize
-	if newMaxSize == oldMaxSize {
+	if newMaxSize == p.maxSize {
 		return 0
 	}
 	p.maxSize = newMaxSize
-	// fmt.Println("Adjusting max size of partition from", oldMaxSize, "to", newMaxSize)
 	return p.c.Resize(newMaxSize)
 }
 
 func (p *Partition[K, V]) getMaxSize() int {
 	return p.maxSize
-}
-
-func (p *Partition[K, V]) getOptions() OptionsPartition {
-	return p.opts
 }
 
 func (p *Partition[K, V]) Clear() {
@@ -604,9 +570,9 @@ func (p *Partition[K, V]) Get(ctx context.Context, key K) (V, bool) {
 }
 
 type PartitionManager interface {
-	adjustMaxSize(addend int) int
+	shrink() int
+	grow()
 	getMaxSize() int
-	getOptions() OptionsPartition
 	clearOnRebuild(predicate func(k, v any) bool, changeset ...identity.Identity)
 	clearMatching(predicate func(k, v any) bool)
 	clearStale()
@@ -619,26 +585,6 @@ const (
 )
 
 type ClearWhen int
-
-type stats struct {
-	opts            Options
-	memstatsCurrent runtime.MemStats
-	currentMaxSize  int
-	availableMemory uint64
-
-	adjustmentFactor float64
-}
-
-func (s *stats) adjustCurrentMaxSize() bool {
-	newCurrentMaxSize := int(math.Floor(float64(s.opts.MaxSize) * s.adjustmentFactor))
-
-	if newCurrentMaxSize < s.opts.MinMaxSize {
-		newCurrentMaxSize = int(s.opts.MinMaxSize)
-	}
-	changed := newCurrentMaxSize != s.currentMaxSize
-	s.currentMaxSize = newCurrentMaxSize
-	return changed
-}
 
 // CleanKey turns s into a format suitable for a cache key for this package.
 // The key will be a Unix-styled path with a leading slash but no trailing slash.
