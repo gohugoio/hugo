@@ -493,6 +493,7 @@ func TestSliceString(t *testing.T) {
 		{"abcdef", -1, nil, false},
 		{"abcdef", -1, 7, false},
 		{"abcdef", 1, -1, false},
+		{"abcdef", 4, 2, false}, // start > end
 		{tstNoStringer{}, 0, 1, false},
 		{"ĀĀĀ", 0, 1, "Ā"}, // issue #1333
 		{"a", t, nil, false},
