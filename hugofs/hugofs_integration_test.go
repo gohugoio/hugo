@@ -170,3 +170,23 @@ All.
 	b.Assert(err, qt.IsNotNil)
 	b.Assert(err.Error(), qt.Contains, `module "evil" not found`)
 }
+
+func TestMountRestrictThemeWorkspaces(t *testing.T) {
+	files := `
+-- hugo.toml --
+disableKinds = ["taxonomy", "term", "rss"]
+theme = "mytheme"
+-- themes/mytheme/package.json --
+{"workspaces": ["ws", "/secret"]}
+-- themes/mytheme/ws/package.json --
+ws-package
+-- themes/mytheme/secret/package.json --
+decoy-package
+-- secret/package.json --
+secret-package
+-- layouts/all.html --
+{{ range resources.Match "_jsconfig/**package.json" }}{{ .Content }}|{{ end }}
+`
+	b := hugolib.Test(t, files)
+	b.AssertFileContent("public/index.html", "ws-package|", "! secret-package")
+}
