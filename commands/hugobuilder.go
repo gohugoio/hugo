@@ -779,6 +779,14 @@ func (c *hugoBuilder) handleEvents(watcher *watcher.Batcher,
 		c.errState.setWasErr(false)
 	}()
 
+	// Stop watching renamed directories under their old paths, so that their
+	// subdirectories are watched again under the new path below.
+	for _, ev := range evs {
+		if ev.Has(fsnotify.Rename) {
+			watcher.RemoveBelow(ev.Name)
+		}
+	}
+
 	var isHandled bool
 
 	// Filter out ghost events (from deleted, renamed directories).

@@ -14,6 +14,8 @@
 package watcher
 
 import (
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -75,6 +77,26 @@ OuterLoop:
 		}
 	}
 	close(b.done)
+}
+
+// RemoveBelow removes the watches of dir and of all paths below it, if the
+// underlying watcher can list its watches.
+//
+// When a directory is renamed, inotify keeps watching its subdirectories
+// under their old paths, and adding them again under the new path reuses
+// those watches, with the old paths. Removing them first lets them be watched
+// again under the new path.
+func (b *Batcher) RemoveBelow(dir string) {
+	lister, ok := b.FileWatcher.(interface{ WatchList() []string })
+	if !ok {
+		return
+	}
+	prefix := dir + string(filepath.Separator)
+	for _, path := range lister.WatchList() {
+		if path == dir || strings.HasPrefix(path, prefix) {
+			_ = b.FileWatcher.Remove(path)
+		}
+	}
 }
 
 // Close stops the watching of the files.
