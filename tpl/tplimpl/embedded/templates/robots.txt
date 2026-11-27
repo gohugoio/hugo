@@ -1,1 +1,8 @@
 User-agent: *
+{{ $sitemap := .Site.GetPage "/_sitemapindex" -}}
+{{ if not (and $sitemap (eq $sitemap.Kind "sitemapindex")) -}}
+	{{ $sitemap = .Site.GetPage "/_sitemap" -}}
+{{ end -}}
+{{ if and $sitemap (in (slice "sitemap" "sitemapindex") $sitemap.Kind) -}}
+	Sitemap: {{ $sitemap.Permalink }}
+{{ end -}}
