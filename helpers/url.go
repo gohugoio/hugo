@@ -28,19 +28,7 @@ import (
 //	uri: Vim (text editor)
 //	urlize: vim-text-editor
 func (p *PathSpec) URLize(uri string) string {
-	return p.URLEscape(p.MakePathSanitized(uri))
-}
-
-// URLEscape escapes unicode letters.
-func (p *PathSpec) URLEscape(uri string) string {
-	// escape unicode letters
-	parsedURI, err := url.Parse(uri)
-	if err != nil {
-		// if net/url can not parse URL it means Sanitize works incorrectly
-		panic(err)
-	}
-	x := parsedURI.String()
-	return x
+	return paths.URLEscape(p.MakePathSanitized(uri))
 }
 
 // AbsURL creates an absolute URL from the relative path given and the BaseURL set in config.
