@@ -262,11 +262,16 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 			}
 		}
 
+		sourceFs, err := hugofs.NewTxtarFsIfExists(hugofs.Os, cfg.GetString("workingDir"))
+		if err != nil {
+			return nil, err
+		}
+
 		// Load the config first to allow publishDir to be configured in config file.
 		configs, err := allconfig.LoadConfig(
 			allconfig.ConfigSourceDescriptor{
 				Flags:                    cfg,
-				Fs:                       hugofs.Os,
+				Fs:                       sourceFs,
 				Filename:                 r.cfgFile,
 				ConfigDir:                r.cfgDir,
 				Environment:              r.environment,
@@ -287,7 +292,6 @@ func (r *rootCommand) ConfigFromProvider(key configKey, cfg config.Provider) (*c
 
 		renderStaticToDisk := cfg.GetBool("renderStaticToDisk")
 
-		sourceFs := hugofs.Os
 		var destinationFs afero.Fs
 		if cfg.GetBool("renderToMemory") {
 			destinationFs = afero.NewMemMapFs()

@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/gohugoio/hugo/hugofs"
 	"github.com/spf13/afero"
 
 	"github.com/gohugoio/hugo/helpers"
@@ -53,10 +54,7 @@ func NewSourceSpec(ps *helpers.PathSpec, inclusionFilter *hglob.FilenameFilter, 
 // IgnoreFile returns whether a given file should be ignored.
 func (s *SourceSpec) IgnoreFile(filename string) bool {
 	if filename == "" {
-		if _, ok := s.SourceFs.(*afero.OsFs); ok {
-			return true
-		}
-		return false
+		return hugofs.IsOsFs(s.SourceFs)
 	}
 
 	base := filepath.Base(filename)

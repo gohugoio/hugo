@@ -183,7 +183,8 @@ LOOP:
 // Walk walks the file tree rooted at root, calling walkFn for each file or
 // directory in the tree, including root.
 func Walk(fs afero.Fs, root string, walker hugofs.WalkFunc) error {
-	if _, isOs := fs.(*afero.OsFs); isOs {
+	switch fs.(type) {
+	case *afero.OsFs, *hugofs.TxtarFs:
 		fs = hugofs.NewBaseFileDecorator(fs)
 	}
 	w := hugofs.NewWalkway(hugofs.WalkwayConfig{
