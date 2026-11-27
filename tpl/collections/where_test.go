@@ -24,6 +24,7 @@ import (
 	"testing"
 	"time"
 
+	qt "github.com/frankban/quicktest"
 	"github.com/gohugoio/hugo/common/hmaps"
 	"github.com/gohugoio/hugo/htesting"
 )
@@ -680,6 +681,21 @@ func TestWhere(t *testing.T) {
 	if err == nil {
 		t.Errorf("Where called with no variable arguments didn't return an expected error")
 	}
+}
+
+func TestWhereArray(t *testing.T) {
+	t.Parallel()
+
+	c := qt.New(t)
+
+	ns := newNs()
+
+	seq := [2]TstX{{A: "a"}, {A: "b"}}
+
+	results, err := ns.Where(context.Background(), seq, "A", "b")
+	c.Assert(err, qt.IsNil)
+	c.Assert(results, qt.HasLen, 1)
+	c.Assert(results.([]TstX)[0].A, qt.Equals, "b")
 }
 
 func TestCheckCondition(t *testing.T) {

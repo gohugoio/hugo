@@ -43,7 +43,7 @@ func (ns *Namespace) Sort(ctx context.Context, l any, args ...any) (any, error) 
 	var sliceType reflect.Type
 	switch seqv.Kind() {
 	case reflect.Array, reflect.Slice:
-		sliceType = seqv.Type()
+		sliceType = sliceTypeOf(seqv.Type())
 	case reflect.Map:
 		sliceType = reflect.SliceOf(seqv.Type().Elem())
 	default:
