@@ -27,13 +27,15 @@ import (
 )
 
 // Truncate truncates the string in s to the specified length.
-func (ns *Namespace) Truncate(s any, options ...any) (template.HTML, error) {
+// If the text or the ellipsis is of type template.HTML, the result is template.HTML, else a string.
+func (ns *Namespace) Truncate(s any, options ...any) (any, error) {
 	length, err := cast.ToIntE(s)
 	if err != nil {
 		return "", err
 	}
 	var textParam any
 	var ellipsis string
+	var isHTMLEllipsis bool
 
 	switch len(options) {
 	case 0:
@@ -47,9 +49,7 @@ func (ns *Namespace) Truncate(s any, options ...any) (template.HTML, error) {
 		if err != nil {
 			return "", errors.New("ellipsis must be a string")
 		}
-		if _, ok := options[0].(template.HTML); !ok {
-			ellipsis = html.EscapeString(ellipsis)
-		}
+		_, isHTMLEllipsis = options[0].(template.HTML)
 	default:
 		return "", errors.New("too many arguments passed to truncate")
 	}
@@ -61,20 +61,25 @@ func (ns *Namespace) Truncate(s any, options ...any) (template.HTML, error) {
 
 	_, isHTML := textParam.(template.HTML)
 
-	if utf8.RuneCountInString(text) <= length {
-		if isHTML {
-			return template.HTML(text), nil
-		}
-		return template.HTML(html.EscapeString(text)), nil
-	}
-
 	t := truncator{length: length}
 
 	if !isHTML {
-		if end, ok := t.scanText(text, 0, len(text)); ok {
-			return template.HTML(html.EscapeString(text[:end]) + ellipsis), nil
+		end, cut := t.scanText(text, 0, len(text))
+		if !cut {
+			end, ellipsis = len(text), ""
 		}
-		return template.HTML(html.EscapeString(text)), nil
+		if !isHTMLEllipsis {
+			return text[:end] + ellipsis, nil
+		}
+		return template.HTML(html.EscapeString(text[:end]) + ellipsis), nil
+	}
+
+	if !isHTMLEllipsis {
+		ellipsis = html.EscapeString(ellipsis)
+	}
+
+	if utf8.RuneCountInString(text) <= length {
+		return template.HTML(text), nil
 	}
 
 	sc := hhtml.NewScanner(text, 0)
