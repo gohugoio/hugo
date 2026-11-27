@@ -16,6 +16,7 @@ package hugofs
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"sync"
@@ -85,7 +86,9 @@ func (fs *createCountingFs) onCreate(filename string) {
 	fs.mu.Lock()
 	defer fs.mu.Unlock()
 
-	fs.fileCount[filename] = fs.fileCount[filename] + 1
+	// Normalize, e.g. "/a/index.html" and "a/index.html" are the same file.
+	filename = strings.TrimPrefix(filepath.ToSlash(filepath.Clean(filename)), "/")
+	fs.fileCount[filename]++
 }
 
 func (fs *createCountingFs) Create(name string) (afero.File, error) {

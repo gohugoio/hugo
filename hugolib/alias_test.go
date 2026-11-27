@@ -912,3 +912,30 @@ aliases: [a, b.foo, c.html, d.htm, e.foo.html, f.foo.htm]
 	b.AssertFileContent("public/s1/e.foo.html", "url=/s1/p1.htm")
 	b.AssertFileContent("public/s1/f.foo.htm", "url=/s1/p1.htm")
 }
+
+// See issue 15645.
+func TestPrintPathWarningsAliasOverwritesPage(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = 'https://example.org/'
+disableKinds = ['home', 'rss', 'section', 'sitemap', 'taxonomy', 'term']
+printPathWarnings = true
+-- layouts/single.html --
+Single: {{ .Title }}|
+-- content/a.md --
+---
+title: A
+---
+-- content/b.md --
+---
+title: B
+aliases: [/a/]
+---
+`
+
+	b := Test(t, files, TestOptWarn())
+
+	b.AssertLogContains("Duplicate target paths: a/index.html (2)")
+}

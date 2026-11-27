@@ -988,8 +988,9 @@ func (s *IntegrationTestBuilder) initBuilder() error {
 		}
 
 		fs := hugofs.NewFrom(afs, res.LoadingInfo.BaseConfig)
-
-		s.Assert(err, qt.IsNil)
+		if res.Base.PrintPathWarnings {
+			fs.PublishDir = hugofs.NewCreateCountingFs(fs.PublishDir)
+		}
 
 		// changes received from Hugo in watch mode.
 		// In the full setup, this channel is created in the commands package.
