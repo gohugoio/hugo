@@ -31,29 +31,29 @@ func TestTruncate(t *testing.T) {
 		want  any
 		isErr bool
 	}{
-		{10, "I am a test sentence", nil, template.HTML("I am a …"), false},
-		{10, "", "I am a test sentence", template.HTML("I am a"), false},
-		{10, "", "a b c d e f g h i j k", template.HTML("a b c d e"), false},
-		{12, "", "<b>Should be escaped</b>", template.HTML("&lt;b&gt;Should be"), false},
+		{10, "I am a test sentence", nil, "I am a …", false},
+		{10, "", "I am a test sentence", "I am a", false},
+		{10, "", "a b c d e f g h i j k", "a b c d e", false},
+		{12, "", "<b>Should be escaped</b>", "<b>Should be", false},
 		{10, template.HTML(" <a href='#'>Read more</a>"), "I am a test sentence", template.HTML("I am a <a href='#'>Read more</a>"), false},
 		{20, template.HTML("I have a <a href='/markdown'>Markdown link</a> inside."), nil, template.HTML("I have a <a href='/markdown'>Markdown …</a>"), false},
-		{10, "IamanextremelylongwordthatjustgoesonandonandonjusttoannoyyoualmostasifIwaswritteninGermanActuallyIbettheresagermanwordforthis", nil, template.HTML("Iamanextre …"), false},
+		{10, "IamanextremelylongwordthatjustgoesonandonandonjusttoannoyyoualmostasifIwaswritteninGermanActuallyIbettheresagermanwordforthis", nil, "Iamanextre …", false},
 		{10, template.HTML("<p>IamanextremelylongwordthatjustgoesonandonandonjusttoannoyyoualmostasifIwaswritteninGermanActuallyIbettheresagermanwordforthis</p>"), nil, template.HTML("<p>Iamanextre …</p>"), false},
 		{13, template.HTML("With <a href=\"/markdown\">Markdown</a> inside."), nil, template.HTML("With <a href=\"/markdown\">Markdown …</a>"), false},
-		{14, "Hello中国 Good 好的", nil, template.HTML("Hello中国 Good 好 …"), false},
-		{12, "", "日本語でHugoを使います", template.HTML("日本語でHugoを使いま"), false},
-		{12, "", "日本語で Hugo を使います", template.HTML("日本語で Hugo を使"), false},
-		{8, "", "日本語でHugoを使います", template.HTML("日本語でHugo"), false},
-		{10, "", "日本語で Hugo を使います", template.HTML("日本語で Hugo"), false},
-		{9, "", "日本語で Hugo を使います", template.HTML("日本語で Hugo"), false},
-		{7, "", "日本語でHugoを使います", template.HTML("日本語で"), false},
-		{7, "", "日本語で Hugo を使います", template.HTML("日本語で"), false},
-		{6, "", "日本語でHugoを使います", template.HTML("日本語で"), false},
-		{6, "", "日本語で Hugo を使います", template.HTML("日本語で"), false},
-		{5, "", "日本語でHugoを使います", template.HTML("日本語で"), false},
-		{5, "", "日本語で Hugo を使います", template.HTML("日本語で"), false},
-		{4, "", "日本語でHugoを使います", template.HTML("日本語で"), false},
-		{4, "", "日本語で Hugo を使います", template.HTML("日本語で"), false},
+		{14, "Hello中国 Good 好的", nil, "Hello中国 Good 好 …", false},
+		{12, "", "日本語でHugoを使います", "日本語でHugoを使いま", false},
+		{12, "", "日本語で Hugo を使います", "日本語で Hugo を使", false},
+		{8, "", "日本語でHugoを使います", "日本語でHugo", false},
+		{10, "", "日本語で Hugo を使います", "日本語で Hugo", false},
+		{9, "", "日本語で Hugo を使います", "日本語で Hugo", false},
+		{7, "", "日本語でHugoを使います", "日本語で", false},
+		{7, "", "日本語で Hugo を使います", "日本語で", false},
+		{6, "", "日本語でHugoを使います", "日本語で", false},
+		{6, "", "日本語で Hugo を使います", "日本語で", false},
+		{5, "", "日本語でHugoを使います", "日本語で", false},
+		{5, "", "日本語で Hugo を使います", "日本語で", false},
+		{4, "", "日本語でHugoを使います", "日本語で", false},
+		{4, "", "日本語で Hugo を使います", "日本語で", false},
 		{15, "", template.HTML("A <br> tag that's not closed"), template.HTML("A <br> tag that's"), false},
 		{14, template.HTML("<p>Hello中国 Good 好的</p>"), nil, template.HTML("<p>Hello中国 Good 好 …</p>"), false},
 		{2, template.HTML("<p>P1</p><p>P2</p>"), nil, template.HTML("<p>P1 …</p>"), false},
@@ -87,7 +87,7 @@ func TestTruncate(t *testing.T) {
 		{nil, nil, nil, template.HTML(""), true},
 	}
 	for i, c := range cases {
-		var result template.HTML
+		var result any
 		if c.v2 == nil {
 			result, err = ns.Truncate(c.v1)
 		} else if c.v3 == nil {
