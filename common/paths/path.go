@@ -247,7 +247,7 @@ func isAllowedPathCharacter(s string, i int, r rune) bool {
 	}
 	// Check for the most likely first (faster).
 	isAllowed := unicode.IsLetter(r) || unicode.IsDigit(r)
-	isAllowed = isAllowed || r == '.' || r == '/' || r == '\\' || r == '_' || r == '#' || r == '+' || r == '~' || r == '-' || r == '@'
+	isAllowed = isAllowed || r == '.' || r == '/' || r == '\\' || r == '_' || r == '+' || r == '~' || r == '-' || r == '@'
 	isAllowed = isAllowed || unicode.IsMark(r)
 	isAllowed = isAllowed || (r == '%' && i+2 < len(s) && ishex(s[i+1]) && ishex(s[i+2]))
 	return isAllowed
@@ -298,12 +298,17 @@ func (df DirFile) String() string {
 	return fmt.Sprintf("%s|%s", df.Dir, df.File)
 }
 
-// PathEscape escapes unicode letters in pth.
+var pathEscapeReplacer = strings.NewReplacer("#", "%23", "?", "%3F")
+
+// PathEscape escapes unicode letters and path-unsafe characters in pth.
 // Use URLEscape to escape full URLs including scheme, query etc.
 // This is slightly faster for the common case.
 // Note, there is a url.PathEscape function, but that also
 // escapes /.
 func PathEscape(pth string) string {
+	if strings.IndexByte(pth, '#') >= 0 || strings.IndexByte(pth, '?') >= 0 {
+		pth = pathEscapeReplacer.Replace(pth)
+	}
 	u, err := url.Parse(pth)
 	if err != nil {
 		panic(err)

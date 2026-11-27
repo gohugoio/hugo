@@ -1408,10 +1408,13 @@ func (s *Site) createNodeMenuEntryURL(in string) string {
 		return in
 	}
 	// make it match the nodes
-	menuEntryURL := in
+	menuEntryURL, fragment, hasFragment := strings.Cut(in, "#")
 	menuEntryURL = s.PathSpec.URLize(menuEntryURL)
 	if !s.conf.CanonifyURLs {
 		menuEntryURL = paths.AddContextRoot(s.PathSpec.Cfg.BaseURL().String(), menuEntryURL)
+	}
+	if hasFragment {
+		menuEntryURL += "#" + fragment
 	}
 	return menuEntryURL
 }

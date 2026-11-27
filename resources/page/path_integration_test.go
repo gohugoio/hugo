@@ -20,9 +20,7 @@ import (
 	"github.com/gohugoio/hugo/hugolib"
 )
 
-// Issue 4926
-// Issue 8232
-// Issue 12342
+// See issues 4926, 8232, 12342, 15663.
 func TestHashSignInPermalink(t *testing.T) {
 	t.Parallel()
 
@@ -33,26 +31,46 @@ disableKinds = ['section','rss','sitemap','taxonomy']
 s1 = '/:section/:slug'
 -- layouts/list.html --
 {{ range site.Pages }}{{ .RelPermalink }}|{{ end }}
--- layouts/single.html --
-{{ .Title }}
+-- layouts/page.html --
+{{ .Title }}|{{ range .Resources }}{{ .RelPermalink }}|{{ end }}
+-- layouts/home.html --
+{{ range site.Pages }}{{ .RelPermalink }}|{{ end }}|ASSET:{{ (resources.Get "a#1.txt").RelPermalink }}|
+-- assets/a#1.txt --
+hello
 -- content/s1/p1.md --
 ---
-title: p#1
-tags: test#tag#
+title: 'Newsletter - Shipping Insights #2'
+tags: ['test#tag#', 'c', 'c#']
+---
+-- content/tags/c#/_index.md --
+---
+title: C#
+slug: c-sharp
 ---
 -- content/s2/p#2.md --
 ---
 title: p#2
 ---
+-- content/s3/b#1/index.md --
+---
+title: b#1
+---
+-- content/s3/b#1/img#1.txt --
+img
 `
 
 	b := hugolib.Test(t, files)
 
-	b.AssertFileExists("public/s1/p#1/index.html", true)
-	b.AssertFileExists("public/s2/p#2/index.html", true)
-	b.AssertFileExists("public/tags/test#tag#/index.html", true)
+	b.AssertFileExists("public/s1/newsletter-shipping-insights-2/index.html", true)
+	b.AssertFileExists("public/s2/p2/index.html", true)
+	b.AssertFileExists("public/s3/b1/index.html", true)
+	b.AssertFileExists("public/s3/b1/img#1.txt", true)
+	b.AssertFileExists("public/tags/c/index.html", true)
+	b.AssertFileExists("public/tags/c-sharp/index.html", true)
+	b.AssertFileExists("public/tags/testtag/index.html", true)
 
-	b.AssertFileContentExact("public/index.html", "/|/s1/p%231/|/s2/p%232/|/tags/test%23tag%23/|")
+	b.AssertFileContentExact("public/index.html", "/|/s3/b1/|/tags/c/|/tags/c-sharp/|/s1/newsletter-shipping-insights-2/|/s2/p2/|/tags/testtag/||ASSET:/a%231.txt|")
+	b.AssertFileContentExact("public/s3/b1/index.html", "b#1|/s3/b1/img%231.txt|")
 }
 
 // Issues: 13829, 4428, 7497.

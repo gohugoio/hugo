@@ -14,7 +14,10 @@
 package paths
 
 import (
+	"fmt"
+	"net/url"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	qt "github.com/frankban/quicktest"
@@ -126,15 +129,24 @@ func TestSanitize(t *testing.T) {
 		{"Банковский кассир", "Банковский-кассир"},
 		// Issue #1488
 		{"संस्कृत", "संस्कृत"},
-		{"a%C3%B1ame", "a%C3%B1ame"},         // Issue #1292
 		{"this+is+a+test", "this+is+a+test"}, // Issue #1290
 		{"~foo", "~foo"},                     // Issue #2177
-
+		{"foo#bar", "foobar"},                // Issue #12342, #15663
+		{"foo@bar", "foo@bar"},
 	}
 
 	for _, test := range tests {
 		c.Assert(Sanitize(test.input), qt.Equals, test.expected)
+
+		// Make sure they survive the URL roundtrip (e.g. in Permalink).
+		const protocol = "https://"
+		urlString := fmt.Sprintf("%s%s", protocol, test.expected)
+		unescaped, err := url.PathUnescape(strings.TrimPrefix(URLEscape(urlString), protocol))
+		c.Assert(err, qt.IsNil)
+		c.Assert(unescaped, qt.Equals, test.expected)
 	}
+
+	c.Assert(Sanitize("a%C3%B1ame"), qt.Equals, "a%C3%B1ame") // Issue #1292
 }
 
 func BenchmarkSanitize(b *testing.B) {
@@ -260,6 +272,9 @@ func TestPathEscape(t *testing.T) {
 		{"/simple-path", "/simple-path"},
 		{"/path/with/slash", "/path/with/slash"},
 		{"/path/with special&chars", "/path/with%20special&chars"},
+		{"/path/with#hash", "/path/with%23hash"},
+		{"/tags/欢迎#1", "/tags/%E6%AC%A2%E8%BF%8E%231"},
+		{"/path with spaces#1?a=b", "/path%20with%20spaces%231%3Fa=b"},
 	} {
 		in := this.input
 		for range 2 {

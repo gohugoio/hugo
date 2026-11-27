@@ -774,3 +774,31 @@ menus:
 		b.AssertLogContains("! HTML in front matter menu pre/post escaped")
 	})
 }
+
+// See issues 888, 15663.
+func TestMenusURLWithFragment(t *testing.T) {
+	t.Parallel()
+
+	files := `
+-- hugo.toml --
+baseURL = "https://example.com/sub/"
+[[menus.main]]
+name = "Anchor"
+url = "/resource#anchor"
+weight = 1
+[[menus.main]]
+name = "Section"
+url = "/about/#MySection"
+weight = 2
+[[menus.main]]
+name = "Top"
+url = "/#top"
+weight = 3
+-- layouts/home.html --
+{{ range site.Menus.main }}{{ .Name }}={{ .URL }}|{{ end }}
+`
+
+	b := Test(t, files)
+
+	b.AssertFileContentExact("public/index.html", "Anchor=/sub/resource#anchor|Section=/sub/about/#MySection|Top=/sub/#top|")
+}
