@@ -720,10 +720,21 @@ func (s *Site) preparePagesForRender(isRenderingSite bool, idx int) error {
 		return nil
 	}
 
+	// Collect the target paths of the pages rendered in this output format,
+	// so aliases targeting the same path can be skipped instead of randomly
+	// overwriting a page. See #15645.
+	s.pageTargetPaths = make(map[string]*pageState)
+
 	return s.pageMap.forEeachPageIncludingBundledPages(
 		nil,
 		func(p *pageState) (bool, error) {
-			return false, initPage(p)
+			if err := initPage(p); err != nil {
+				return false, err
+			}
+			if tp := p.targetPaths().TargetFilename; p.render && !p.skipRender() && tp != "" {
+				s.pageTargetPaths[normalizeTargetPathForAliasCheck(tp)] = p
+			}
+			return false, nil
 		},
 	)
 }
