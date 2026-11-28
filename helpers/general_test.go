@@ -179,3 +179,21 @@ func TestStringSliceToList(t *testing.T) {
 		}
 	}
 }
+
+func TestFormatByteCount(t *testing.T) {
+	c := qt.New(t)
+
+	for _, tt := range []struct {
+		bc   uint64
+		want string
+	}{
+		{0, "0 B"},
+		{100, "100 B"},
+		{1 << 10, "1024 B"},
+		{2048, "2.00 KB"},
+		{5 << 20, "5.00 MB"},
+		{3 << 30, "3.00 GB"},
+	} {
+		c.Assert(helpers.FormatByteCount(tt.bc), qt.Equals, tt.want)
+	}
+}

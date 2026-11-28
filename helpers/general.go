@@ -197,11 +197,11 @@ func FormatByteCount(bc uint64) string {
 		Kilobyte = 1 << 10
 	)
 	switch {
-	case bc > Gigabyte || -bc > Gigabyte:
+	case bc > Gigabyte:
 		return fmt.Sprintf("%.2f GB", float64(bc)/Gigabyte)
-	case bc > Megabyte || -bc > Megabyte:
+	case bc > Megabyte:
 		return fmt.Sprintf("%.2f MB", float64(bc)/Megabyte)
-	case bc > Kilobyte || -bc > Kilobyte:
+	case bc > Kilobyte:
 		return fmt.Sprintf("%.2f KB", float64(bc)/Kilobyte)
 	}
 	return fmt.Sprintf("%d B", bc)
